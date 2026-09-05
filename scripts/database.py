@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-数据库管理模块
-用于保存预测结果到PostgreSQL数据库
+Mô-đun quản lý cơ sở dữ liệu.
+Dùng để lưu kết quả dự đoán vào PostgreSQL.
 """
 
 import psycopg2
@@ -12,71 +12,77 @@ import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 import json
-import contextlib # 导入 contextlib
+import contextlib  # Nạp contextlib
 
-# 配置日志
+# Cấu hình log
 logger = logging.getLogger(__name__)
 
+
 class PredictionDatabase:
-    """预测结果数据库管理"""
-    
+    """Quản lý cơ sở dữ liệu kết quả dự đoán."""
+
     def __init__(self):
-        logger.info("正在初始化数据库连接参数...")
+        logger.info("Đang khởi tạo tham số kết nối cơ sở dữ liệu...")
         self.connection_params = {
             "host": os.getenv("DB_HOST", "dbprovider.ap-southeast-1.clawcloudrun.com"),
             "port": int(os.getenv("DB_PORT", "49674")),
             "database": os.getenv("DB_NAME", "postgres"),
             "user": os.getenv("DB_USER", "postgres"),
-            "password": os.getenv("DB_PASS", "sbdx497p"), # 请务必在线上环境中设置此环境变量
+            "password": os.getenv("DB_PASS", "sbdx497p"),  # Bắt buộc cấu hình biến môi trường này trong production
             "sslmode": "prefer"
         }
-        # self.init_tables() # 移除此行，数据库表的初始化应手动触发
-    
+        # self.init_tables()  # Không tự khởi tạo bảng khi ứng dụng chạy; thao tác này cần được gọi thủ công
+
     @contextlib.contextmanager
     def get_db_connection(self):
-        """使用上下文管理器获取数据库连接，并处理事务。"""
+        """Lấy kết nối cơ sở dữ liệu bằng context manager và quản lý transaction."""
         conn = None
         try:
             conn = psycopg2.connect(**self.connection_params)
-            conn.autocommit = False # 禁用自动提交，手动管理事务
-            logger.info("数据库连接成功并开始事务管理")
+            conn.autocommit = False  # Tắt tự động commit để quản lý transaction thủ công
+            logger.info("Kết nối cơ sở dữ liệu thành công, bắt đầu quản lý transaction")
             yield conn
-            conn.commit() # 成功时提交事务
-            logger.info("事务提交成功")
+            conn.commit()  # Commit khi thao tác thành công
+            logger.info("Commit transaction thành công")
         except Exception as e:
             if conn:
-                conn.rollback() # 失败时回滚事务
-                logger.error(f"数据库操作失败，事务已回滚: {e}")
+                conn.rollback()  # Rollback khi thất bại
+                logger.error(f"Thao tác cơ sở dữ liệu thất bại, đã rollback transaction: {e}")
             else:
-                logger.error(f"数据库连接失败: {e}", exc_info=True)
-            raise # 重新抛出异常，让上层处理
+                logger.error(f"Kết nối cơ sở dữ liệu thất bại: {e}", exc_info=True)
+            raise  # Ném lại lỗi để tầng trên xử lý
         finally:
             if conn:
                 conn.close()
-                logger.info("数据库连接已关闭")
+                logger.info("Đã đóng kết nối cơ sở dữ liệu")
 
-    # 修改 connect_to_database 为 _get_conn，仅用于内部获取原始连接
+    # Đổi connect_to_database thành _get_conn, chỉ dùng nội bộ để lấy kết nối thô
     def _get_conn(self):
-        """内部方法：直接获取原始数据库连接，不进行事务管理"""
+        """Phương thức nội bộ: lấy trực tiếp kết nối cơ sở dữ liệu, không quản lý transaction."""
         conn = None
         try:
             conn = psycopg2.connect(**self.connection_params)
-            logger.debug("内部数据库连接成功")
+            logger.debug("Kết nối cơ sở dữ liệu nội bộ thành công")
             return conn
         except Exception as e:
-            logger.error(f"内部数据库连接失败: {e}，参数: {self.connection_params.get('host')}:{self.connection_params.get('port')}/{self.connection_params.get('database')}", exc_info=True)
+            logger.error(
+                f"Kết nối cơ sở dữ liệu nội bộ thất bại: {e}, tham số: "
+                f"{self.connection_params.get('host')}:{self.connection_params.get('port')}/"
+                f"{self.connection_params.get('database')}",
+                exc_info=True
+            )
             if conn:
                 conn.close()
-            raise Exception(f"数据库连接失败: {e}")
-    
+            raise Exception(f"Kết nối cơ sở dữ liệu thất bại: {e}")
+
     def init_tables(self):
-        """初始化数据库表 - 应该作为独立的管理任务运行，而非应用启动时自动运行。"""
+        """Khởi tạo bảng cơ sở dữ liệu; nên chạy như tác vụ quản trị độc lập, không tự chạy khi ứng dụng khởi động."""
         conn = None
         try:
-            conn = self._get_conn() # 使用内部方法获取原始连接
+            conn = self._get_conn()  # Dùng phương thức nội bộ để lấy kết nối thô
             cursor = conn.cursor()
-            
-            # 创建用户表
+
+            # Tạo bảng người dùng
             create_users_table = """
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -93,8 +99,8 @@ class PredictionDatabase:
                 is_active BOOLEAN DEFAULT TRUE
             );
             """
-            
-            # 创建预测记录表
+
+            # Tạo bảng bản ghi dự đoán
             create_predictions_table = """
             CREATE TABLE IF NOT EXISTS match_predictions (
                 id SERIAL PRIMARY KEY,
@@ -120,8 +126,8 @@ class PredictionDatabase:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             """
-            
-            # 创建每日比赛表
+
+            # Tạo bảng trận đấu hằng ngày
             create_daily_matches_table = """
             CREATE TABLE IF NOT EXISTS daily_matches (
                 id SERIAL PRIMARY KEY,
@@ -144,20 +150,20 @@ class PredictionDatabase:
                 is_active BOOLEAN DEFAULT TRUE
             );
             """
-            
+
             cursor.execute(create_users_table)
             cursor.execute(create_predictions_table)
             cursor.execute(create_daily_matches_table)
-            
-            # 创建索引
+
+            # Tạo index
             create_index_sql = [
-                # 预测表索引
+                # Index cho bảng dự đoán
                 "CREATE INDEX IF NOT EXISTS idx_predictions_mode ON match_predictions(prediction_mode);",
                 "CREATE INDEX IF NOT EXISTS idx_predictions_created ON match_predictions(created_at);",
                 "CREATE INDEX IF NOT EXISTS idx_predictions_teams ON match_predictions(home_team, away_team);",
                 "CREATE INDEX IF NOT EXISTS idx_predictions_result ON match_predictions(is_correct);",
-                
-                # 每日比赛表索引
+
+                # Index cho bảng trận đấu hằng ngày
                 "CREATE INDEX IF NOT EXISTS idx_daily_matches_date ON daily_matches(match_date);",
                 "CREATE INDEX IF NOT EXISTS idx_daily_matches_teams ON daily_matches(home_team, away_team);",
                 "CREATE INDEX IF NOT EXISTS idx_daily_matches_league ON daily_matches(league_name);",
@@ -165,43 +171,43 @@ class PredictionDatabase:
                 "CREATE INDEX IF NOT EXISTS idx_daily_matches_active ON daily_matches(is_active);",
                 "CREATE INDEX IF NOT EXISTS idx_daily_matches_datetime ON daily_matches(match_datetime);"
             ]
-            
+
             for sql in create_index_sql:
                 cursor.execute(sql)
-            
+
             conn.commit()
             cursor.close()
-            logger.info("数据库表初始化成功")
-            
+            logger.info("Khởi tạo bảng cơ sở dữ liệu thành công")
+
         except Exception as e:
-            logger.error(f"数据库表初始化失败: {e}", exc_info=True)
+            logger.error(f"Khởi tạo bảng cơ sở dữ liệu thất bại: {e}", exc_info=True)
             if conn:
                 conn.rollback()
                 conn.close()
-            raise Exception(f"数据库初始化失败: {e}") # 重新抛出异常
+            raise Exception(f"Khởi tạo cơ sở dữ liệu thất bại: {e}")
         finally:
             if conn:
                 try:
                     conn.close()
-                    logger.info("数据库连接已关闭")
+                    logger.info("Đã đóng kết nối cơ sở dữ liệu")
                 except Exception as e:
-                    logger.error(f"关闭数据库连接失败: {e}", exc_info=True)
-    
+                    logger.error(f"Đóng kết nối cơ sở dữ liệu thất bại: {e}", exc_info=True)
+
     def save_prediction(self, prediction_data: Dict[str, Any]) -> bool:
         """
-        保存预测结果到数据库
-        
+        Lưu kết quả dự đoán vào cơ sở dữ liệu.
+
         Args:
-            prediction_data: 预测数据字典
-            
+            prediction_data: dict dữ liệu dự đoán
+
         Returns:
-            保存是否成功
+            trạng thái lưu thành công hay không
         """
         try:
             with self.get_db_connection() as conn:
                 cursor = conn.cursor()
-                
-                # 准备插入数据
+
+                # Chuẩn bị dữ liệu insert
                 insert_sql = """
             INSERT INTO match_predictions (
                 prediction_id, prediction_mode, home_team, away_team, league_name,
@@ -217,46 +223,43 @@ class PredictionDatabase:
                 prediction_confidence = EXCLUDED.prediction_confidence,
                 ai_analysis = EXCLUDED.ai_analysis;
             """
-            
-            cursor.execute(insert_sql, prediction_data)
-            # conn.commit() # 由上下文管理器处理
-            cursor.close()
-            # conn.close() # 由上下文管理器处理
-            
-            logger.info(f"预测结果保存成功: {prediction_data.get('prediction_id')}")
-            return True
-            
+
+                cursor.execute(insert_sql, prediction_data)
+                # conn.commit()  # Context manager xử lý
+                cursor.close()
+                # conn.close()  # Context manager xử lý
+
+                logger.info(f"Lưu kết quả dự đoán thành công: {prediction_data.get('prediction_id')}")
+                return True
+
         except Exception as e:
-            logger.error(f"保存预测结果失败: {e}")
-            # if conn: # 由上下文管理器处理
-            #     conn.rollback() # 确保事务回滚
-            #     conn.close()
+            logger.error(f"Lưu kết quả dự đoán thất bại: {e}")
             return False
-    
-    def save_ai_prediction(self, match_data: Dict[str, Any], prediction_result: str, 
+
+    def save_ai_prediction(self, match_data: Dict[str, Any], prediction_result: str,
                           confidence: float, ai_analysis: str, user_ip: str = None,
                           user_id: int = None, username: str = None) -> bool:
         """
-        保存AI模式预测结果
-        
+        Lưu kết quả dự đoán chế độ AI.
+
         Args:
-            match_data: 比赛数据
-            prediction_result: 预测结果 (主胜/平局/客胜)
-            confidence: 预测信心指数 (0-10)
-            ai_analysis: AI分析内容
-            user_ip: 用户IP
-            
+            match_data: dữ liệu trận đấu
+            prediction_result: kết quả dự đoán
+            confidence: độ tin cậy dự đoán (0-10)
+            ai_analysis: nội dung phân tích AI
+            user_ip: IP người dùng
+
         Returns:
-            保存是否成功
+            trạng thái lưu thành công hay không
         """
         try:
-            # 提取赔率信息
+            # Trích xuất tỷ lệ cược
             odds = match_data.get('odds', {})
-            
-            # 生成预测ID
+
+            # Tạo ID dự đoán
             prediction_id = f"ai_{match_data.get('home_team', '')}_{match_data.get('away_team', '')}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            
-            # 解析比赛时间
+
+            # Phân tích thời gian trận đấu
             match_time = None
             if match_data.get('match_time'):
                 try:
@@ -266,7 +269,7 @@ class PredictionDatabase:
                         match_time = datetime.strptime(match_data['match_time'], '%Y-%m-%d %H:%M')
                     except:
                         pass
-            
+
             prediction_data = {
                 'prediction_id': prediction_id,
                 'prediction_mode': 'AI',
@@ -284,31 +287,31 @@ class PredictionDatabase:
                 'ai_analysis': ai_analysis,
                 'user_ip': user_ip or 'unknown'
             }
-            
+
             return self.save_prediction(prediction_data)
-            
+
         except Exception as e:
-            logger.error(f"保存AI预测失败: {e}")
+            logger.error(f"Lưu dự đoán AI thất bại: {e}")
             return False
-    
-    def save_classic_prediction(self, match_data: Dict[str, Any], prediction_result: str, 
+
+    def save_classic_prediction(self, match_data: Dict[str, Any], prediction_result: str,
                                confidence: float, user_ip: str = None,
                                user_id: int = None, username: str = None) -> bool:
         """
-        保存经典模式预测结果
-        
+        Lưu kết quả dự đoán chế độ cổ điển.
+
         Args:
-            match_data: 比赛数据
-            prediction_result: 预测结果
-            confidence: 预测信心指数
-            user_ip: 用户IP
-            
+            match_data: dữ liệu trận đấu
+            prediction_result: kết quả dự đoán
+            confidence: độ tin cậy dự đoán
+            user_ip: IP người dùng
+
         Returns:
-            保存是否成功
+            trạng thái lưu thành công hay không
         """
         try:
             prediction_id = f"classic_{match_data.get('home_team', '')}_{match_data.get('away_team', '')}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            
+
             prediction_data = {
                 'prediction_id': prediction_id,
                 'prediction_mode': 'Classic',
@@ -323,40 +326,40 @@ class PredictionDatabase:
                 'away_odds': float(match_data.get('away_odds', 0)) if match_data.get('away_odds') else None,
                 'predicted_result': prediction_result,
                 'prediction_confidence': confidence,
-                'ai_analysis': '经典模式预测',
+                'ai_analysis': 'Dự đoán chế độ cổ điển',
                 'user_ip': user_ip or 'unknown'
             }
-            
+
             return self.save_prediction(prediction_data)
-            
+
         except Exception as e:
-            logger.error(f"保存经典预测失败: {e}")
+            logger.error(f"Lưu dự đoán cổ điển thất bại: {e}")
             return False
-    
-    def save_lottery_prediction(self, match_data: Dict[str, Any], prediction_result: str, 
+
+    def save_lottery_prediction(self, match_data: Dict[str, Any], prediction_result: str,
                                confidence: float, ai_analysis: str, user_ip: str = None,
                                user_id: int = None, username: str = None) -> bool:
         """
-        保存彩票模式预测结果
-        
+        Lưu kết quả dự đoán chế độ xổ số thể thao.
+
         Args:
-            match_data: 比赛数据
-            prediction_result: 预测结果
-            confidence: 预测信心指数
-            ai_analysis: AI分析内容
-            user_ip: 用户IP
-            
+            match_data: dữ liệu trận đấu
+            prediction_result: kết quả dự đoán
+            confidence: độ tin cậy dự đoán
+            ai_analysis: nội dung phân tích AI
+            user_ip: IP người dùng
+
         Returns:
-            保存是否成功
+            trạng thái lưu thành công hay không
         """
         try:
-            # 提取赔率信息
+            # Trích xuất tỷ lệ cược
             odds = match_data.get('odds', {})
             hhad_odds = odds.get('hhad', {})
-            
+
             prediction_id = f"lottery_{match_data.get('match_id', '')}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            
-            # 解析比赛时间
+
+            # Phân tích thời gian trận đấu
             match_time = None
             if match_data.get('match_time'):
                 try:
@@ -366,7 +369,7 @@ class PredictionDatabase:
                         match_time = datetime.strptime(match_data['match_time'], '%Y-%m-%d %H:%M')
                     except:
                         pass
-            
+
             prediction_data = {
                 'prediction_id': prediction_id,
                 'prediction_mode': 'Lottery',
@@ -384,25 +387,20 @@ class PredictionDatabase:
                 'ai_analysis': ai_analysis,
                 'user_ip': user_ip or 'unknown'
             }
-            
+
             return self.save_prediction(prediction_data)
-            
+
         except Exception as e:
-            logger.error(f"保存彩票预测失败: {e}")
+            logger.error(f"Lưu dự đoán xổ số thể thao thất bại: {e}")
             return False
-    
+
     def get_prediction_stats(self) -> Dict[str, Any]:
-        """
-        获取预测统计信息
-        
-        Returns:
-            统计信息字典
-        """
+        """Lấy thống kê dự đoán."""
         try:
             with self.get_db_connection() as conn:
                 cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-                
-                # 总体统计
+
+                # Thống kê tổng thể
                 stats_sql = """
             SELECT 
                 prediction_mode,
@@ -413,55 +411,54 @@ class PredictionDatabase:
             GROUP BY prediction_mode
             ORDER BY prediction_mode;
             """
-                
+
                 cursor.execute(stats_sql)
                 mode_stats = cursor.fetchall()
-                
-                # 最近预测
+
+                # Các dự đoán gần nhất
                 recent_sql = """
             SELECT home_team, away_team, predicted_result, is_correct, created_at
             FROM match_predictions 
             ORDER BY created_at DESC 
             LIMIT 10;
             """
-                
+
                 cursor.execute(recent_sql)
                 recent_predictions = cursor.fetchall()
-                
+
                 cursor.close()
-                # conn.close() # 由上下文管理器处理
-                
+
                 return {
                     'mode_stats': [dict(row) for row in mode_stats],
                     'recent_predictions': [dict(row) for row in recent_predictions]
                 }
-                
+
         except Exception as e:
-            logger.error(f"获取统计信息失败: {e}")
+            logger.error(f"Lấy thống kê thất bại: {e}")
             return {'mode_stats': [], 'recent_predictions': []}
-    
+
     def save_daily_matches(self, matches_data: List[Dict[str, Any]]) -> Dict[str, int]:
         """
-        保存每日比赛数据到数据库
-        
+        Lưu dữ liệu trận đấu hằng ngày vào cơ sở dữ liệu.
+
         Args:
-            matches_data: 比赛数据列表
-            
+            matches_data: danh sách dữ liệu trận đấu
+
         Returns:
-            统计信息字典 {'inserted': 插入数量, 'updated': 更新数量, 'skipped': 跳过数量}
+            dict thống kê {'inserted': số thêm mới, 'updated': số cập nhật, 'skipped': số bỏ qua}
         """
         stats = {'inserted': 0, 'updated': 0, 'skipped': 0}
         try:
             with self.get_db_connection() as conn:
                 cursor = conn.cursor()
-                
+
                 for match in matches_data:
                     try:
-                        # 解析比赛时间
+                        # Phân tích thời gian trận đấu
                         match_datetime = None
                         match_date = None
                         match_time = None
-                        
+
                         if match.get('match_time'):
                             try:
                                 match_datetime = datetime.strptime(match['match_time'], '%Y-%m-%d %H:%M:%S')
@@ -475,18 +472,18 @@ class PredictionDatabase:
                                 except:
                                     if match.get('match_date'):
                                         match_date = datetime.strptime(match['match_date'], '%Y-%m-%d').date()
-                        
-                        # 提取赔率
+
+                        # Trích xuất tỷ lệ cược
                         odds = match.get('odds', {})
                         hhad_odds = odds.get('hhad', {})
-                        
-                        # 检查是否已存在
+
+                        # Kiểm tra bản ghi đã tồn tại chưa
                         check_sql = "SELECT id FROM daily_matches WHERE match_id = %s"
                         cursor.execute(check_sql, (match.get('match_id'),))
                         existing = cursor.fetchone()
-                        
+
                         if existing:
-                            # 更新现有记录
+                            # Cập nhật bản ghi hiện có
                             update_sql = """
                         UPDATE daily_matches SET
                             home_team = %s,
@@ -505,7 +502,7 @@ class PredictionDatabase:
                             updated_at = CURRENT_TIMESTAMP
                         WHERE match_id = %s
                         """
-                            
+
                             cursor.execute(update_sql, (
                                 match.get('home_team', ''),
                                 match.get('away_team', ''),
@@ -523,9 +520,9 @@ class PredictionDatabase:
                                 match.get('match_id')
                             ))
                             stats['updated'] += 1
-                            
+
                         else:
-                            # 插入新记录
+                            # Thêm bản ghi mới
                             insert_sql = """
                         INSERT INTO daily_matches (
                             match_id, home_team, away_team, league_name,
@@ -536,7 +533,7 @@ class PredictionDatabase:
                             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                         )
                         """
-                            
+
                             cursor.execute(insert_sql, (
                                 match.get('match_id', ''),
                                 match.get('home_team', ''),
@@ -554,44 +551,42 @@ class PredictionDatabase:
                                 match.get('source', 'china_lottery')
                             ))
                             stats['inserted'] += 1
-                            
+
                     except Exception as match_error:
-                        logger.warning(f"保存单场比赛失败: {match_error}")
+                        logger.warning(f"Lưu một trận thất bại: {match_error}")
                         stats['skipped'] += 1
                         continue
-                
-                # conn.commit() # 由上下文管理器处理
+
                 cursor.close()
-                # conn.close() # 由上下文管理器处理
-                
-                logger.info(f"每日比赛数据保存完成 - 新增:{stats['inserted']}, 更新:{stats['updated']}, 跳过:{stats['skipped']}")
+
+                logger.info(
+                    f"Lưu dữ liệu trận hằng ngày hoàn tất - Thêm mới:{stats['inserted']}, "
+                    f"Cập nhật:{stats['updated']}, Bỏ qua:{stats['skipped']}"
+                )
                 return stats
-                
+
         except Exception as e:
-            logger.error(f"保存每日比赛数据失败: {e}")
-            # if conn: # 只有当 conn 已经被赋值才尝试关闭
-            #     conn.rollback()
-            #     conn.close()
+            logger.error(f"Lưu dữ liệu trận hằng ngày thất bại: {e}")
             return stats
-    
+
     def get_daily_matches(self, days_ahead: int = 7) -> List[Dict[str, Any]]:
         """
-        从数据库获取每日比赛数据
-        
+        Lấy dữ liệu trận đấu hằng ngày từ cơ sở dữ liệu.
+
         Args:
-            days_ahead: 未来天数
-            
+            days_ahead: số ngày phía trước
+
         Returns:
-            比赛数据列表
+            danh sách dữ liệu trận đấu
         """
         try:
             with self.get_db_connection() as conn:
                 cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-                
-                # 计算日期范围
+
+                # Tính phạm vi ngày
                 today = datetime.now().date()
                 end_date = today + timedelta(days=days_ahead)
-                
+
                 query_sql = """
             SELECT 
                 match_id, home_team, away_team, league_name,
@@ -603,11 +598,11 @@ class PredictionDatabase:
             AND is_active = TRUE
             ORDER BY match_datetime ASC, match_date ASC, match_time ASC
             """
-                
+
                 cursor.execute(query_sql, (today, end_date))
                 results = cursor.fetchall()
-                
-                # 转换为标准格式
+
+                # Chuyển về định dạng chuẩn
                 matches = []
                 for row in results:
                     match_time_str = ''
@@ -617,7 +612,7 @@ class PredictionDatabase:
                         match_time_str = f"{row['match_date']} {row['match_time']}"
                     elif row['match_date']:
                         match_time_str = str(row['match_date'])
-                    
+
                     match_data = {
                         'match_id': row['match_id'],
                         'home_team': row['home_team'],
@@ -638,91 +633,79 @@ class PredictionDatabase:
                         }
                     }
                     matches.append(match_data)
-                
+
                 cursor.close()
-                # conn.close() # 由上下文管理器处理
-                
-                logger.info(f"从数据库获取 {len(matches)} 场比赛")
+
+                logger.info(f"Đã lấy {len(matches)} trận từ cơ sở dữ liệu")
                 return matches
-                
+
         except Exception as e:
-            logger.error(f"从数据库获取比赛数据失败: {e}")
-            # if conn: # 只有当 conn 已经被赋值才尝试关闭
-            #     conn.close()
+            logger.error(f"Lấy dữ liệu trận từ cơ sở dữ liệu thất bại: {e}")
             return []
-    
+
     def cleanup_old_matches(self, days_to_keep: int = 30) -> int:
         """
-        清理旧的比赛数据
-        
+        Dọn dữ liệu trận đấu cũ.
+
         Args:
-            days_to_keep: 保留天数
-            
+            days_to_keep: số ngày cần giữ lại
+
         Returns:
-            删除的记录数
+            số bản ghi đã xóa
         """
         try:
             with self.get_db_connection() as conn:
                 cursor = conn.cursor()
-                
+
                 cutoff_date = datetime.now().date() - timedelta(days=days_to_keep)
-                
+
                 delete_sql = """
             DELETE FROM daily_matches 
             WHERE match_date < %s
             """
-                
+
                 cursor.execute(delete_sql, (cutoff_date,))
                 deleted_count = cursor.rowcount
-                
+
                 conn.commit()
                 cursor.close()
-                # conn.close() # 由上下文管理器处理
-                
-                logger.info(f"清理了 {deleted_count} 条旧比赛记录")
+
+                logger.info(f"Đã dọn {deleted_count} bản ghi trận đấu cũ")
                 return deleted_count
-                
+
         except Exception as e:
-            logger.error(f"清理旧比赛数据失败: {e}")
-            # if conn: # 只有当 conn 已经被赋值才尝试关闭
-            #     conn.close()
+            logger.error(f"Dọn dữ liệu trận cũ thất bại: {e}")
             return 0
-    
-    # 用户管理方法
+
+    # Các phương thức quản lý người dùng
     def create_user(self, username: str, email: str, password_hash: str, user_type: str = 'free') -> bool:
-        """创建新用户"""
+        """Tạo người dùng mới."""
         try:
             with self.get_db_connection() as conn:
                 cursor = conn.cursor()
-                
+
                 insert_sql = """
             INSERT INTO users (username, email, password_hash, user_type)
             VALUES (%s, %s, %s, %s)
             """
                 cursor.execute(insert_sql, (username, email, password_hash, user_type))
-                
-                logger.info(f"用户创建成功: {username}")
+
+                logger.info(f"Tạo người dùng thành công: {username}")
                 return True
-                
+
         except psycopg2.IntegrityError as e:
-            logger.warning(f"用户创建失败，用户名或邮箱已存在: {username}, {email}")
-            # if conn: # 只有当 conn 已经被赋值才尝试关闭
-            #     conn.rollback() # 确保事务回滚
-            #     conn.close()
+            logger.warning(f"Tạo người dùng thất bại, tên người dùng hoặc email đã tồn tại: {username}, {email}")
             return False
         except Exception as e:
-            logger.error(f"创建用户失败: {e}")
-            # if conn: # 只有当 conn 已经被赋值才尝试关闭
-            #     conn.rollback() # 确保事务回滚
-            #     conn.close()
+            logger.error(f"Tạo người dùng thất bại: {e}")
             return False
-    
+
     def authenticate_user(self, username: str, password_hash: str) -> dict:
-        """用户认证"""
+        """Xác thực người dùng."""
         try:
             with self.get_db_connection() as conn:
-                cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) # 使用 RealDictCursor
-                
+                cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
                 select_sql = """
             SELECT id, username, email, user_type, membership_expires, 
                    daily_predictions_used, last_prediction_date, total_predictions
@@ -731,17 +714,17 @@ class PredictionDatabase:
             """
                 cursor.execute(select_sql, (username, password_hash))
                 user_data = cursor.fetchone()
-                
+
                 if user_data:
-                    # 更新最后登录时间
+                    # Cập nhật thời gian đăng nhập gần nhất
                     update_sql = "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = %s"
                     cursor.execute(update_sql, (user_data['id'],))
                     conn.commit()
-                    
-                    # 检查是否需要重置每日使用次数
+
+                    # Kiểm tra có cần đặt lại số lượt dùng hằng ngày hay không
                     today = datetime.now().date()
                     last_prediction_date = user_data['last_prediction_date']
-                    
+
                     if last_prediction_date and last_prediction_date < today:
                         reset_sql = """
                     UPDATE users SET daily_predictions_used = 0, last_prediction_date = %s 
@@ -749,24 +732,24 @@ class PredictionDatabase:
                     """
                         cursor.execute(reset_sql, (today, user_data['id']))
                         conn.commit()
-                        user_data['daily_predictions_used'] = 0 # 更新返回的数据
-                    
-                    logger.info(f"用户认证成功: {username}")
-                    return user_data # 直接返回字典格式的用户数据
+                        user_data['daily_predictions_used'] = 0
+
+                    logger.info(f"Xác thực người dùng thành công: {username}")
+                    return user_data
                 else:
-                    logger.warning(f"用户认证失败: 用户名或密码错误 - {username}")
+                    logger.warning(f"Xác thực thất bại: tên người dùng hoặc mật khẩu không đúng - {username}")
                     return None
-                    
+
         except Exception as e:
-            logger.error(f"用户认证失败: {e}", exc_info=True)
+            logger.error(f"Xác thực người dùng thất bại: {e}", exc_info=True)
             return None
-    
+
     def get_user_by_username(self, username: str) -> dict:
-        """根据用户名获取用户信息"""
+        """Lấy thông tin người dùng theo tên đăng nhập."""
         try:
             with self.get_db_connection() as conn:
-                cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) # 使用 RealDictCursor
-                
+                cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
                 select_sql = """
             SELECT id, username, email, user_type, membership_expires, 
                    daily_predictions_used, last_prediction_date, total_predictions
@@ -775,31 +758,29 @@ class PredictionDatabase:
             """
                 cursor.execute(select_sql, (username,))
                 user_data = cursor.fetchone()
-                
+
                 if user_data:
-                    # 检查是否需要重置每日使用次数 (这里只在获取时更新数据，不提交)
+                    # Kiểm tra có cần đặt lại số lượt dùng hằng ngày hay không; chỉ cập nhật dữ liệu trả về
                     today = datetime.now().date()
                     last_prediction_date = user_data['last_prediction_date']
 
                     if last_prediction_date and last_prediction_date < today:
-                        # 更新 user_data 字典中的值，以便返回最新状态
                         user_data['daily_predictions_used'] = 0
-                        # 注意：这里不直接提交到数据库，因为 get_user_by_username 应该是一个只读操作
-                        # 重置逻辑已在 authenticate_user 中处理
-                    
-                    return user_data # 直接返回字典格式的用户数据
+                        # Không commit ở đây vì đây là thao tác đọc; logic đặt lại chính nằm trong authenticate_user
+
+                    return user_data
                 return None
-                
+
         except Exception as e:
-            logger.error(f"获取用户信息失败: {e}", exc_info=True)
+            logger.error(f"Lấy thông tin người dùng thất bại: {e}", exc_info=True)
             return None
-    
+
     def increment_user_predictions(self, user_id: int) -> bool:
-        """增加用户预测次数"""
+        """Tăng số lượt dự đoán của người dùng."""
         try:
             with self.get_db_connection() as conn:
                 cursor = conn.cursor()
-                
+
                 today = datetime.now().date()
                 update_sql = """
             UPDATE users SET 
@@ -809,39 +790,36 @@ class PredictionDatabase:
             WHERE id = %s
             """
                 cursor.execute(update_sql, (today, user_id))
-                
+
                 return True
-                
+
         except Exception as e:
-            logger.error(f"更新用户预测次数失败: {e}")
-            # if conn: # 只有当 conn 已经被赋值才尝试关闭
-            #     conn.rollback()
-            #     conn.close()
+            logger.error(f"Cập nhật số lượt dự đoán của người dùng thất bại: {e}")
             return False
-    
+
     def can_user_predict(self, user_id: int, user_type: str, daily_used: int) -> bool:
-        """检查用户是否可以进行预测"""
+        """Kiểm tra người dùng có thể tiếp tục dự đoán hay không."""
         if user_type == 'premium':
             return True
         else:
             return daily_used < 3
 
 
-# 创建全局数据库实例
+# Tạo instance cơ sở dữ liệu toàn cục
 prediction_db = PredictionDatabase()
 
 
 def main():
-    """测试函数"""
+    """Hàm kiểm tra."""
     try:
         db = PredictionDatabase()
-        print("✅ 数据库连接和表创建成功")
-        
-        # 测试保存AI预测
+        print("✅ Kết nối cơ sở dữ liệu và tạo bảng thành công")
+
+        # Kiểm tra lưu dự đoán AI
         test_match = {
-            'home_team': '测试主队',
-            'away_team': '测试客队',
-            'league_name': '测试联赛',
+            'home_team': 'Đội chủ nhà thử nghiệm',
+            'away_team': 'Đội khách thử nghiệm',
+            'league_name': 'Giải đấu thử nghiệm',
             'match_time': '2025-09-20 15:00:00',
             'odds': {
                 'home_odds': '2.10',
@@ -849,26 +827,26 @@ def main():
                 'away_odds': '2.80'
             }
         }
-        
+
         success = db.save_ai_prediction(
             match_data=test_match,
-            prediction_result='主胜',
+            prediction_result='Chủ nhà thắng',
             confidence=7.5,
-            ai_analysis='这是一个测试预测',
+            ai_analysis='Đây là một dự đoán thử nghiệm',
             user_ip='127.0.0.1'
         )
-        
+
         if success:
-            print("✅ 测试预测保存成功")
+            print("✅ Lưu dự đoán thử nghiệm thành công")
         else:
-            print("❌ 测试预测保存失败")
-        
-        # 获取统计信息
+            print("❌ Lưu dự đoán thử nghiệm thất bại")
+
+        # Lấy thống kê
         stats = db.get_prediction_stats()
-        print(f"📊 统计信息: {stats}")
-        
+        print(f"📊 Thống kê: {stats}")
+
     except Exception as e:
-        print(f"❌ 测试失败: {e}")
+        print(f"❌ Kiểm tra thất bại: {e}")
 
 
 if __name__ == "__main__":

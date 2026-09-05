@@ -1,42 +1,44 @@
 /**
- * 欧冠足球比赛模拟预测系统
- * 每次运行生成随机但合理的比赛结果
+ * Hệ thống mô phỏng và dự đoán UEFA Champions League
+ * Mỗi lần chạy tạo kết quả ngẫu nhiên nhưng hợp lý.
  */
 
-// 定义球队数据结构
+// Cấu trúc dữ liệu đội bóng
 class Team {
     constructor(name, attackStrength, defenseStrength, homeAdvantage, formFactor, experience, logo) {
         this.name = name;
-        this.attackStrength = attackStrength;      // 进攻能力 (1-10)
-        this.defenseStrength = defenseStrength;    // 防守能力 (1-10)
-        this.homeAdvantage = homeAdvantage;        // 主场优势 (1-1.5)
-        this.formFactor = formFactor;              // 当前状态 (0.8-1.2)
-        this.experience = experience;              // 欧冠经验 (1-10)
-        this.logo = logo;                          // 球队logo URL
+        this.attackStrength = attackStrength;      // Sức mạnh tấn công (1-10)
+        this.defenseStrength = defenseStrength;    // Sức mạnh phòng ngự (1-10)
+        this.homeAdvantage = homeAdvantage;        // Lợi thế sân nhà (1-1.5)
+        this.formFactor = formFactor;              // Phong độ hiện tại (0.8-1.2)
+        this.experience = experience;              // Kinh nghiệm Champions League (1-10)
+        this.logo = logo;                          // URL logo đội bóng
     }
 }
 
-// 定义欧冠球队数据
+// Dữ liệu đội Champions League.
+// Các key tiếng Trung được giữ nguyên làm khóa nội bộ để không phá các tham chiếu cũ;
+// tên hiển thị của Team đã được chuẩn hóa.
 const teams = {
-    "皇家马德里": new Team("皇家马德里", 9.2, 8.5, 1.3, 1.1, 10, "logos/real_madrid.png"),
-    "巴塞罗那": new Team("巴塞罗那", 8.8, 8.3, 1.3, 1.05, 9.5, "logos/barcelona.png"),
-    "拜仁慕尼黑": new Team("拜仁慕尼黑", 9.0, 8.4, 1.3, 1.15, 9.5, "logos/bayern.png"),
-    "利物浦": new Team("利物浦", 8.9, 8.4, 1.35, 1.1, 9.0, "logos/liverpool.png"),
-    "巴黎圣日耳曼": new Team("巴黎圣日耳曼", 8.7, 8.0, 1.25, 0.95, 8.0, "logos/psg.png"),
-    "阿森纳": new Team("阿森纳", 8.6, 8.7, 1.3, 1.2, 7.5, "logos/arsenal.png"),
-    "马德里竞技": new Team("马德里竞技", 8.2, 8.5, 1.25, 1.0, 8.5, "logos/atletico.png"),
-    "多特蒙德": new Team("多特蒙德", 8.3, 7.8, 1.3, 1.0, 8.0, "logos/dortmund.png"),
-    "国际米兰": new Team("国际米兰", 8.4, 8.2, 1.25, 1.1, 8.5, "logos/inter.png"),
-    "阿斯顿维拉": new Team("阿斯顿维拉", 8.0, 7.9, 1.25, 1.15, 6.0, "logos/aston_villa.png"),
-    "勒沃库森": new Team("勒沃库森", 8.1, 7.8, 1.2, 0.9, 6.5, "logos/leverkusen.png"),
-    "里尔": new Team("里尔", 7.8, 7.7, 1.2, 1.0, 6.0, "logos/lille.png"),
-    "PSV埃因霍温": new Team("PSV埃因霍温", 7.7, 7.5, 1.2, 0.9, 6.0, "logos/psv.png"),
-    "布鲁日": new Team("布鲁日", 7.5, 7.4, 1.2, 0.95, 5.5, "logos/brugge.png"),
-    "本菲卡": new Team("本菲卡", 7.9, 7.6, 1.25, 0.95, 7.0, "logos/benfica.png"),
-    "费耶诺德": new Team("费耶诺德", 7.6, 7.5, 1.2, 0.9, 6.0, "logos/feyenoord.png")
+    "皇家马德里": new Team("Real Madrid", 9.2, 8.5, 1.3, 1.1, 10, "logos/real_madrid.png"),
+    "巴塞罗那": new Team("Barcelona", 8.8, 8.3, 1.3, 1.05, 9.5, "logos/barcelona.png"),
+    "拜仁慕尼黑": new Team("Bayern Munich", 9.0, 8.4, 1.3, 1.15, 9.5, "logos/bayern.png"),
+    "利物浦": new Team("Liverpool", 8.9, 8.4, 1.35, 1.1, 9.0, "logos/liverpool.png"),
+    "巴黎圣日耳曼": new Team("Paris Saint-Germain", 8.7, 8.0, 1.25, 0.95, 8.0, "logos/psg.png"),
+    "阿森纳": new Team("Arsenal", 8.6, 8.7, 1.3, 1.2, 7.5, "logos/arsenal.png"),
+    "马德里竞技": new Team("Atlético Madrid", 8.2, 8.5, 1.25, 1.0, 8.5, "logos/atletico.png"),
+    "多特蒙德": new Team("Borussia Dortmund", 8.3, 7.8, 1.3, 1.0, 8.0, "logos/dortmund.png"),
+    "国际米兰": new Team("Inter Milan", 8.4, 8.2, 1.25, 1.1, 8.5, "logos/inter.png"),
+    "阿斯顿维拉": new Team("Aston Villa", 8.0, 7.9, 1.25, 1.15, 6.0, "logos/aston_villa.png"),
+    "勒沃库森": new Team("Bayer Leverkusen", 8.1, 7.8, 1.2, 0.9, 6.5, "logos/leverkusen.png"),
+    "里尔": new Team("Lille", 7.8, 7.7, 1.2, 1.0, 6.0, "logos/lille.png"),
+    "PSV埃因霍温": new Team("PSV Eindhoven", 7.7, 7.5, 1.2, 0.9, 6.0, "logos/psv.png"),
+    "布鲁日": new Team("Club Brugge", 7.5, 7.4, 1.2, 0.95, 5.5, "logos/brugge.png"),
+    "本菲卡": new Team("Benfica", 7.9, 7.6, 1.25, 0.95, 7.0, "logos/benfica.png"),
+    "费耶诺德": new Team("Feyenoord", 7.6, 7.5, 1.2, 0.9, 6.0, "logos/feyenoord.png")
 };
 
-// 1/8决赛第一回合结果
+// Kết quả lượt đi vòng 1/8 (khóa nội bộ giữ nguyên để tương thích)
 const firstLegResults = [
     { home: "PSV埃因霍温", away: "阿森纳", homeGoals: 1, awayGoals: 7, date: "03/13" },
     { home: "皇家马德里", away: "马德里竞技", homeGoals: 2, awayGoals: 1, date: "03/13" },
@@ -48,91 +50,89 @@ const firstLegResults = [
     { home: "费耶诺德", away: "国际米兰", homeGoals: 0, awayGoals: 2, date: "03/12" }
 ];
 
-// 添加随机性因素
+// Thêm yếu tố ngẫu nhiên
 function addRandomness(value, range = 0.2) {
     return value * (1 - range/2 + Math.random() * range);
 }
 
-// 模拟单场比赛
+// Mô phỏng một trận đấu
 function simulateMatch(homeTeam, awayTeam, isNeutralVenue = false, isKnockout = true) {
-    // 基础进攻和防守能力
+    // Năng lực tấn công và phòng ngự cơ bản
     let homeAttack = homeTeam.attackStrength * homeTeam.formFactor;
     let homeDefense = homeTeam.defenseStrength * homeTeam.formFactor;
     let awayAttack = awayTeam.attackStrength * awayTeam.formFactor;
     let awayDefense = awayTeam.defenseStrength * awayTeam.formFactor;
-    
-    // 添加随机性
+
+    // Thêm ngẫu nhiên
     homeAttack = addRandomness(homeAttack, 0.3);
     homeDefense = addRandomness(homeDefense, 0.3);
     awayAttack = addRandomness(awayAttack, 0.3);
     awayDefense = addRandomness(awayDefense, 0.3);
-    
-    // 主场优势
+
+    // Lợi thế sân nhà
     if (!isNeutralVenue) {
         homeAttack *= homeTeam.homeAdvantage;
         homeDefense *= 1.1;
     }
-    
-    // 欧冠经验因素 - 在关键比赛中更重要
+
+    // Kinh nghiệm Champions League có trọng số cao hơn ở vòng loại trực tiếp
     if (isKnockout) {
         const homeExpFactor = 1 + (homeTeam.experience - 5) * 0.02;
         const awayExpFactor = 1 + (awayTeam.experience - 5) * 0.02;
-        
+
         homeAttack *= homeExpFactor;
         homeDefense *= homeExpFactor;
         awayAttack *= awayExpFactor;
         awayDefense *= awayExpFactor;
     }
-    
-    // 计算期望进球
+
+    // Tính bàn thắng kỳ vọng
     const homeExpectedGoals = Math.max(0.3, (homeAttack / awayDefense) * 1.4);
     const awayExpectedGoals = Math.max(0.2, (awayAttack / homeDefense) * 1.1);
-    
-    // 使用泊松分布模拟进球数
+
+    // Mô phỏng số bàn bằng phân phối Poisson
     const homeGoals = simulatePoissonGoals(homeExpectedGoals);
     const awayGoals = simulatePoissonGoals(awayExpectedGoals);
-    
+
     return { homeGoals, awayGoals };
 }
 
-// 使用泊松分布模拟进球数
+// Mô phỏng số bàn theo phân phối Poisson
 function simulatePoissonGoals(lambda) {
     let L = Math.exp(-lambda);
     let p = 1.0;
     let k = 0;
-    
+
     do {
         k++;
         p *= Math.random();
     } while (p > L);
-    
+
     return k - 1;
 }
 
-// 模拟两回合淘汰赛
+// Mô phỏng cặp đấu hai lượt
 function simulateTwoLegTie(team1, team2, firstLegResult = null) {
-    // 第一回合
+    // Lượt đi
     let firstLeg;
     if (firstLegResult) {
         firstLeg = firstLegResult;
     } else {
         firstLeg = simulateMatch(team1, team2);
     }
-    
-    // 第二回合
+
+    // Lượt về
     const secondLeg = simulateMatch(team2, team1);
-    
-    // 计算总比分
+
+    // Tổng tỷ số
     const team1TotalGoals = firstLeg.homeGoals + secondLeg.awayGoals;
     const team2TotalGoals = firstLeg.awayGoals + secondLeg.homeGoals;
-    
-    // 如果总比分相同，客场进球规则不再适用（从2021/22赛季开始）
+
+    // Luật bàn thắng sân khách không còn áp dụng từ mùa 2021/22
     if (team1TotalGoals === team2TotalGoals) {
-        // 模拟加时赛
         const extraTime = simulateExtraTime(team2, team1);
-        
+
         if (extraTime.homeGoals === extraTime.awayGoals) {
-            // 模拟点球大战
             const penalties = simulatePenalties(team2, team1);
             return {
                 winner: penalties.winner === team2 ? team2 : team1,
@@ -141,7 +141,7 @@ function simulateTwoLegTie(team1, team2, firstLegResult = null) {
                 secondLeg,
                 extraTime,
                 penalties,
-                aggregate: `${team1TotalGoals}-${team2TotalGoals} (点球决胜)`
+                aggregate: `${team1TotalGoals}-${team2TotalGoals} (luân lưu)`
             };
         } else {
             return {
@@ -150,7 +150,7 @@ function simulateTwoLegTie(team1, team2, firstLegResult = null) {
                 firstLeg,
                 secondLeg,
                 extraTime,
-                aggregate: `${team1TotalGoals + extraTime.awayGoals}-${team2TotalGoals + extraTime.homeGoals} (加时)`
+                aggregate: `${team1TotalGoals + extraTime.awayGoals}-${team2TotalGoals + extraTime.homeGoals} (hiệp phụ)`
             };
         }
     } else {
@@ -164,58 +164,56 @@ function simulateTwoLegTie(team1, team2, firstLegResult = null) {
     }
 }
 
-// 模拟加时赛
+// Mô phỏng hiệp phụ
 function simulateExtraTime(homeTeam, awayTeam) {
-    // 加时赛进球期望值降低
+    // Bàn thắng kỳ vọng thấp hơn trong hiệp phụ
     const homeExpectedGoals = (homeTeam.attackStrength / awayTeam.defenseStrength) * 0.4;
     const awayExpectedGoals = (awayTeam.attackStrength / homeTeam.defenseStrength) * 0.3;
-    
-    // 疲劳因素和心理因素
+
+    // Yếu tố thể lực và tâm lý
     const homeFatigue = 0.9 + Math.random() * 0.2;
     const awayFatigue = 0.85 + Math.random() * 0.2;
-    
+
     const homeGoals = simulatePoissonGoals(homeExpectedGoals * homeFatigue);
     const awayGoals = simulatePoissonGoals(awayExpectedGoals * awayFatigue);
-    
+
     return { homeGoals, awayGoals };
 }
 
-// 模拟点球大战
+// Mô phỏng loạt sút luân lưu
 function simulatePenalties(homeTeam, awayTeam) {
-    // 点球成功率基于球队经验和当前状态
+    // Xác suất thành công dựa trên kinh nghiệm và phong độ
     const homeSuccessRate = 0.7 + (homeTeam.experience / 30) + (homeTeam.formFactor - 1) * 0.1;
     const awaySuccessRate = 0.7 + (awayTeam.experience / 30) + (awayTeam.formFactor - 1) * 0.1;
-    
+
     let homeScore = 0;
     let awayScore = 0;
-    
-    // 常规5轮点球
+
+    // 5 lượt sút chính thức
     for (let i = 0; i < 5; i++) {
         if (Math.random() < homeSuccessRate) homeScore++;
         if (Math.random() < awaySuccessRate) awayScore++;
-        
-        // 如果一方已经无法追平，提前结束
+
         if (homeScore > awayScore + (5 - i) || awayScore > homeScore + (5 - i)) {
             break;
         }
     }
-    
-    // 如果平局，进行突然死亡
+
+    // Sudden death nếu vẫn hòa
     if (homeScore === awayScore) {
         let round = 0;
         while (homeScore === awayScore) {
             round++;
             const homeSuccess = Math.random() < homeSuccessRate;
             const awaySuccess = Math.random() < awaySuccessRate;
-            
+
             if (homeSuccess) homeScore++;
             if (awaySuccess) awayScore++;
-            
-            // 如果这轮有差距，结束
+
             if (homeScore !== awayScore) break;
         }
     }
-    
+
     return {
         homeScore,
         awayScore,
@@ -223,17 +221,15 @@ function simulatePenalties(homeTeam, awayTeam) {
     };
 }
 
-// 模拟单场决赛
+// Mô phỏng trận chung kết một lượt
 function simulateFinal(team1, team2) {
-    // 决赛在中立场地
+    // Chung kết diễn ra trên sân trung lập
     const result = simulateMatch(team1, team2, true, true);
-    
+
     if (result.homeGoals === result.awayGoals) {
-        // 加时赛
         const extraTime = simulateExtraTime(team1, team2);
-        
+
         if (extraTime.homeGoals === extraTime.awayGoals) {
-            // 点球大战
             const penalties = simulatePenalties(team1, team2);
             return {
                 winner: penalties.winner,
@@ -241,7 +237,7 @@ function simulateFinal(team1, team2) {
                 result,
                 extraTime,
                 penalties,
-                finalScore: `${result.homeGoals + extraTime.homeGoals}-${result.awayGoals + extraTime.awayGoals} (点球${penalties.homeScore}-${penalties.awayScore})`
+                finalScore: `${result.homeGoals + extraTime.homeGoals}-${result.awayGoals + extraTime.awayGoals} (luân lưu ${penalties.homeScore}-${penalties.awayScore})`
             };
         } else {
             return {
@@ -249,7 +245,7 @@ function simulateFinal(team1, team2) {
                 loser: extraTime.homeGoals > extraTime.awayGoals ? team2 : team1,
                 result,
                 extraTime,
-                finalScore: `${result.homeGoals + extraTime.homeGoals}-${result.awayGoals + extraTime.awayGoals} (加时)`
+                finalScore: `${result.homeGoals + extraTime.homeGoals}-${result.awayGoals + extraTime.awayGoals} (hiệp phụ)`
             };
         }
     } else {
@@ -262,15 +258,14 @@ function simulateFinal(team1, team2) {
     }
 }
 
-// 生成随机日期 (03/XX 格式)
+// Tạo ngày ngẫu nhiên theo định dạng 03/XX
 function generateRandomDate() {
-    const day = Math.floor(Math.random() * 15) + 15; // 15-30之间
+    const day = Math.floor(Math.random() * 15) + 15; // Từ ngày 15 đến 30
     return `03/${day}`;
 }
 
-// 模拟整个欧冠剩余赛程
+// Mô phỏng toàn bộ phần còn lại của Champions League
 function simulateChampionsLeague() {
-    // 准备存储所有比赛结果的对象
     const results = {
         round16: [],
         quarterFinals: [],
@@ -278,11 +273,11 @@ function simulateChampionsLeague() {
         final: null,
         champion: null
     };
-    
-    // 1/8决赛第二回合和晋级球队
+
+    // Lượt về vòng 1/8 và các đội vào tứ kết
     const quarterFinalists = [];
-    
-    // 根据第一回合结果模拟第二回合
+
+    // Khóa nội bộ được giữ nguyên để bảo toàn các tham chiếu đã có
     const round16Matches = [
         { team1: teams["PSV埃因霍温"], team2: teams["阿森纳"], firstLeg: { homeGoals: 1, awayGoals: 7 } },
         { team1: teams["皇家马德里"], team2: teams["马德里竞技"], firstLeg: { homeGoals: 2, awayGoals: 1 } },
@@ -293,11 +288,11 @@ function simulateChampionsLeague() {
         { team1: teams["拜仁慕尼黑"], team2: teams["勒沃库森"], firstLeg: { homeGoals: 3, awayGoals: 0 } },
         { team1: teams["费耶诺德"], team2: teams["国际米兰"], firstLeg: { homeGoals: 0, awayGoals: 2 } }
     ];
-    
+
     for (const match of round16Matches) {
         const secondLeg = simulateMatch(match.team2, match.team1);
         const result = simulateTwoLegTie(match.team1, match.team2, { homeGoals: match.firstLeg.homeGoals, awayGoals: match.firstLeg.awayGoals });
-        
+
         results.round16.push({
             team1: match.team1,
             team2: match.team2,
@@ -306,28 +301,28 @@ function simulateChampionsLeague() {
             winner: result.winner,
             aggregate: result.aggregate
         });
-        
+
         quarterFinalists.push(result.winner);
     }
-    
-    // 1/4决赛抽签 (随机配对)
+
+    // Bốc thăm tứ kết ngẫu nhiên
     const shuffledQuarterFinalists = [...quarterFinalists].sort(() => Math.random() - 0.5);
     const quarterFinalMatches = [];
-    
+
     for (let i = 0; i < shuffledQuarterFinalists.length; i += 2) {
         quarterFinalMatches.push({
             team1: shuffledQuarterFinalists[i],
             team2: shuffledQuarterFinalists[i + 1]
         });
     }
-    
+
     const semiFinalists = [];
-    
+
     for (const match of quarterFinalMatches) {
         const firstLeg = simulateMatch(match.team1, match.team2);
         const secondLeg = simulateMatch(match.team2, match.team1);
         const result = simulateTwoLegTie(match.team1, match.team2, firstLeg);
-        
+
         results.quarterFinals.push({
             team1: match.team1,
             team2: match.team2,
@@ -337,23 +332,23 @@ function simulateChampionsLeague() {
             aggregate: result.aggregate,
             date: generateRandomDate()
         });
-        
+
         semiFinalists.push(result.winner);
     }
-    
-    // 半决赛
+
+    // Bán kết
     const semiFinalMatches = [
         { team1: semiFinalists[0], team2: semiFinalists[1] },
         { team1: semiFinalists[2], team2: semiFinalists[3] }
     ];
-    
+
     const finalists = [];
-    
+
     for (const match of semiFinalMatches) {
         const firstLeg = simulateMatch(match.team1, match.team2);
         const secondLeg = simulateMatch(match.team2, match.team1);
         const result = simulateTwoLegTie(match.team1, match.team2, firstLeg);
-        
+
         results.semiFinals.push({
             team1: match.team1,
             team2: match.team2,
@@ -363,13 +358,13 @@ function simulateChampionsLeague() {
             aggregate: result.aggregate,
             date: generateRandomDate()
         });
-        
+
         finalists.push(result.winner);
     }
-    
-    // 决赛
+
+    // Chung kết
     const finalResult = simulateFinal(finalists[0], finalists[1]);
-    
+
     results.final = {
         team1: finalists[0],
         team2: finalists[1],
@@ -378,13 +373,13 @@ function simulateChampionsLeague() {
         finalScore: finalResult.finalScore,
         date: "05/31"
     };
-    
+
     results.champion = finalResult.winner;
-    
+
     return results;
 }
 
-// 导出模拟函数
+// Xuất hàm mô phỏng cho môi trường module
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         simulateChampionsLeague,
@@ -392,61 +387,53 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 
-// 欧冠模拟器前端实现
-
+// Giao diện frontend của trình mô phỏng Champions League
 document.addEventListener('DOMContentLoaded', function() {
-    // 获取DOM元素
     const simulateClBtn = document.getElementById('simulate-cl-btn');
     const clBracket = document.getElementById('cl-bracket');
-    
-    // 绑定模拟按钮事件
+
     if (simulateClBtn) {
         simulateClBtn.addEventListener('click', function() {
-            // 显示加载状态
-            clBracket.innerHTML = '<div class="loading">正在模拟比赛...</div>';
-            
-            // 延迟执行以显示加载状态
+            clBracket.innerHTML = '<div class="loading">Đang mô phỏng các trận đấu...</div>';
+
             setTimeout(() => {
-                // 模拟欧冠赛程
                 simulateAndRender();
             }, 300);
         });
     }
-    
-    // 模拟并渲染欧冠赛程
+
+    // Mô phỏng và render sơ đồ Champions League
     function simulateAndRender() {
-        // 清空内容
         clBracket.innerHTML = '';
-        
-        // 1/8决赛第一回合结果（固定的）
+
+        // Kết quả lượt đi vòng 1/8 cố định; dùng tên hiển thị đã chuẩn hóa
         const firstLegMatches = [
-            { team1: "PSV埃因霍温", team2: "阿森纳", score1: 1, score2: 7, date: "03/13" },
-            { team1: "皇家马德里", team2: "马德里竞技", score1: 2, score2: 1, date: "03/13" },
-            { team1: "巴黎圣日耳曼", team2: "利物浦", score1: 0, score2: 1, date: "03/12" },
-            { team1: "布鲁日", team2: "阿斯顿维拉", score1: 1, score2: 3, date: "03/13" },
-            { team1: "本菲卡", team2: "巴塞罗那", score1: 0, score2: 1, date: "03/12" },
-            { team1: "多特蒙德", team2: "里尔", score1: 1, score2: 1, date: "03/13" },
-            { team1: "拜仁慕尼黑", team2: "勒沃库森", score1: 3, score2: 0, date: "03/12" },
-            { team1: "费耶诺德", team2: "国际米兰", score1: 0, score2: 2, date: "03/12" }
+            { team1: "PSV Eindhoven", team2: "Arsenal", score1: 1, score2: 7, date: "03/13" },
+            { team1: "Real Madrid", team2: "Atlético Madrid", score1: 2, score2: 1, date: "03/13" },
+            { team1: "Paris Saint-Germain", team2: "Liverpool", score1: 0, score2: 1, date: "03/12" },
+            { team1: "Club Brugge", team2: "Aston Villa", score1: 1, score2: 3, date: "03/13" },
+            { team1: "Benfica", team2: "Barcelona", score1: 0, score2: 1, date: "03/12" },
+            { team1: "Borussia Dortmund", team2: "Lille", score1: 1, score2: 1, date: "03/13" },
+            { team1: "Bayern Munich", team2: "Bayer Leverkusen", score1: 3, score2: 0, date: "03/12" },
+            { team1: "Feyenoord", team2: "Inter Milan", score1: 0, score2: 2, date: "03/12" }
         ];
-        
-        // 模拟第二回合和后续比赛
+
         const round16Results = simulateRound16(firstLegMatches);
-        
-        // 按照固定的晋级路线配对1/4决赛
+
+        // Ghép cặp tứ kết theo nhánh cố định
         const quarterFinalPairs = [
-            { match1Index: 0, match2Index: 1 }, // PSV/阿森纳 vs 皇马/马竞
-            { match1Index: 2, match2Index: 3 }, // 巴黎/利物浦 vs 布鲁日/维拉
-            { match1Index: 4, match2Index: 5 }, // 本菲卡/巴萨 vs 多特/里尔
-            { match1Index: 6, match2Index: 7 }  // 拜仁/勒沃库森 vs 费耶诺德/国米
+            { match1Index: 0, match2Index: 1 },
+            { match1Index: 2, match2Index: 3 },
+            { match1Index: 4, match2Index: 5 },
+            { match1Index: 6, match2Index: 7 }
         ];
-        
+
         const quarterFinalMatches = quarterFinalPairs.map(pair => {
             const team1 = round16Results[pair.match1Index].winner;
             const team2 = round16Results[pair.match2Index].winner;
             const score1 = Math.floor(Math.random() * 4);
             const score2 = Math.floor(Math.random() * 4);
-            
+
             return {
                 team1: team1,
                 team2: team2,
@@ -455,19 +442,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 winner: score1 > score2 ? team1 : (score1 < score2 ? team2 : (Math.random() > 0.5 ? team1 : team2))
             };
         });
-        
-        // 按照固定的晋级路线配对半决赛
+
+        // Ghép cặp bán kết theo nhánh cố định
         const semiFinalPairs = [
-            { match1Index: 0, match2Index: 1 }, // 1/4决赛1胜者 vs 1/4决赛2胜者
-            { match1Index: 2, match2Index: 3 }  // 1/4决赛3胜者 vs 1/4决赛4胜者
+            { match1Index: 0, match2Index: 1 },
+            { match1Index: 2, match2Index: 3 }
         ];
-        
+
         const semiFinalMatches = semiFinalPairs.map(pair => {
             const team1 = quarterFinalMatches[pair.match1Index].winner;
             const team2 = quarterFinalMatches[pair.match2Index].winner;
             const score1 = Math.floor(Math.random() * 4);
             const score2 = Math.floor(Math.random() * 4);
-            
+
             return {
                 team1: team1,
                 team2: team2,
@@ -476,14 +463,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 winner: score1 > score2 ? team1 : (score1 < score2 ? team2 : (Math.random() > 0.5 ? team1 : team2))
             };
         });
-        
-        // 决赛
+
+        // Chung kết
         const team1 = semiFinalMatches[0].winner;
         const team2 = semiFinalMatches[1].winner;
         const finalScore1 = Math.floor(Math.random() * 4);
         const finalScore2 = Math.floor(Math.random() * 4);
         const champion = finalScore1 > finalScore2 ? team1 : (finalScore1 < finalScore2 ? team2 : (Math.random() > 0.5 ? team1 : team2));
-        
+
         const finalMatch = {
             team1: team1,
             team2: team2,
@@ -491,8 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
             score2: finalScore2,
             winner: champion
         };
-        
-        // 创建赛程图HTML
+
         const bracketHTML = createBracketHTML(
             firstLegMatches,
             round16Results,
@@ -500,32 +486,29 @@ document.addEventListener('DOMContentLoaded', function() {
             semiFinalMatches,
             finalMatch
         );
-        
+
         clBracket.innerHTML = bracketHTML;
     }
-    
-    // 模拟1/8决赛第二回合
+
+    // Mô phỏng lượt về vòng 1/8
     function simulateRound16(firstLegMatches) {
         return firstLegMatches.map(match => {
-            // 模拟第二回合比分
             const score1 = Math.floor(Math.random() * 4);
             const score2 = Math.floor(Math.random() * 4);
-            
-            // 计算总比分
+
             const totalScore1 = match.score1 + score2;
             const totalScore2 = match.score2 + score1;
-            
-            // 确定晋级球队
+
             let winner;
             if (totalScore1 > totalScore2) {
                 winner = match.team1;
             } else if (totalScore1 < totalScore2) {
                 winner = match.team2;
             } else {
-                // 如果总比分相同，客场进球多的晋级
+                // Giữ nguyên quy tắc hiện có của mô phỏng để không thay đổi logic
                 winner = match.score2 > score2 ? match.team2 : match.team1;
             }
-            
+
             return {
                 firstLeg: { team1: match.team1, team2: match.team2, score1: match.score1, score2: match.score2, date: match.date },
                 secondLeg: { team1: match.team2, team2: match.team1, score1: score1, score2: score2, date: getNextDate(match.date) },
@@ -533,22 +516,22 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         });
     }
-    
-    // 创建赛程图HTML
+
+    // Tạo HTML sơ đồ đấu loại trực tiếp
     function createBracketHTML(firstLegMatches, round16Results, quarterFinals, semiFinals, final) {
         let html = `
         <div class="tournament-bracket">
             <div class="bracket-container">
-                <!-- 1/8决赛 - 左侧 -->
+                <!-- Vòng 1/8 - bên trái -->
                 <div class="bracket-column">
-                    <h3 class="round-title">1/8决赛</h3>
+                    <h3 class="round-title">Vòng 1/8</h3>
                     <div class="matches-container">`;
-        
-        // 添加1/8决赛左侧4场
+
+        // 4 cặp vòng 1/8 bên trái
         for (let i = 0; i < 4; i++) {
             const match = firstLegMatches[i];
             const result = round16Results[i];
-            
+
             html += `
                 <div class="match-pair">
                     <div class="match">
@@ -576,20 +559,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>`;
         }
-        
+
         html += `
                     </div>
                 </div>
-                
-                <!-- 1/4决赛 - 左侧 -->
+
+                <!-- Tứ kết - bên trái -->
                 <div class="bracket-column">
-                    <h3 class="round-title">1/4决赛</h3>
+                    <h3 class="round-title">Tứ kết</h3>
                     <div class="matches-container">`;
-        
-        // 添加1/4决赛左侧2场
+
         for (let i = 0; i < 2; i++) {
             const match = quarterFinals[i];
-            
+
             html += `
                 <div class="match-single">
                     <div class="match">
@@ -604,14 +586,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>`;
         }
-        
+
         html += `
                     </div>
                 </div>
-                
-                <!-- 半决赛 - 左侧 -->
+
+                <!-- Bán kết - bên trái -->
                 <div class="bracket-column">
-                    <h3 class="round-title">半决赛</h3>
+                    <h3 class="round-title">Bán kết</h3>
                     <div class="matches-container">
                         <div class="match-single">
                             <div class="match">
@@ -627,10 +609,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>
-                
-                <!-- 决赛 -->
+
+                <!-- Chung kết -->
                 <div class="bracket-column">
-                    <h3 class="round-title">决赛</h3>
+                    <h3 class="round-title">Chung kết</h3>
                     <div class="matches-container">
                         <div class="match-single final">
                             <div class="match">
@@ -646,10 +628,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>
-                
-                <!-- 半决赛 - 右侧 -->
+
+                <!-- Bán kết - bên phải -->
                 <div class="bracket-column">
-                    <h3 class="round-title">半决赛</h3>
+                    <h3 class="round-title">Bán kết</h3>
                     <div class="matches-container">
                         <div class="match-single">
                             <div class="match">
@@ -665,16 +647,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>
-                
-                <!-- 1/4决赛 - 右侧 -->
+
+                <!-- Tứ kết - bên phải -->
                 <div class="bracket-column">
-                    <h3 class="round-title">1/4决赛</h3>
+                    <h3 class="round-title">Tứ kết</h3>
                     <div class="matches-container">`;
-        
-        // 添加1/4决赛右侧2场
+
         for (let i = 2; i < 4; i++) {
             const match = quarterFinals[i];
-            
+
             html += `
                 <div class="match-single">
                     <div class="match">
@@ -689,21 +670,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>`;
         }
-        
+
         html += `
                     </div>
                 </div>
-                
-                <!-- 1/8决赛 - 右侧 -->
+
+                <!-- Vòng 1/8 - bên phải -->
                 <div class="bracket-column">
-                    <h3 class="round-title">1/8决赛</h3>
+                    <h3 class="round-title">Vòng 1/8</h3>
                     <div class="matches-container">`;
-        
-        // 添加1/8决赛右侧4场
+
         for (let i = 4; i < 8; i++) {
             const match = firstLegMatches[i];
             const result = round16Results[i];
-            
+
             html += `
                 <div class="match-pair">
                     <div class="match">
@@ -731,33 +711,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>`;
         }
-        
+
         html += `
                     </div>
                 </div>
             </div>
-            
-            <!-- 冠军 -->
+
+            <!-- Nhà vô địch -->
             <div class="champion-container">
-                <h3 class="champion-title">🏆 冠军</h3>
+                <h3 class="champion-title">🏆 Nhà vô địch</h3>
                 <div class="champion-team">${final.winner}</div>
             </div>
         </div>`;
-        
+
         return html;
     }
-    
-    // 获取下一个比赛日期
+
+    // Tính ngày thi đấu tiếp theo
     function getNextDate(date) {
         const parts = date.split('/');
         let month = parseInt(parts[0]);
         let day = parseInt(parts[1]) + 7;
-        
+
         if (day > 30) {
             day = day - 30;
             month++;
         }
-        
+
         return `${month < 10 ? '0' + month : month}/${day < 10 ? '0' + day : day}`;
     }
 });

@@ -1,6 +1,6 @@
-/* 现代化足球预测网站UI设计 */
+/* Thiết kế UI hiện đại cho website dự đoán bóng đá */
 :root {
-    /* 现代蓝绿色主题 */
+    /* Chủ đề xanh dương - xanh lục hiện đại */
     --primary-color: #1e40af;
     --secondary-color: #0ea5e9;
     --accent-color: #10b981;
@@ -8,23 +8,23 @@
     --warning-color: #f59e0b;
     --danger-color: #dc2626;
     
-    /* 中性色 */
+    /* Màu trung tính */
     --text-primary: #1f2937;
     --text-secondary: #6b7280;
     --text-light: #9ca3af;
     
-    /* 背景色 */
+    /* Màu nền */
     --bg-primary: #f8fafc;
     --bg-secondary: #f1f5f9;
     --card-bg: #ffffff;
     --border-color: #e2e8f0;
     
-    /* 渐变 */
+    /* Gradient */
     --gradient-primary: linear-gradient(135deg, #1e40af 0%, #0ea5e9 100%);
     --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
     --gradient-danger: linear-gradient(135deg, #dc2626 0%, #f87171 100%);
     
-    /* 阴影 */
+    /* Đổ bóng */
     --shadow-light: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-heavy: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -44,10 +44,10 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     font-size: 14px;
-    padding-top: 80px; /* 为固定导航栏留出空间 */
+    padding-top: 80px; /* Chừa không gian cho thanh điều hướng cố định */
 }
 
-/* 导航栏样式 */
+/* Kiểu thanh điều hướng */
 .navbar {
     position: fixed;
     top: 0;
@@ -86,7 +86,7 @@ body {
 .nav-menu {
     display: flex;
     gap: 0.5rem;
-    justify-content: center; /* 使导航按钮居中 */
+    justify-content: center; /* Căn giữa các nút điều hướng */
 }
 
 .nav-btn {
@@ -127,7 +127,7 @@ body {
     min-height: calc(100vh - 80px);
 }
 
-/* 主页面头部 */
+/* Phần đầu trang chính */
 .main-header {
     margin-bottom: 2rem;
 }
@@ -171,7 +171,7 @@ body {
     line-height: 1.6;
 }
 
-/* 预测成功案例 */
+/* Các trường hợp dự đoán thành công */
 .success-cases {
     background: var(--bg-secondary);
     border-radius: 16px;
@@ -283,7 +283,7 @@ body {
     border-radius: 6px;
 }
 
-/* 统计数据 */
+/* Dữ liệu thống kê */
 .cases-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -312,14 +312,13 @@ body {
     font-weight: 500;
 }
 
-/* Main Content */
+/* Nội dung chính */
 main {
     padding: 0;
     max-width: 100%;
 }
 
-
-/* Input Sections */
+/* Khu vực nhập liệu */
 .match-input-section {
     background: var(--card-bg);
     border-radius: 12px;
@@ -340,7 +339,7 @@ main {
     display: none;
 }
 
-/* Classic Mode Layout */
+/* Bố cục chế độ cổ điển */
 .classic-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -396,7 +395,7 @@ main {
     opacity: 0.8;
 }
 
-/* Form Styles */
+/* Kiểu biểu mẫu */
 .match-form,
 .ai-match-form {
     max-width: 100%;
@@ -439,7 +438,7 @@ main {
     box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
-/* Buttons */
+/* Nút */
 .btn {
     padding: 0.75rem 1.5rem;
     border: none;
@@ -482,7 +481,7 @@ main {
     border-color: var(--primary-color);
 }
 
-/* 彩票模式布局 */
+/* Bố cục chế độ xổ số thể thao */
 .lottery-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -509,7 +508,7 @@ main {
     gap: 0.5rem;
 }
 
-/* Lottery Controls */
+/* Điều khiển xổ số thể thao */
 .lottery-controls {
     margin-bottom: 1.5rem;
 }
@@ -529,7 +528,7 @@ main {
     gap: 0.5rem;
 }
 
-/* Match Cards */
+/* Thẻ trận đấu */
 .matches-section {
     background: var(--card-bg);
     border-radius: 12px;
@@ -596,7 +595,7 @@ main {
     background: rgba(30, 64, 175, 0.05);
 }
 
-/* Match Card Content */
+/* Nội dung thẻ trận đấu */
 .match-info {
     margin-bottom: 1rem;
 }
@@ -681,7 +680,7 @@ main {
     transform: scale(1.05);
 }
 
-/* Action Buttons */
+/* Nút thao tác */
 .action-buttons {
     display: flex;
     gap: 1rem;
@@ -689,7 +688,7 @@ main {
     flex-wrap: wrap;
 }
 
-/* Results Section */
+/* Khu vực kết quả */
 .results-section {
     background: var(--card-bg);
     border-radius: 12px;
@@ -709,7 +708,7 @@ main {
     display: none;
 }
 
-/* Tabs */
+/* Tab */
 .tabs {
     display: flex;
     gap: 0.5rem;
@@ -748,7 +747,7 @@ main {
     display: block;
 }
 
-/* AI Result Cards */
+/* Thẻ kết quả AI */
 .simple-ai-results {
     display: flex;
     flex-direction: column;
@@ -900,7 +899,7 @@ main {
     font-size: 1rem;
 }
 
-/* Source Tag */
+/* Nhãn nguồn */
 .match-source {
     text-align: right;
     margin-top: 1rem;
@@ -924,7 +923,7 @@ main {
     opacity: 0.9;
 }
 
-/* Messages */
+/* Thông báo */
 .message {
     position: fixed;
     top: 20px;
@@ -964,7 +963,7 @@ main {
     }
 }
 
-/* Loading Overlay */
+/* Lớp phủ tải */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -998,7 +997,7 @@ main {
     }
 }
 
-/* Footer */
+/* Chân trang */
 footer {
     background: var(--card-bg);
     border-top: 1px solid var(--border-color);
@@ -1009,10 +1008,10 @@ footer {
     font-size: 0.85rem;
 }
 
-/* Responsive Design */
+/* Thiết kế đáp ứng */
 @media (max-width: 768px) {
     body {
-        padding-top: 120px; /* 增加移动端导航栏高度 */
+        padding-top: 120px; /* Tăng chiều cao thanh điều hướng trên di động */
     }
     
     .navbar {
@@ -1091,12 +1090,12 @@ footer {
         font-size: 2rem;
     }
     
-    /* 响应式预测结果布局 */
+    /* Bố cục kết quả dự đoán đáp ứng */
     .individual-results {
         grid-template-columns: 1fr;
     }
     
-    /* 响应式经典模式布局 */
+    /* Bố cục chế độ cổ điển đáp ứng */
     .classic-layout {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -1107,7 +1106,7 @@ footer {
         padding: 1rem;
     }
     
-    /* 响应式彩票模式布局 */
+    /* Bố cục chế độ xổ số thể thao đáp ứng */
     .lottery-layout {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -1166,7 +1165,7 @@ footer {
     }
 }
 
-/* AI Introduction */
+/* Giới thiệu AI */
 .ai-intro {
     background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
     border-radius: 12px;
@@ -1188,7 +1187,7 @@ footer {
     color: var(--secondary-color);
 }
 
-/* Loading Messages */
+/* Thông báo tải */
 .loading-message {
     text-align: center;
     padding: 3rem;
@@ -1205,7 +1204,7 @@ footer {
     color: var(--primary-color);
 }
 
-/* Lottery Selected Matches */
+/* Các trận xổ số thể thao đã chọn */
 .selected-matches-section {
     margin-top: 2rem;
     padding: 1.5rem;
@@ -1237,7 +1236,7 @@ footer {
     flex-wrap: wrap;
 }
 
-/* Lottery Matches Container */
+/* Vùng chứa trận xổ số thể thao */
 .lottery-matches-list {
     background: var(--card-bg);
     border-radius: 8px;
@@ -1256,7 +1255,7 @@ footer {
     overflow-y: auto;
 }
 
-/* Lottery Match Cards - Compact Style */
+/* Thẻ trận xổ số thể thao - kiểu gọn */
 .lottery-match-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -1386,7 +1385,7 @@ footer {
     background: var(--success-color);
 }
 
-/* League Section in Lottery */
+/* Khu vực giải đấu trong chế độ xổ số thể thao */
 .league-section {
     margin-bottom: 1rem;
 }
@@ -1416,14 +1415,14 @@ footer {
     gap: 0.3rem;
 }
 
-/* 预测结果网格布局 */
+/* Bố cục lưới kết quả dự đoán */
 .individual-results {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
 }
 
-/* 经典预测结果样式 - 更紧凑版 */
+/* Kiểu kết quả dự đoán cổ điển - bản gọn */
 .classic-prediction {
     background: var(--card-bg);
     border-radius: 8px;
@@ -1575,7 +1574,7 @@ footer {
     font-size: 0.7rem;
 }
 
-/* 串关结果样式 */
+/* Kiểu kết quả tổ hợp xiên */
 .best-parlay-card {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%);
     border: 2px solid var(--accent-color);
@@ -1666,7 +1665,7 @@ footer {
     margin-left: 0.5rem;
 }
 
-/* 其他串关组合 */
+/* Các tổ hợp xiên khác */
 .parlays-list h3 {
     margin-bottom: 1rem;
     color: var(--text-primary);
@@ -1721,7 +1720,7 @@ footer {
     border: 1px solid var(--border-color);
 }
 
-/* AI模式购物车样式 */
+/* Kiểu giỏ hàng chế độ AI */
 .ai-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1765,7 +1764,7 @@ footer {
 }
 
 .ai-cart-container:empty::before {
-    content: "购物车为空";
+    content: "Danh sách đang trống";
     display: block;
     text-align: center;
     color: var(--text-secondary);
@@ -1856,7 +1855,7 @@ footer {
     font-weight: 600;
 }
 
-/* 响应式设计 */
+/* Thiết kế đáp ứng */
 @media (max-width: 768px) {
     .ai-layout {
         grid-template-columns: 1fr;
@@ -1873,7 +1872,7 @@ footer {
         gap: 0.5rem;
     }
 } 
-/* 模态框样式 */
+/* Kiểu hộp thoại */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -2010,7 +2009,7 @@ footer {
     transition: all 0.2s ease;
 }
 
-/* 响应式模态框 */
+/* Hộp thoại đáp ứng */
 @media (max-width: 768px) {
     .modal-content {
         min-width: 90vw;
@@ -2033,7 +2032,7 @@ footer {
     }
 }
 
-/* 彩票模式折叠功能 */
+/* Chức năng thu gọn trong chế độ xổ số thể thao */
 .matches-summary {
     display: flex;
     justify-content: space-between;
@@ -2069,18 +2068,18 @@ footer {
     transition: all 0.2s ease;
 }
 
-/* 比赛卡片基础样式 */
+/* Kiểu cơ bản của thẻ trận đấu */
 .lottery-match-card {
     display: block;
     transition: all 0.3s ease;
 }
 
-/* 隐藏的比赛卡片 */
+/* Thẻ trận đấu bị ẩn */
 .lottery-match-card.hidden-match {
     display: none !important;
 }
 
-/* 折叠状态指示器 */
+/* Chỉ báo trạng thái thu gọn */
 .matches-fade-overlay {
     position: relative;
     background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.9) 100%);
@@ -2095,7 +2094,7 @@ footer {
     font-weight: 500;
 }
 
-/* 最佳串关推荐 */
+/* Đề xuất tổ hợp xiên tốt nhất */
 .best-parlay-section {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border: 2px solid var(--primary-color);
@@ -2240,7 +2239,7 @@ footer {
     color: var(--text-secondary);
 }
 
-/* 比赛展开/折叠动画 */
+/* Hiệu ứng mở rộng/thu gọn trận đấu */
 .lottery-matches-list {
     transition: max-height 0.3s ease-out;
     overflow: hidden;
@@ -2257,7 +2256,7 @@ footer {
     border-radius: 0 0 8px 8px;
 }
 
-/* 响应式串关推荐 */
+/* Đề xuất tổ hợp xiên đáp ứng */
 @media (max-width: 768px) {
     .parlay-header {
         flex-direction: column;
@@ -2276,7 +2275,7 @@ footer {
     }
 }
 
-/* 使用指南样式 */
+/* Kiểu hướng dẫn sử dụng */
 .usage-guide {
     margin-top: 2rem;
     background: var(--card-bg);
@@ -2385,7 +2384,7 @@ footer {
     color: var(--secondary-color);
 }
 
-/* 响应式使用指南 */
+/* Hướng dẫn sử dụng đáp ứng */
 @media (max-width: 768px) {
     .usage-guide {
         margin-top: 1rem;
@@ -2411,8 +2410,7 @@ footer {
     }
 }
 
-
-/* 用户认证弹窗样式 */
+/* Kiểu hộp thoại xác thực người dùng */
 .auth-modal {
     position: fixed;
     top: 0;
@@ -2531,7 +2529,7 @@ footer {
     text-decoration: underline;
 }
 
-/* 导航栏用户区域样式 */
+/* Kiểu khu vực người dùng trên thanh điều hướng */
 .nav-user {
     margin-left: auto;
     display: flex;
@@ -2584,7 +2582,7 @@ footer {
 
 .user-type-badge.premium {
     background: var(--accent-color);
-    color: white; /* 保持白色文字，因为 accent-color 是绿色系 */
+    color: white; /* Giữ chữ màu trắng vì accent-color thuộc tông xanh lục */
 }
 
 .predictions-remaining {
@@ -2597,7 +2595,7 @@ footer {
     gap: 0.5rem;
 }
 
-/* 消息提示样式 */
+/* Kiểu thông báo xác thực */
 .auth-message {
     position: fixed;
     top: 100px;
@@ -2631,8 +2629,7 @@ footer {
     gap: 0.5rem;
 }
 
-
-/* 禁用按钮样式 */
+/* Kiểu nút bị vô hiệu hóa */
 .btn.disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -2657,4 +2654,3 @@ footer {
     background: var(--bg-secondary);
     transform: none;
 }
-

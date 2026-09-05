@@ -8,47 +8,49 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from sklearn.preprocessing import StandardScaler
 from config import *
 
+
 def prepare_training_data(match_features_df):
-    """准备训练数据"""
+    """Chuẩn bị dữ liệu huấn luyện."""
     if match_features_df is None or match_features_df.empty:
-        print("无效的比赛特征数据")
+        print("Dữ liệu đặc trưng trận đấu không hợp lệ")
         return None, None
-    
-    # 只使用已完成的比赛
+
+    # Chỉ sử dụng các trận đã kết thúc
     completed_matches = match_features_df[match_features_df['status'] == 'FINISHED'].copy()
-    
+
     if completed_matches.empty:
-        print("没有已完成的比赛数据")
+        print("Không có dữ liệu trận đã kết thúc")
         return None, None
-    
-    # 选择特征列
+
+    # Chọn các cột đặc trưng
     feature_cols = [col for col in completed_matches.columns if col.startswith('home_') or col.startswith('away_')]
     feature_cols = [col for col in feature_cols if col not in ['home_team', 'away_team', 'home_score', 'away_score']]
-    
-    # 准备特征和目标变量
+
+    # Chuẩn bị đặc trưng và biến mục tiêu
     X = completed_matches[feature_cols].copy()
     y = completed_matches['result'].copy()
-    
-    # 处理缺失值
+
+    # Xử lý giá trị thiếu
     X = X.fillna(0)
-    
-    # 标准化特征
+
+    # Chuẩn hóa đặc trưng
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    
+
     return X_scaled, y, feature_cols, scaler
 
+
 def train_match_result_model(match_features_df, model_type='rf'):
-    """训练比赛结果预测模型"""
+    """Huấn luyện mô hình dự đoán kết quả trận đấu."""
     X, y, feature_cols, scaler = prepare_training_data(match_features_df)
-    
+
     if X is None or y is None:
         return None
-    
-    # 分割训练集和测试集
+
+    # Chia tập huấn luyện và kiểm thử
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    # 选择模型
+
+    # Chọn mô hình
     if model_type == 'rf':
         model = RandomForestClassifier(n_estimators=100, random_state=42)
         param_grid = {
@@ -64,80 +66,82 @@ def train_match_result_model(match_features_df, model_type='rf'):
             'max_depth': [3, 5, 7]
         }
     else:
-        print(f"不支持的模型类型: {model_type}")
+        print(f"Loại mô hình không được hỗ trợ: {model_type}")
         return None
-    
-    # 使用网格搜索找到最佳参数
-    print("正在进行网格搜索以找到最佳参数...")
+
+    # Tìm bộ tham số tốt nhất bằng grid search
+    print("Đang chạy grid search để tìm tham số tốt nhất...")
     grid_search = GridSearchCV(model, param_grid, cv=5, scoring='accuracy')
     grid_search.fit(X_train, y_train)
-    
+
     best_model = grid_search.best_estimator_
-    print(f"最佳参数: {grid_search.best_params_}")
-    
-    # 在测试集上评估模型
+    print(f"Tham số tốt nhất: {grid_search.best_params_}")
+
+    # Đánh giá mô hình trên tập kiểm thử
     y_pred = best_model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    
-    print(f"模型准确率: {accuracy:.4f}")
-    print("分类报告:")
+
+    print(f"Độ chính xác của mô hình: {accuracy:.4f}")
+    print("Báo cáo phân loại:")
     print(classification_report(y_test, y_pred))
-    print("混淆矩阵:")
+    print("Ma trận nhầm lẫn:")
     print(confusion_matrix(y_test, y_pred))
-    
-    # 保存模型
+
+    # Lưu mô hình
     if not os.path.exists(os.path.dirname(MODEL_SAVE_PATH)):
         os.makedirs(os.path.dirname(MODEL_SAVE_PATH))
-    
+
     with open(MODEL_SAVE_PATH, 'wb') as f:
         pickle.dump({
             'model': best_model,
             'feature_cols': feature_cols,
             'scaler': scaler
         }, f)
-    
-    print(f"模型已保存至 {MODEL_SAVE_PATH}")
-    
+
+    print(f"Đã lưu mô hình vào {MODEL_SAVE_PATH}")
+
     return {
         'model': best_model,
         'feature_cols': feature_cols,
         'scaler': scaler
     }
 
+
 def load_model():
-    """加载保存的模型"""
+    """Tải mô hình đã lưu."""
     try:
         with open(MODEL_SAVE_PATH, 'rb') as f:
             model_data = pickle.load(f)
-        print(f"从{MODEL_SAVE_PATH}加载了模型")
+        print(f"Đã tải mô hình từ {MODEL_SAVE_PATH}")
         return model_data
     except:
-        print(f"无法加载模型，请先训练模型")
+        print("Không thể tải mô hình; hãy huấn luyện mô hình trước")
         return None
 
+
 def predict_match(model_data, match_features):
-    """预测单场比赛结果"""
+    """Dự đoán kết quả một trận đấu."""
     if model_data is None:
-        print("无效的模型数据")
+        print("Dữ liệu mô hình không hợp lệ")
         return None
-    
+
     model = model_data['model']
     feature_cols = model_data['feature_cols']
     scaler = model_data['scaler']
-    
-    # 提取特征
+
+    # Trích xuất đặc trưng
     X = match_features[feature_cols].values.reshape(1, -1)
-    
-    # 标准化特征
+
+    # Chuẩn hóa đặc trưng
     X_scaled = scaler.transform(X)
-    
-    # 预测结果概率
+
+    # Dự đoán xác suất kết quả
     proba = model.predict_proba(X_scaled)[0]
-    
-    # 获取类别标签
+
+    # Lấy nhãn lớp
     classes = model.classes_
-    
-    # 创建结果字典
+
+    # Tạo kết quả. Giữ H/D/A làm mã kỹ thuật nội bộ.
     result = {}
     for i, cls in enumerate(classes):
         if cls == 'H':
@@ -146,18 +150,19 @@ def predict_match(model_data, match_features):
             result['draw'] = proba[i]
         elif cls == 'A':
             result['away_win'] = proba[i]
-    
+
     return result
 
+
 if __name__ == "__main__":
-    # 测试模型训练功能
+    # Kiểm tra chức năng huấn luyện mô hình
     from data_processing import load_or_process_data
     from models.feature_engineering import load_or_create_features, prepare_match_features
-    
+
     processed_data = load_or_process_data()
     features_df = load_or_create_features(processed_data['matches'])
-    
+
     if features_df is not None:
         match_features_df = prepare_match_features(processed_data['matches'], features_df)
         model_data = train_match_result_model(match_features_df)
-        print("模型训练完成")
+        print("Đã hoàn tất huấn luyện mô hình")
