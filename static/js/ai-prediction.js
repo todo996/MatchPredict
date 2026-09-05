@@ -1,5 +1,5 @@
 /**
- * AI智能预测模块
+ * Mô-đun dự đoán AI thông minh
  */
 
 class AIPredictionManager {
@@ -8,15 +8,13 @@ class AIPredictionManager {
         this.aiMatches = [];
         this.aiResults = null;
         this.initializeEventListeners();
-        
-        // 初始化按钮状态
+
         setTimeout(() => {
             this.updateAIPredictButtonText();
         }, 100);
     }
 
     initializeEventListeners() {
-        // 模式切换按钮
         const modeButtons = document.querySelectorAll('.mode-btn');
         modeButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -25,19 +23,16 @@ class AIPredictionManager {
             });
         });
 
-        // AI模式添加比赛按钮
         const addAiMatchBtn = document.getElementById('add-ai-match-btn');
         if (addAiMatchBtn) {
             addAiMatchBtn.addEventListener('click', () => this.addAIMatch());
         }
 
-        // AI预测按钮
         const aiPredictBtn = document.getElementById('ai-predict-btn');
         if (aiPredictBtn) {
             aiPredictBtn.addEventListener('click', () => this.startAIPrediction());
         }
 
-        // 标签页切换
         const tabButtons = document.querySelectorAll('.tab-btn');
         tabButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -49,55 +44,43 @@ class AIPredictionManager {
 
     switchMode(mode) {
         this.currentMode = mode;
-        
-        // 清空所有结果
         this.clearAllResults();
-        
-        // 更新UI显示
         this.updateTabsVisibility(mode);
         this.updateModeButtons(mode);
         this.updateModeSpecificDisplay(mode);
-        
-        // 根据模式更新按钮文本和比赛计数
         this.updateMatchCount();
-        
-        // 重新渲染当前模式的比赛
+
         if (mode === 'lottery' && window.lotteryManager) {
-            // 重新显示体彩选中的比赛
             setTimeout(() => {
                 this.updateModeSpecificDisplay(mode);
                 this.updateMatchCount();
             }, 100);
         }
-        
-        console.log(`切换到${mode}模式`);
+
+        console.log(`Đã chuyển sang chế độ ${mode}`);
     }
 
     clearAllResults() {
-        // 清空分析结果显示
         const resultContainer = document.getElementById('ai-analysis-results');
         if (resultContainer) {
             resultContainer.innerHTML = '';
         }
-        
-        // 清空经典模式结果
+
         const classicResults = document.getElementById('results');
         if (classicResults) {
             classicResults.innerHTML = '';
         }
-        
-        // 重置为默认标签页
+
         this.switchTab('ai-input');
     }
 
     updateModeButtons(mode) {
-        // 更新模式按钮状态
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.getElementById(`${mode}-mode-btn`).classList.add('active');
+        const modeBtn = document.getElementById(`${mode}-mode-btn`);
+        if (modeBtn) modeBtn.classList.add('active');
 
-        // 显示/隐藏对应的输入区域
         document.querySelectorAll('.match-input-section').forEach(section => {
             section.classList.add('hidden');
         });
@@ -107,14 +90,10 @@ class AIPredictionManager {
             targetSection.classList.remove('hidden');
         }
 
-        // 所有模式都只显示AI预测按钮，隐藏经典预测按钮
         const classicPredictBtn = document.getElementById('predict-btn');
         const aiPredictBtn = document.getElementById('ai-predict-btn');
 
-        // 隐藏经典预测按钮
         if (classicPredictBtn) classicPredictBtn.classList.add('hidden');
-        
-        // 显示AI预测按钮
         if (aiPredictBtn) {
             aiPredictBtn.classList.remove('hidden');
         }
@@ -125,18 +104,15 @@ class AIPredictionManager {
         if (!matchesContainer) return;
 
         if (mode === 'classic') {
-            // 经典模式：显示全局比赛列表
             if (typeof window.updateMatchesUI === 'function') {
                 window.updateMatchesUI();
             } else {
-                matchesContainer.innerHTML = '<div class="empty-message"><i class="fas fa-futbol"></i><p>尚未添加任何比赛</p></div>';
+                matchesContainer.innerHTML = '<div class="empty-message"><i class="fas fa-futbol"></i><p>Chưa thêm trận nào</p></div>';
             }
         } else if (mode === 'ai') {
-            // AI模式：显示AI模式的比赛列表
             this.renderAIMatches();
         } else if (mode === 'lottery') {
-            // 体彩模式：隐藏matches-container，因为体彩有自己的显示区域
-            matchesContainer.innerHTML = '<div class="empty-message"><i class="fas fa-info-circle"></i><p>体彩模式的比赛显示在上方选择区域</p></div>';
+            matchesContainer.innerHTML = '<div class="empty-message"><i class="fas fa-info-circle"></i><p>Danh sách trận xổ số thể thao được hiển thị ở khu vực chọn phía trên</p></div>';
         }
     }
 
@@ -152,16 +128,16 @@ class AIPredictionManager {
                     </div>
                     <div class="league">${match.league_name}</div>
                 </div>
-                
+
                 <div class="odds-info">
                     <div class="odds-group">
-                        <span class="odds-label">胜平负:</span>
+                        <span class="odds-label">1X2:</span>
                         <span class="odds-values">${odds.h || 'N/A'} / ${odds.d || 'N/A'} / ${odds.a || 'N/A'}</span>
                     </div>
                 </div>
-                
+
                 <div class="match-source">
-                    <span class="source-tag">体彩数据</span>
+                    <span class="source-tag">Dữ liệu xổ số thể thao</span>
                 </div>
             </div>
         `;
@@ -186,23 +162,21 @@ class AIPredictionManager {
         const drawOdds = parseFloat(document.getElementById('ai-draw-odds').value);
         const awayOdds = parseFloat(document.getElementById('ai-away-odds').value);
 
-        // 验证输入
         if (!homeTeam || !awayTeam) {
-            this.showMessage('请填写主队和客队名称', 'error');
+            this.showMessage('Vui lòng nhập tên đội chủ nhà và đội khách', 'error');
             return;
         }
 
         if (!league) {
-            this.showMessage('请填写联赛名称', 'error');
+            this.showMessage('Vui lòng nhập tên giải đấu', 'error');
             return;
         }
 
         if (isNaN(homeOdds) || isNaN(drawOdds) || isNaN(awayOdds)) {
-            this.showMessage('请填写正确的赔率信息', 'error');
+            this.showMessage('Vui lòng nhập đầy đủ tỷ lệ cược hợp lệ', 'error');
             return;
         }
 
-        // 创建比赛数据
         const match = {
             match_id: `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             home_team: homeTeam,
@@ -220,12 +194,10 @@ class AIPredictionManager {
         this.aiMatches.push(match);
         this.updateAICartDisplay();
         this.clearAIForm();
-        
-        // 更新按钮状态和计数
         this.updateAIMatchCount();
         this.updateAIPredictButtonText();
 
-        this.showMessage('比赛已添加到购物车', 'success');
+        this.showMessage('Đã thêm trận vào danh sách', 'success');
     }
 
     clearAIForm() {
@@ -238,7 +210,6 @@ class AIPredictionManager {
     }
 
     renderAIMatches() {
-        // 使用新的购物车显示方法
         this.updateAICartDisplay();
     }
 
@@ -254,14 +225,14 @@ class AIPredictionManager {
                     </div>
                     <div class="league">${match.league_name}</div>
                 </div>
-                
+
                 <div class="odds-info">
                     <div class="odds-group">
-                        <span class="odds-label">胜平负:</span>
+                        <span class="odds-label">1X2:</span>
                         <span class="odds-values">${odds.h} / ${odds.d} / ${odds.a}</span>
                     </div>
                 </div>
-                
+
                 <div class="match-actions">
                     <button class="remove-match-btn" data-index="${index}">
                         <i class="fas fa-trash"></i>
@@ -272,7 +243,6 @@ class AIPredictionManager {
     }
 
     bindAIMatchEvents() {
-        // 删除比赛按钮
         document.querySelectorAll('.remove-match-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -292,9 +262,9 @@ class AIPredictionManager {
     updateMatchCount() {
         const matchCount = document.getElementById('match-count');
         if (!matchCount) return;
-        
+
         let count = 0;
-        
+
         if (this.currentMode === 'lottery') {
             count = window.lotteryManager ? window.lotteryManager.selectedMatches.size : 0;
         } else if (this.currentMode === 'ai') {
@@ -302,106 +272,90 @@ class AIPredictionManager {
         } else if (this.currentMode === 'classic') {
             count = window.matches ? window.matches.length : 0;
         }
-        
+
         matchCount.textContent = `(${count})`;
-        
-        // 同时更新按钮状态
         this.updateAIPredictButtonText();
     }
 
     async startAIPrediction() {
-        // 检查登录状态和预测权限
         if (!await window.authManager.checkPredictionLimit()) {
             return;
         }
-        
+
         try {
-            // 获取要预测的比赛数据
             let matchesToPredict = [];
-            
+
             if (this.currentMode === 'lottery') {
-                // 体彩模式：获取体彩选中的比赛
                 if (window.lotteryManager && window.lotteryManager.getSelectedMatches) {
                     const lotteryMatches = window.lotteryManager.getSelectedMatches();
                     matchesToPredict = lotteryMatches.map(match => this.convertToAIFormat(match));
-                    console.log('体彩模式选中比赛:', lotteryMatches);
+                    console.log('Các trận xổ số thể thao đã chọn:', lotteryMatches);
                 }
             } else if (this.currentMode === 'ai') {
-                // AI模式：使用AI模式添加的比赛
                 matchesToPredict = this.aiMatches;
             } else if (this.currentMode === 'classic') {
-                // 经典模式：使用全局比赛列表
                 if (window.matches && window.matches.length > 0) {
                     matchesToPredict = window.matches.map(match => this.convertToAIFormat(match));
                 }
             }
 
             if (!matchesToPredict || matchesToPredict.length === 0) {
-                this.showMessage('请先选择或添加比赛', 'error');
+                this.showMessage('Vui lòng chọn hoặc thêm trận trước', 'error');
                 return;
             }
 
-            console.log('开始AI预测，比赛数量:', matchesToPredict.length);
-            console.log('比赛数据:', matchesToPredict);
+            console.log('Bắt đầu dự đoán AI, số trận:', matchesToPredict.length);
+            console.log('Dữ liệu trận:', matchesToPredict);
 
-            // 显示加载状态
             const loadingElement = document.getElementById('loading-overlay');
             if (loadingElement) {
                 loadingElement.classList.remove('hidden');
             }
 
-            // 更新按钮状态
             const aiPredictBtn = document.getElementById('ai-predict-btn');
             if (aiPredictBtn) {
                 aiPredictBtn.disabled = true;
-                aiPredictBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI分析中...';
+                aiPredictBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI đang phân tích...';
             }
 
-            // 直接调用Gemini API进行预测
             const predictions = [];
             for (const match of matchesToPredict) {
                 try {
-                    console.log(`开始预测比赛: ${match.home_team} vs ${match.away_team}`);
+                    console.log(`Bắt đầu dự đoán: ${match.home_team} vs ${match.away_team}`);
                     const prediction = await this.predictMatchWithGemini(match);
                     if (prediction) {
                         predictions.push(prediction);
-                        console.log(`比赛预测成功: ${match.home_team} vs ${match.away_team}`);
+                        console.log(`Dự đoán thành công: ${match.home_team} vs ${match.away_team}`);
                     }
                 } catch (error) {
-                    console.error(`预测比赛失败 ${match.home_team} vs ${match.away_team}:`, error);
-                    // 继续处理其他比赛，不中断整个流程
+                    console.error(`Dự đoán thất bại ${match.home_team} vs ${match.away_team}:`, error);
                 }
             }
 
             if (predictions.length > 0) {
-                this.aiResults = predictions; // 直接存储预测数组
+                this.aiResults = predictions;
                 this.displayAIResults();
-                this.showMessage(`AI预测完成，成功分析了 ${predictions.length}/${matchesToPredict.length} 场比赛`, 'success');
-                
-                // 保存预测结果到数据库
+                this.showMessage(`Đã phân tích thành công ${predictions.length}/${matchesToPredict.length} trận`, 'success');
                 this.savePredictionsToDatabase(predictions);
-                
-                // 显示结果区域并切换到AI分析标签页
+
                 const resultsSection = document.getElementById('results-section');
                 if (resultsSection) {
                     resultsSection.classList.remove('hidden');
                 }
                 this.switchTab('ai-analysis');
             } else {
-                throw new Error('所有比赛预测都失败了，请检查网络连接或API配置');
+                throw new Error('Tất cả dự đoán đều thất bại. Vui lòng kiểm tra kết nối mạng hoặc cấu hình API');
             }
 
         } catch (error) {
-            console.error('AI预测失败:', error);
-            this.showMessage(`AI预测失败: ${error.message}`, 'error');
+            console.error('Dự đoán AI thất bại:', error);
+            this.showMessage(`Dự đoán AI thất bại: ${error.message}`, 'error');
         } finally {
-            // 隐藏加载状态
             const loadingElement = document.getElementById('loading-overlay');
             if (loadingElement) {
                 loadingElement.classList.add('hidden');
             }
 
-            // 恢复按钮状态
             const aiPredictBtn = document.getElementById('ai-predict-btn');
             if (aiPredictBtn) {
                 aiPredictBtn.disabled = false;
@@ -411,17 +365,14 @@ class AIPredictionManager {
     }
 
     convertToAIFormat(match) {
-        // 将不同格式的比赛数据转换为AI预测API需要的格式
         if (match.odds && match.odds.hhad) {
-            // 已经是正确格式（体彩或AI格式）
             return match;
         } else {
-            // 从全局格式转换
             return {
                 match_id: match.id || match.match_id || `converted_${Date.now()}`,
                 home_team: match.home_team,
                 away_team: match.away_team,
-                league_name: match.leagueName || match.league_name || '未知联赛',
+                league_name: match.leagueName || match.league_name || 'Giải đấu chưa xác định',
                 odds: {
                     hhad: {
                         h: (match.home_odds || 2.0).toString(),
@@ -440,7 +391,7 @@ class AIPredictionManager {
         }
 
         let matchCount = 0;
-        
+
         if (this.currentMode === 'lottery') {
             if (window.lotteryManager && window.lotteryManager.selectedMatches) {
                 matchCount = window.lotteryManager.selectedMatches.size;
@@ -450,46 +401,44 @@ class AIPredictionManager {
         } else if (this.currentMode === 'classic') {
             matchCount = window.matches ? window.matches.length : 0;
         }
-        
+
         if (matchCount > 0) {
-            aiPredictBtn.innerHTML = `<i class="fas fa-brain"></i> AI预测选中的 ${matchCount} 场比赛`;
+            aiPredictBtn.innerHTML = `<i class="fas fa-brain"></i> Dự đoán AI ${matchCount} trận đã chọn`;
             aiPredictBtn.disabled = false;
         } else {
-            aiPredictBtn.innerHTML = '<i class="fas fa-brain"></i> AI智能预测';
+            aiPredictBtn.innerHTML = '<i class="fas fa-brain"></i> Dự đoán bằng AI';
             aiPredictBtn.disabled = true;
         }
     }
 
     displayAIResults() {
         if (!this.aiResults || !Array.isArray(this.aiResults) || this.aiResults.length === 0) {
-            this.showMessage('没有AI分析结果', 'error');
+            this.showMessage('Chưa có kết quả phân tích AI', 'error');
             return;
         }
 
-        // 显示简化的AI分析结果到ai-analysis-results容器
         this.renderSimpleAIResults();
     }
 
     renderSimpleAIResults() {
         const container = document.getElementById('ai-analysis-results');
         if (!container) {
-            console.error('ai-analysis-results容器不存在');
+            console.error('Không tìm thấy vùng ai-analysis-results');
             return;
         }
 
-        console.log('开始渲染AI结果，数据:', this.aiResults);
-        console.log('数据类型:', typeof this.aiResults, '是否为数组:', Array.isArray(this.aiResults));
+        console.log('Bắt đầu hiển thị kết quả AI:', this.aiResults);
+        console.log('Kiểu dữ liệu:', typeof this.aiResults, 'Là mảng:', Array.isArray(this.aiResults));
 
         let html = '<div class="simple-ai-results">';
-        
+
         this.aiResults.forEach((result, index) => {
-            // 安全地获取数据，提供默认值
-            const homeTeam = result.home_team || '未知主队';
-            const awayTeam = result.away_team || '未知客队';
-            const leagueName = result.league_name || '未知联赛';
+            const homeTeam = result.home_team || 'Chủ nhà chưa xác định';
+            const awayTeam = result.away_team || 'Đội khách chưa xác định';
+            const leagueName = result.league_name || 'Giải đấu chưa xác định';
             const odds = result.odds || { home: '2.00', draw: '3.20', away: '2.80' };
-            const analysis = result.ai_analysis || '暂无AI分析';
-            
+            const analysis = result.ai_analysis || 'Chưa có phân tích AI';
+
             html += `
                 <div class="ai-result-card">
                     <div class="match-header">
@@ -500,64 +449,54 @@ class AIPredictionManager {
                         </h3>
                         <div class="league-info">${leagueName}</div>
                     </div>
-                    
+
                     <div class="odds-display">
-                        <span class="odds-item">主胜: ${odds.home}</span>
-                        <span class="odds-item">平局: ${odds.draw}</span>
-                        <span class="odds-item">客胜: ${odds.away}</span>
+                        <span class="odds-item">Chủ nhà: ${odds.home}</span>
+                        <span class="odds-item">Hòa: ${odds.draw}</span>
+                        <span class="odds-item">Đội khách: ${odds.away}</span>
                     </div>
-                    
+
                     <div class="ai-analysis-content">
-                        <h4><i class="fas fa-brain"></i> AI智能分析</h4>
+                        <h4><i class="fas fa-brain"></i> Phân tích AI</h4>
                         <div class="analysis-text">${this.formatAnalysisText(analysis)}</div>
                     </div>
                 </div>
             `;
         });
-        
+
         html += '</div>';
         container.innerHTML = html;
     }
 
     formatAnalysisText(text) {
-        if (!text) return '暂无分析';
-        
-        // 处理markdown格式并转换为HTML
+        if (!text) return 'Chưa có phân tích';
+
         let formatted = text
-            // 处理标题
             .replace(/\*\*([^*]+)\*\*/g, '<h5>$1</h5>')
-            // 处理粗体
             .replace(/\*([^*]+)\*/g, '<strong>$1</strong>')
-            // 处理列表项
             .replace(/^\s*[\*\-]\s+(.+)$/gm, '<li>$1</li>')
-            // 处理数字列表
             .replace(/^\s*(\d+)\.\s+(.+)$/gm, '<li>$2</li>')
-            // 处理换行
             .replace(/\n\n/g, '</p><p>')
             .replace(/\n/g, '<br>');
-        
-        // 包装在段落中
+
         if (!formatted.includes('<p>')) {
             formatted = '<p>' + formatted + '</p>';
         }
-        
-        // 处理列表包装
+
         formatted = formatted.replace(/(<li>.*?<\/li>)/gs, function(match) {
             if (!match.includes('<ul>')) {
                 return '<ul>' + match + '</ul>';
             }
             return match;
         });
-        
-        // 处理连续的列表项
+
         formatted = formatted.replace(/(<\/li>)\s*(<li>)/g, '$1$2');
         formatted = formatted.replace(/(<\/ul>)\s*(<ul>)/g, '');
-        
+
         return formatted;
     }
 
     switchTab(tabName) {
-        // 更新标签按钮状态
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -566,7 +505,6 @@ class AIPredictionManager {
             targetBtn.classList.add('active');
         }
 
-        // 更新标签内容显示
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.remove('active');
         });
@@ -577,35 +515,28 @@ class AIPredictionManager {
     }
 
     showMessage(message, type = 'info') {
-        // 创建消息元素
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}`;
         messageDiv.innerHTML = `
             <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
             ${message}
         `;
-        
-        // 添加到页面
+
         document.body.appendChild(messageDiv);
-        
-        // 自动移除
+
         setTimeout(() => {
             messageDiv.remove();
         }, 3000);
     }
 
-    // 直接调用Gemini API预测单场比赛
     async predictMatchWithGemini(match) {
-        // 从环境变量或配置中获取API密钥
         const GEMINI_API_KEY = this.getGeminiApiKey();
         if (!GEMINI_API_KEY) {
-            throw new Error('未找到GEMINI_API_KEY。请确保在Vercel中配置了环境变量，或在控制台中设置: localStorage.setItem("GEMINI_API_KEY", "your_api_key_here")');
+            throw new Error('Không tìm thấy GEMINI_API_KEY. Hãy cấu hình biến môi trường trên Vercel hoặc đặt khóa trong Console: localStorage.setItem("GEMINI_API_KEY", "your_api_key_here")');
         }
 
         const GEMINI_MODEL = window.GEMINI_MODEL || 'gemini-2.5-flash-lite-preview-06-17';
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-
-        // 构建详细的提示词
         const prompt = this.buildPrompt(match);
 
         const requestBody = {
@@ -637,19 +568,19 @@ class AIPredictionManager {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`Gemini API调用失败: ${response.status} - ${errorText}`);
+                throw new Error(`Gọi Gemini API thất bại: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
-            
+
             if (data.candidates && data.candidates.length > 0) {
                 const aiAnalysis = data.candidates[0].content.parts[0].text;
-                
+
                 return {
                     match_id: match.match_id || `match_${Date.now()}`,
                     home_team: match.home_team,
                     away_team: match.away_team,
-                    league_name: match.league_name || '未知联赛',
+                    league_name: match.league_name || 'Giải đấu chưa xác định',
                     ai_analysis: aiAnalysis,
                     odds: {
                         home: match.home_odds || match.odds?.hhad?.h || '2.00',
@@ -658,22 +589,20 @@ class AIPredictionManager {
                     }
                 };
             } else {
-                throw new Error('Gemini API返回数据格式错误');
+                throw new Error('Định dạng dữ liệu trả về từ Gemini API không hợp lệ');
             }
 
         } catch (error) {
-            console.error('Gemini API调用失败:', error);
+            console.error('Gọi Gemini API thất bại:', error);
             throw error;
         }
     }
 
-    // 构建提示词
     buildPrompt(match) {
-        const home_team = match.home_team || '主队';
-        const away_team = match.away_team || '客队';
-        const league_name = match.league_name || '未知联赛';
-        
-        // 获取赔率
+        const home_team = match.home_team || 'Đội chủ nhà';
+        const away_team = match.away_team || 'Đội khách';
+        const league_name = match.league_name || 'Giải đấu chưa xác định';
+
         let home_odds, draw_odds, away_odds;
         if (match.odds && match.odds.hhad) {
             home_odds = match.odds.hhad.h;
@@ -685,78 +614,71 @@ class AIPredictionManager {
             away_odds = match.away_odds || '2.80';
         }
 
-        return `请详细分析这场足球比赛并给出完整预测：
+        return `Hãy phân tích chi tiết trận bóng đá sau và đưa ra dự đoán đầy đủ bằng tiếng Việt:
 
-比赛：${home_team} vs ${away_team}
-联赛：${league_name}
-赔率：主胜 ${home_odds} | 平局 ${draw_odds} | 客胜 ${away_odds}
+Trận đấu: ${home_team} vs ${away_team}
+Giải đấu: ${league_name}
+Tỷ lệ cược: Chủ nhà thắng ${home_odds} | Hòa ${draw_odds} | Khách thắng ${away_odds}
 
-请按以下格式提供详细预测：
+Hãy trả lời theo cấu trúc sau:
 
-**一、比赛分析**
-（考虑两队实力、近期状态、历史对战、主客场优势等因素）
+**1. Phân tích trận đấu**
+(Đánh giá sức mạnh hai đội, phong độ gần đây, lịch sử đối đầu, lợi thế sân nhà/sân khách và các yếu tố liên quan.)
 
-**二、胜平负预测**
-推荐结果：[主胜/平局/客胜]
-推荐理由：
-信心指数：[1-10]
+**2. Dự đoán 1X2**
+Kết quả đề xuất: [Chủ nhà thắng/Hòa/Khách thắng]
+Lý do:
+Độ tin cậy: [1-10]
 
-**三、比分预测**
-最可能比分：
-其他可能比分：
+**3. Dự đoán tỷ số**
+Tỷ số có khả năng cao nhất:
+Các tỷ số khác có thể xảy ra:
 
-**四、半场胜平负预测**
-半场结果：[主胜/平局/客胜]
-全场结果：[主胜/平局/客胜]
-半全场组合：
+**4. Dự đoán hiệp 1/cả trận**
+Kết quả hiệp 1: [Chủ nhà thắng/Hòa/Khách thắng]
+Kết quả cả trận: [Chủ nhà thắng/Hòa/Khách thắng]
+Tổ hợp hiệp 1/cả trận:
 
-**五、进球数预测**
-总进球数：[0-1球/2-3球/4球以上]
-主队进球：
-客队进球：
+**5. Dự đoán tổng bàn thắng**
+Tổng bàn: [0-1 bàn/2-3 bàn/Từ 4 bàn trở lên]
+Bàn thắng đội chủ nhà:
+Bàn thắng đội khách:
 
-**六、其他分析**
-- 大小球分析
-- 亚盘分析
-- 风险提示
+**6. Phân tích bổ sung**
+- Tài/Xỉu
+- Kèo châu Á
+- Cảnh báo rủi ro
 
-请用中文回答，保持专业分析水准。`;
+Hãy trả lời hoàn toàn bằng tiếng Việt, dùng thuật ngữ bóng đá tự nhiên và giữ giọng phân tích chuyên nghiệp.`;
     }
 
-    // 获取Gemini API密钥
     getGeminiApiKey() {
-        // 首先尝试从环境变量获取 (Vercel配置)
         if (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) {
             return process.env.GEMINI_API_KEY;
         }
-        
-        // 然后尝试从全局变量获取 (环境变量注入)
+
         if (window.GEMINI_API_KEY) {
             return window.GEMINI_API_KEY;
         }
-        
-        // 最后尝试从localStorage获取 (用户手动设置)
+
         const localKey = localStorage.getItem('GEMINI_API_KEY');
         if (localKey) {
             return localKey;
         }
-        
-        // 如果都没有，提示用户设置
-        console.warn('未找到GEMINI_API_KEY，请通过以下方式之一配置：');
-        console.warn('1. 在Vercel中配置环境变量 GEMINI_API_KEY');
-        console.warn('2. 在控制台中设置: localStorage.setItem("GEMINI_API_KEY", "your_api_key_here")');
-        console.warn('3. 定义全局变量: window.GEMINI_API_KEY = "your_api_key_here"');
-        
+
+        console.warn('Không tìm thấy GEMINI_API_KEY. Hãy cấu hình bằng một trong các cách sau:');
+        console.warn('1. Cấu hình biến môi trường GEMINI_API_KEY trên Vercel');
+        console.warn('2. Trong Console: localStorage.setItem("GEMINI_API_KEY", "your_api_key_here")');
+        console.warn('3. Định nghĩa biến toàn cục: window.GEMINI_API_KEY = "your_api_key_here"');
+
         return null;
     }
 
-    // 设置API密钥的便捷方法
     setGeminiApiKey(apiKey) {
         localStorage.setItem('GEMINI_API_KEY', apiKey);
-        console.log('GEMINI_API_KEY已保存到localStorage');
+        console.log('Đã lưu GEMINI_API_KEY vào localStorage');
     }
 
-    // 更新AI购物车显示
     updateAICartDisplay() {
         const container = document.getElementById('ai-selected-matches');
         if (!container) return;
@@ -765,8 +687,8 @@ class AIPredictionManager {
             container.innerHTML = `
                 <div class="empty-cart-message">
                     <i class="fas fa-shopping-cart"></i>
-                    <p>购物车为空</p>
-                    <small>请在左侧添加比赛</small>
+                    <p>Chưa chọn trận nào</p>
+                    <small>Hãy thêm trận ở cột bên trái</small>
                 </div>
             `;
         } else {
@@ -775,15 +697,12 @@ class AIPredictionManager {
                 html += this.renderAICartItem(match, index);
             });
             container.innerHTML = html;
-            
-            // 绑定删除按钮事件
             this.bindAICartEvents();
         }
-        
-        // 更新按钮状态
+
         const clearBtn = document.getElementById('clear-ai-selection-btn');
         const predictBtn = document.getElementById('ai-predict-btn');
-        
+
         if (clearBtn) {
             clearBtn.disabled = this.aiMatches.length === 0;
         }
@@ -792,7 +711,6 @@ class AIPredictionManager {
         }
     }
 
-    // 渲染单个购物车项目
     renderAICartItem(match, index) {
         const odds = match.odds.hhad;
         return `
@@ -805,20 +723,18 @@ class AIPredictionManager {
                 </div>
                 <div class="match-info">
                     <span><i class="fas fa-trophy"></i> ${match.league_name}</span>
-                    <span><i class="fas fa-clock"></i> 待预测</span>
+                    <span><i class="fas fa-clock"></i> Chờ dự đoán</span>
                 </div>
                 <div class="odds-info">
-                    <span>主胜: ${odds.h}</span>
-                    <span>平局: ${odds.d}</span>
-                    <span>客胜: ${odds.a}</span>
+                    <span>Chủ nhà: ${odds.h}</span>
+                    <span>Hòa: ${odds.d}</span>
+                    <span>Đội khách: ${odds.a}</span>
                 </div>
             </div>
         `;
     }
 
-    // 绑定购物车事件
     bindAICartEvents() {
-        // 清空购物车按钮
         const clearBtn = document.getElementById('clear-ai-selection-btn');
         if (clearBtn && !clearBtn.hasAttribute('data-bound')) {
             clearBtn.addEventListener('click', () => {
@@ -828,7 +744,6 @@ class AIPredictionManager {
         }
     }
 
-    // 移除AI比赛
     removeAIMatch(index) {
         if (index >= 0 && index < this.aiMatches.length) {
             const match = this.aiMatches[index];
@@ -836,20 +751,18 @@ class AIPredictionManager {
             this.updateAICartDisplay();
             this.updateAIMatchCount();
             this.updateAIPredictButtonText();
-            this.showMessage(`已移除 ${match.home_team} vs ${match.away_team}`, 'info');
+            this.showMessage(`Đã xóa ${match.home_team} vs ${match.away_team}`, 'info');
         }
     }
 
-    // 清空AI选择
     clearAISelection() {
         this.aiMatches = [];
         this.updateAICartDisplay();
         this.updateAIMatchCount();
         this.updateAIPredictButtonText();
-        this.showMessage('购物车已清空', 'info');
+        this.showMessage('Đã xóa toàn bộ danh sách', 'info');
     }
 
-    // 更新AI比赛计数
     updateAIMatchCount() {
         const countElement = document.getElementById('ai-match-count');
         if (countElement) {
@@ -857,26 +770,23 @@ class AIPredictionManager {
         }
     }
 
-    // 保存预测结果到数据库
     async savePredictionsToDatabase(predictions) {
         try {
             for (const prediction of predictions) {
-                // 提取预测结果和信心指数
                 const aiAnalysis = prediction.ai_analysis || '';
-                let predictedResult = '未知';
+                let predictedResult = 'Chưa xác định';
                 let confidence = 5.0;
 
-                // 从AI分析中提取预测结果
-                if (aiAnalysis.includes('主胜') || aiAnalysis.includes('主队')) {
-                    predictedResult = '主胜';
-                } else if (aiAnalysis.includes('客胜') || aiAnalysis.includes('客队')) {
-                    predictedResult = '客胜';
-                } else if (aiAnalysis.includes('平局') || aiAnalysis.includes('平')) {
-                    predictedResult = '平局';
+                // Hỗ trợ đồng thời tiếng Việt mới và tiếng Trung cũ để tương thích dữ liệu trước đây
+                if (/Chủ nhà thắng|đội chủ nhà|主胜|主队/i.test(aiAnalysis)) {
+                    predictedResult = 'Chủ nhà thắng';
+                } else if (/Khách thắng|Đội khách thắng|đội khách|客胜|客队/i.test(aiAnalysis)) {
+                    predictedResult = 'Khách thắng';
+                } else if (/\bHòa\b|平局|平/i.test(aiAnalysis)) {
+                    predictedResult = 'Hòa';
                 }
 
-                // 从AI分析中提取信心指数
-                const confidenceMatch = aiAnalysis.match(/信心指数[：:]?\s*(\d+(?:\.\d+)?)/);
+                const confidenceMatch = aiAnalysis.match(/(?:Độ tin cậy|Chỉ số tin cậy|信心指数)[：:]?\s*(\d+(?:\.\d+)?)/i);
                 if (confidenceMatch) {
                     confidence = parseFloat(confidenceMatch[1]);
                 }
@@ -895,7 +805,6 @@ class AIPredictionManager {
                     ai_analysis: aiAnalysis
                 };
 
-                // 发送到后端保存
                 const response = await fetch('/api/save-prediction', {
                     method: 'POST',
                     headers: {
@@ -905,25 +814,22 @@ class AIPredictionManager {
                 });
 
                 if (response.ok) {
-                    console.log(`✅ 预测结果已保存: ${prediction.home_team} vs ${prediction.away_team}`);
+                    console.log(`✅ Đã lưu kết quả dự đoán: ${prediction.home_team} vs ${prediction.away_team}`);
                 } else {
-                    console.warn(`⚠️ 预测结果保存失败: ${prediction.home_team} vs ${prediction.away_team}`);
+                    console.warn(`⚠️ Không thể lưu kết quả dự đoán: ${prediction.home_team} vs ${prediction.away_team}`);
                 }
             }
         } catch (error) {
-            console.error('保存预测结果到数据库失败:', error);
+            console.error('Không thể lưu kết quả dự đoán vào cơ sở dữ liệu:', error);
         }
     }
 }
 
-// 全局实例
 let aiPredictionManager = null;
 
-// 初始化
 document.addEventListener('DOMContentLoaded', function() {
     aiPredictionManager = new AIPredictionManager();
-    window.aiPredictionManager = aiPredictionManager;  // 暴露为全局变量
+    window.aiPredictionManager = aiPredictionManager;
 });
 
-// 导出给其他模块使用
-window.AIPredictionManager = AIPredictionManager; 
+window.AIPredictionManager = AIPredictionManager;

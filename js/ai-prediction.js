@@ -1,5 +1,5 @@
 /**
- * AI智能预测模块
+ * Mô-đun dự đoán AI thông minh
  */
 
 class AIPredictionManager {
@@ -11,7 +11,7 @@ class AIPredictionManager {
     }
 
     initializeEventListeners() {
-        // 模式切换按钮
+        // Nút chuyển chế độ
         const modeButtons = document.querySelectorAll('.mode-btn');
         modeButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -20,19 +20,19 @@ class AIPredictionManager {
             });
         });
 
-        // AI模式添加比赛按钮
+        // Nút thêm trận trong chế độ AI
         const addAiMatchBtn = document.getElementById('add-ai-match-btn');
         if (addAiMatchBtn) {
             addAiMatchBtn.addEventListener('click', () => this.addAIMatch());
         }
 
-        // AI预测按钮
+        // Nút dự đoán AI
         const aiPredictBtn = document.getElementById('ai-predict-btn');
         if (aiPredictBtn) {
             aiPredictBtn.addEventListener('click', () => this.startAIPrediction());
         }
 
-        // 标签页切换
+        // Chuyển tab
         const tabButtons = document.querySelectorAll('.tab-btn');
         tabButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -44,14 +44,14 @@ class AIPredictionManager {
 
     switchMode(mode) {
         this.currentMode = mode;
-        
-        // 更新模式按钮状态
+
+        // Cập nhật trạng thái nút chế độ
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.classList.remove('active');
         });
         document.getElementById(`${mode}-mode-btn`).classList.add('active');
 
-        // 显示/隐藏对应的输入区域
+        // Hiển thị/ẩn vùng nhập tương ứng
         document.querySelectorAll('.match-input-section').forEach(section => {
             section.classList.add('hidden');
         });
@@ -61,7 +61,7 @@ class AIPredictionManager {
             targetSection.classList.remove('hidden');
         }
 
-        // 更新预测按钮显示
+        // Cập nhật nút dự đoán
         const classicPredictBtn = document.getElementById('predict-btn');
         const aiPredictBtn = document.getElementById('ai-predict-btn');
 
@@ -73,7 +73,7 @@ class AIPredictionManager {
             aiPredictBtn.classList.add('hidden');
         }
 
-        // 更新标签页显示
+        // Cập nhật hiển thị tab
         this.updateTabsVisibility(mode);
     }
 
@@ -96,23 +96,23 @@ class AIPredictionManager {
         const drawOdds = parseFloat(document.getElementById('ai-draw-odds').value);
         const awayOdds = parseFloat(document.getElementById('ai-away-odds').value);
 
-        // 验证输入
+        // Kiểm tra dữ liệu nhập
         if (!homeTeam || !awayTeam) {
-            this.showMessage('请填写主队和客队名称', 'error');
+            this.showMessage('Vui lòng nhập tên đội chủ nhà và đội khách', 'error');
             return;
         }
 
         if (!league) {
-            this.showMessage('请填写联赛名称', 'error');
+            this.showMessage('Vui lòng nhập tên giải đấu', 'error');
             return;
         }
 
         if (isNaN(homeOdds) || isNaN(drawOdds) || isNaN(awayOdds)) {
-            this.showMessage('请填写正确的赔率信息', 'error');
+            this.showMessage('Vui lòng nhập thông tin tỷ lệ cược hợp lệ', 'error');
             return;
         }
 
-        // 创建比赛数据
+        // Tạo dữ liệu trận đấu
         const match = {
             match_id: `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             home_team: homeTeam,
@@ -132,7 +132,7 @@ class AIPredictionManager {
         this.clearAIForm();
         this.updateAIPredictButton();
 
-        this.showMessage('比赛添加成功', 'success');
+        this.showMessage('Đã thêm trận thành công', 'success');
     }
 
     clearAIForm() {
@@ -146,9 +146,9 @@ class AIPredictionManager {
 
     renderAIMatches() {
         const container = document.getElementById('matches-container');
-        
+
         if (this.aiMatches.length === 0) {
-            container.innerHTML = '<div class="empty-message">尚未添加任何比赛</div>';
+            container.innerHTML = '<div class="empty-message">Chưa thêm trận nào</div>';
             return;
         }
 
@@ -173,14 +173,14 @@ class AIPredictionManager {
                     </div>
                     <div class="league">${match.league_name}</div>
                 </div>
-                
+
                 <div class="odds-info">
                     <div class="odds-group">
-                        <span class="odds-label">胜平负:</span>
+                        <span class="odds-label">1X2:</span>
                         <span class="odds-values">${odds.h} / ${odds.d} / ${odds.a}</span>
                     </div>
                 </div>
-                
+
                 <div class="match-actions">
                     <button class="remove-match-btn" data-index="${index}">
                         <i class="fas fa-trash"></i>
@@ -191,7 +191,7 @@ class AIPredictionManager {
     }
 
     bindAIMatchEvents() {
-        // 删除比赛按钮
+        // Nút xóa trận
         document.querySelectorAll('.remove-match-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -211,7 +211,7 @@ class AIPredictionManager {
     updateAIPredictButton() {
         const aiPredictBtn = document.getElementById('ai-predict-btn');
         const clearBtn = document.getElementById('clear-matches-btn');
-        
+
         if (this.aiMatches.length > 0) {
             aiPredictBtn.disabled = false;
             clearBtn.disabled = false;
@@ -232,30 +232,30 @@ class AIPredictionManager {
 
     async startAIPrediction() {
         let matches = [];
-        
+
         if (this.currentMode === 'lottery') {
-            // 彩票模式：使用选中的彩票比赛
+            // Chế độ xổ số thể thao: dùng các trận đã chọn
             if (window.lotteryManager) {
                 matches = window.lotteryManager.getSelectedMatches();
             }
         } else if (this.currentMode === 'ai') {
-            // AI模式：使用手动添加的比赛
+            // Chế độ AI: dùng các trận được thêm thủ công
             matches = this.aiMatches;
         }
 
         if (matches.length === 0) {
-            this.showMessage('请先添加或选择比赛', 'error');
+            this.showMessage('Vui lòng thêm hoặc chọn trận trước', 'error');
             return;
         }
 
         const aiPredictBtn = document.getElementById('ai-predict-btn');
-        
-        try {
-            // 显示加载状态
-            aiPredictBtn.disabled = true;
-            aiPredictBtn.innerHTML = '<i class="fas fa-spin fa-spinner"></i> AI分析中...';
 
-            // 调用AI预测API
+        try {
+            // Hiển thị trạng thái tải
+            aiPredictBtn.disabled = true;
+            aiPredictBtn.innerHTML = '<i class="fas fa-spin fa-spinner"></i> AI đang phân tích...';
+
+            // Gọi API dự đoán AI
             const response = await fetch('/api/ai/predict', {
                 method: 'POST',
                 headers: {
@@ -269,32 +269,32 @@ class AIPredictionManager {
             if (data.success) {
                 this.aiResults = data;
                 this.displayAIResults();
-                this.showMessage('AI分析完成', 'success');
+                this.showMessage('Đã hoàn tất phân tích AI', 'success');
             } else {
-                throw new Error(data.message || 'AI预测失败');
+                throw new Error(data.message || 'Dự đoán AI thất bại');
             }
 
         } catch (error) {
-            console.error('AI预测失败:', error);
-            this.showMessage('AI预测失败: ' + error.message, 'error');
+            console.error('Dự đoán AI thất bại:', error);
+            this.showMessage('Dự đoán AI thất bại: ' + error.message, 'error');
         } finally {
-            // 恢复按钮状态
+            // Khôi phục trạng thái nút
             aiPredictBtn.disabled = false;
-            aiPredictBtn.innerHTML = '<i class="fas fa-brain"></i> AI智能预测';
+            aiPredictBtn.innerHTML = '<i class="fas fa-brain"></i> Dự đoán AI thông minh';
         }
     }
 
     displayAIResults() {
         if (!this.aiResults) return;
 
-        // 显示结果区域
+        // Hiển thị khu vực kết quả
         const resultsSection = document.getElementById('results-section');
         resultsSection.classList.remove('hidden');
 
-        // 切换到AI分析标签页
+        // Chuyển sang tab phân tích AI
         this.switchTab('ai-analysis');
 
-        // 渲染各种结果
+        // Hiển thị từng nhóm kết quả
         this.renderAIAnalysisResults();
         this.renderHalfFullResults();
         this.renderGoalsResults();
@@ -311,7 +311,7 @@ class AIPredictionManager {
             html += this.renderSingleAnalysis(analysis);
         });
 
-        // 添加组合预测
+        // Thêm dự đoán tổ hợp
         if (this.aiResults.combination_predictions) {
             html += this.renderCombinationPredictions(this.aiResults.combination_predictions);
         }
@@ -329,32 +329,32 @@ class AIPredictionManager {
                 <div class="match-header">
                     <h3>${analysis.home_team} vs ${analysis.away_team}</h3>
                     <span class="league">${analysis.league_name}</span>
-                    <span class="confidence">置信度: ${confidence}%</span>
+                    <span class="confidence">Độ tin cậy: ${confidence}%</span>
                 </div>
-                
+
                 <div class="prediction-section">
-                    <h4>胜平负预测</h4>
+                    <h4>Dự đoán 1X2</h4>
                     <div class="wdl-predictions">
                         <div class="wdl-item ${this.getBestOutcome(wdl) === 'home' ? 'best' : ''}">
-                            <span class="label">主胜</span>
+                            <span class="label">Chủ nhà thắng</span>
                             <span class="probability">${Math.round(wdl.home * 100)}%</span>
                         </div>
                         <div class="wdl-item ${this.getBestOutcome(wdl) === 'draw' ? 'best' : ''}">
-                            <span class="label">平局</span>
+                            <span class="label">Hòa</span>
                             <span class="probability">${Math.round(wdl.draw * 100)}%</span>
                         </div>
                         <div class="wdl-item ${this.getBestOutcome(wdl) === 'away' ? 'best' : ''}">
-                            <span class="label">客胜</span>
+                            <span class="label">Khách thắng</span>
                             <span class="probability">${Math.round(wdl.away * 100)}%</span>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="analysis-reason">
-                    <h4>分析理由</h4>
+                    <h4>Lý do phân tích</h4>
                     <p>${analysis.analysis_reason}</p>
                 </div>
-                
+
                 ${this.renderRecommendedBets(analysis.recommended_bets)}
                 ${this.renderValueBets(analysis.value_bets)}
             </div>
@@ -371,8 +371,8 @@ class AIPredictionManager {
     renderRecommendedBets(bets) {
         if (!bets || bets.length === 0) return '';
 
-        let html = '<div class="recommended-bets"><h4>推荐投注</h4><div class="bets-list">';
-        
+        let html = '<div class="recommended-bets"><h4>Lựa chọn đề xuất</h4><div class="bets-list">';
+
         bets.forEach(bet => {
             const confidence = Math.round((bet.confidence || 0) * 100);
             html += `
@@ -392,22 +392,22 @@ class AIPredictionManager {
     renderValueBets(bets) {
         if (!bets || bets.length === 0) return '';
 
-        let html = '<div class="value-bets"><h4>价值投注机会</h4><div class="bets-list">';
-        
+        let html = '<div class="value-bets"><h4>Cơ hội có giá trị</h4><div class="bets-list">';
+
         bets.forEach(bet => {
             const expectedValue = Math.round(bet.expected_value * 100);
             const probability = Math.round(bet.predicted_probability * 100);
-            
+
             html += `
                 <div class="value-bet-item ${expectedValue > 10 ? 'high-value' : ''}">
                     <div class="bet-info">
                         <span class="bet-type">${bet.bet_type}</span>
                         <span class="bet-selection">${bet.selection}</span>
-                        <span class="odds">赔率: ${bet.odds}</span>
+                        <span class="odds">Tỷ lệ: ${bet.odds}</span>
                     </div>
                     <div class="bet-stats">
-                        <span class="probability">预测概率: ${probability}%</span>
-                        <span class="expected-value">期望值: ${expectedValue > 0 ? '+' : ''}${expectedValue}%</span>
+                        <span class="probability">Xác suất dự đoán: ${probability}%</span>
+                        <span class="expected-value">Giá trị kỳ vọng: ${expectedValue > 0 ? '+' : ''}${expectedValue}%</span>
                     </div>
                 </div>
             `;
@@ -420,14 +420,14 @@ class AIPredictionManager {
     renderCombinationPredictions(combinations) {
         if (!combinations || combinations.length === 0) return '';
 
-        let html = '<div class="combination-predictions"><h3>AI推荐组合</h3>';
+        let html = '<div class="combination-predictions"><h3>Tổ hợp AI đề xuất</h3>';
 
         combinations.forEach(combo => {
             html += `
                 <div class="combination-card">
                     <h4>${combo.type}</h4>
                     <p class="combination-desc">${combo.description}</p>
-                    
+
                     <div class="selections">
                         ${combo.selections.map(selection => `
                             <div class="selection-item">
@@ -437,10 +437,10 @@ class AIPredictionManager {
                             </div>
                         `).join('')}
                     </div>
-                    
+
                     ${combo.total_confidence ? `
                         <div class="combination-confidence">
-                            组合置信度: ${Math.round(combo.total_confidence * 100)}%
+                            Độ tin cậy của tổ hợp: ${Math.round(combo.total_confidence * 100)}%
                         </div>
                     ` : ''}
                 </div>
@@ -453,22 +453,22 @@ class AIPredictionManager {
 
     formatPrediction(prediction) {
         const formatMap = {
-            'home': '主胜',
-            'draw': '平局',
-            'away': '客胜',
-            'home_home': '主/主',
-            'home_draw': '主/平',
-            'home_away': '主/客',
-            'draw_home': '平/主',
-            'draw_draw': '平/平',
-            'draw_away': '平/客',
-            'away_home': '客/主',
-            'away_draw': '客/平',
-            'away_away': '客/客',
-            '0-1': '0-1球',
-            '2-3': '2-3球',
-            '4-6': '4-6球',
-            '7+': '7球或以上'
+            'home': 'Chủ nhà thắng',
+            'draw': 'Hòa',
+            'away': 'Khách thắng',
+            'home_home': 'Chủ/Chủ',
+            'home_draw': 'Chủ/Hòa',
+            'home_away': 'Chủ/Khách',
+            'draw_home': 'Hòa/Chủ',
+            'draw_draw': 'Hòa/Hòa',
+            'draw_away': 'Hòa/Khách',
+            'away_home': 'Khách/Chủ',
+            'away_draw': 'Khách/Hòa',
+            'away_away': 'Khách/Khách',
+            '0-1': '0-1 bàn',
+            '2-3': '2-3 bàn',
+            '4-6': '4-6 bàn',
+            '7+': 'Từ 7 bàn trở lên'
         };
         return formatMap[prediction] || prediction;
     }
@@ -493,7 +493,7 @@ class AIPredictionManager {
         const hf = analysis.half_full_time;
         const sortedHF = Object.entries(hf)
             .sort(([,a], [,b]) => b - a)
-            .slice(0, 5); // 只显示前5个最可能的结果
+            .slice(0, 5); // Chỉ hiển thị 5 kết quả có khả năng cao nhất
 
         return `
             <div class="half-full-card">
@@ -581,7 +581,7 @@ class AIPredictionManager {
     }
 
     switchTab(tabName) {
-        // 更新标签按钮状态
+        // Cập nhật trạng thái nút tab
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -590,7 +590,7 @@ class AIPredictionManager {
             targetBtn.classList.add('active');
         }
 
-        // 更新标签内容显示
+        // Cập nhật nội dung tab
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.remove('active');
         });
@@ -601,31 +601,31 @@ class AIPredictionManager {
     }
 
     showMessage(message, type = 'info') {
-        // 创建消息元素
+        // Tạo phần tử thông báo
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}`;
         messageDiv.innerHTML = `
             <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
             ${message}
         `;
-        
-        // 添加到页面
+
+        // Thêm vào trang
         document.body.appendChild(messageDiv);
-        
-        // 自动移除
+
+        // Tự động xóa
         setTimeout(() => {
             messageDiv.remove();
         }, 3000);
     }
 }
 
-// 全局实例
+// Biến toàn cục
 let aiPredictionManager = null;
 
-// 初始化
+// Khởi tạo
 document.addEventListener('DOMContentLoaded', function() {
     aiPredictionManager = new AIPredictionManager();
 });
 
-// 导出给其他模块使用
-window.AIPredictionManager = AIPredictionManager; 
+// Xuất cho các mô-đun khác sử dụng
+window.AIPredictionManager = AIPredictionManager;

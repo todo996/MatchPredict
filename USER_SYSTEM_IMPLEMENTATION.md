@@ -1,131 +1,131 @@
-# 用户系统实现总结
+# Tổng kết triển khai hệ thống người dùng
 
-## ✅ 已完成功能
+## ✅ Các chức năng đã hoàn thành
 
-### 1. 数据库结构 ✓
-- **用户表 (users)**:
-  - id, username, email, password_hash
-  - user_type (free/premium), membership_expires
-  - daily_predictions_used, last_prediction_date
-  - total_predictions, created_at, last_login, is_active
+### 1. Cấu trúc cơ sở dữ liệu ✓
+- **Bảng người dùng (`users`)**:
+  - `id`, `username`, `email`, `password_hash`
+  - `user_type` (`free`/`premium`), `membership_expires`
+  - `daily_predictions_used`, `last_prediction_date`
+  - `total_predictions`, `created_at`, `last_login`, `is_active`
 
-- **预测表扩展**:
-  - 添加 user_id, username 字段
-  - 关联用户预测记录
+- **Mở rộng bảng dự đoán**:
+  - Thêm các trường `user_id`, `username`
+  - Liên kết bản ghi dự đoán với người dùng
 
-### 2. 后端认证API ✓
-- **注册**: `POST /api/register`
-  - 用户名/邮箱验证
-  - 密码哈希存储
-  - 重复检查
+### 2. API xác thực phía backend ✓
+- **Đăng ký**: `POST /api/register`
+  - Kiểm tra tên người dùng/email
+  - Lưu mật khẩu dạng băm
+  - Kiểm tra trùng lặp
 
-- **登录**: `POST /api/login`  
-  - 密码验证
-  - Session管理
-  - 自动重置每日使用次数
+- **Đăng nhập**: `POST /api/login`
+  - Xác minh mật khẩu
+  - Quản lý Session
+  - Tự động đặt lại số lượt sử dụng hằng ngày
 
-- **登出**: `POST /api/logout`
-- **用户信息**: `GET /api/user/info`
-- **预测权限检查**: `GET /api/user/can-predict`
+- **Đăng xuất**: `POST /api/logout`
+- **Thông tin người dùng**: `GET /api/user/info`
+- **Kiểm tra quyền dự đoán**: `GET /api/user/can-predict`
 
-### 3. 前端用户界面 ✓
-- **导航栏用户区域**:
-  - 未登录: 登录/注册按钮
-  - 已登录: 用户名、会员状态、剩余次数、退出按钮
+### 3. Giao diện người dùng phía frontend ✓
+- **Khu vực người dùng trên thanh điều hướng**:
+  - Chưa đăng nhập: nút Đăng nhập/Đăng ký
+  - Đã đăng nhập: tên người dùng, trạng thái thành viên, số lượt còn lại, nút Đăng xuất
 
-- **认证弹窗**:
-  - 登录弹窗 (用户名/密码)
-  - 注册弹窗 (用户名/邮箱/密码/确认密码)
-  - 弹窗切换功能
+- **Hộp thoại xác thực**:
+  - Đăng nhập (tên người dùng/mật khẩu)
+  - Đăng ký (tên người dùng/email/mật khẩu/xác nhận mật khẩu)
+  - Chuyển đổi giữa hai hộp thoại
 
-### 4. 认证管理 ✓  
-- **AuthManager类**:
-  - 登录状态检查
-  - 表单处理
-  - 错误提示
-  - 界面更新
+### 4. Quản lý xác thực ✓
+- **Lớp `AuthManager`**:
+  - Kiểm tra trạng thái đăng nhập
+  - Xử lý biểu mẫu
+  - Hiển thị lỗi
+  - Cập nhật giao diện
 
-## 🔄 需要完成的功能
+## 🔄 Các chức năng cần hoàn thiện
 
-### 1. CSS样式 (进行中)
-- 导航栏用户区域样式
-- 认证弹窗样式
-- 消息提示样式
+### 1. Kiểu CSS (đang thực hiện)
+- Kiểu hiển thị khu vực người dùng trên thanh điều hướng
+- Kiểu hộp thoại xác thực
+- Kiểu thông báo trạng thái
 
-### 2. 预测功能集成 (待完成)
-- 预测前权限检查
-- 使用次数扣除
-- 按钮状态管理
+### 2. Tích hợp chức năng dự đoán (chưa hoàn tất)
+- Kiểm tra quyền trước khi dự đoán
+- Trừ số lượt sử dụng
+- Quản lý trạng thái nút
 
-### 3. 预测记录关联 (待完成)
-- 保存预测时关联用户
-- 修改现有保存逻辑
+### 3. Liên kết lịch sử dự đoán (chưa hoàn tất)
+- Liên kết người dùng khi lưu dự đoán
+- Điều chỉnh logic lưu hiện tại
 
-## 🎯 用户体验流程
+## 🎯 Luồng trải nghiệm người dùng
 
-### 免费用户流程
-1. 访问网站 → 显示登录/注册按钮
-2. 注册账号 → 获得每日3次预测机会
-3. 选择比赛 → 检查剩余次数
-4. 进行预测 → 扣除1次，显示剩余次数
-5. 次数用完 → 按钮禁用，提示升级会员
+### Người dùng miễn phí
+1. Truy cập website → hiển thị nút Đăng nhập/Đăng ký
+2. Đăng ký tài khoản → có 3 lượt dự đoán mỗi ngày
+3. Chọn trận → kiểm tra số lượt còn lại
+4. Thực hiện dự đoán → trừ 1 lượt và hiển thị số lượt còn lại
+5. Hết lượt → vô hiệu hóa nút và gợi ý nâng cấp thành viên
 
-### 会员用户流程  
-1. 登录会员账号 → 显示"无限制预测"
-2. 任意使用所有预测功能
-3. 无次数限制
+### Người dùng thành viên
+1. Đăng nhập tài khoản thành viên → hiển thị "Dự đoán không giới hạn"
+2. Có thể sử dụng các chức năng dự đoán
+3. Không bị giới hạn số lượt
 
-## 📊 数据库设计
+## 📊 Thiết kế cơ sở dữ liệu
 
-### 用户表字段说明
+### Mô tả các trường bảng người dùng
 ```sql
 users (
-    id: 主键
-    username: 用户名 (唯一)
-    email: 邮箱 (唯一) 
-    password_hash: 密码哈希
+    id: khóa chính
+    username: tên người dùng (duy nhất)
+    email: email (duy nhất)
+    password_hash: mật khẩu đã băm
     user_type: 'free'/'premium'
-    membership_expires: 会员到期日期
-    daily_predictions_used: 今日已用次数
-    last_prediction_date: 最后预测日期
-    total_predictions: 总预测次数
-    created_at: 注册时间
-    last_login: 最后登录时间
-    is_active: 账号是否激活
+    membership_expires: ngày hết hạn thành viên
+    daily_predictions_used: số lượt đã dùng hôm nay
+    last_prediction_date: ngày dự đoán gần nhất
+    total_predictions: tổng số lượt dự đoán
+    created_at: thời gian đăng ký
+    last_login: lần đăng nhập gần nhất
+    is_active: trạng thái kích hoạt tài khoản
 )
 ```
 
-### 预测表扩展
+### Mở rộng bảng dự đoán
 ```sql
 match_predictions (
-    ... (原有字段)
-    user_id: 关联用户ID
-    username: 用户名(冗余字段便于查询)
+    ... (các trường hiện có)
+    user_id: ID người dùng liên kết
+    username: tên người dùng (trường dư để tiện truy vấn)
 )
 ```
 
-## 🔐 安全措施
+## 🔐 Biện pháp bảo mật
 
-1. **密码安全**: SHA256哈希存储
-2. **Session管理**: 7天有效期
-3. **输入验证**: 前后端双重验证
-4. **SQL注入防护**: 参数化查询
-5. **会话密钥**: 环境变量配置
+1. **Bảo mật mật khẩu**: lưu bằng hàm băm SHA256
+2. **Quản lý Session**: thời hạn 7 ngày
+3. **Kiểm tra đầu vào**: xác thực ở cả frontend và backend
+4. **Chống SQL injection**: dùng truy vấn tham số hóa
+5. **Khóa phiên**: cấu hình qua biến môi trường
 
-## 🎨 UI/UX特性
+## 🎨 Đặc điểm UI/UX
 
-1. **直观的用户状态**: 清晰显示用户类型和剩余次数
-2. **流畅的认证流程**: 弹窗登录，无页面跳转
-3. **即时反馈**: 操作成功/失败消息提示
-4. **自动切换**: 注册成功后自动切换到登录
-5. **权限提示**: 无权限时友好提示并引导登录
+1. **Trạng thái người dùng rõ ràng**: hiển thị loại tài khoản và số lượt còn lại
+2. **Luồng xác thực liền mạch**: đăng nhập bằng hộp thoại, không cần chuyển trang
+3. **Phản hồi tức thời**: thông báo thao tác thành công/thất bại
+4. **Chuyển đổi tự động**: sau khi đăng ký thành công, tự chuyển sang đăng nhập
+5. **Thông báo quyền truy cập**: hướng dẫn đăng nhập khi chưa đủ quyền
 
-## 📋 下一步计划
+## 📋 Kế hoạch tiếp theo
 
-1. **完成CSS样式** - 确保界面美观
-2. **集成预测权限检查** - 在所有预测按钮添加权限验证  
-3. **修改预测保存逻辑** - 关联用户信息
-4. **测试完整流程** - 确保所有功能正常工作
-5. **添加会员功能** - 后续可扩展付费升级
+1. **Hoàn thiện CSS** - bảo đảm giao diện đẹp và nhất quán
+2. **Tích hợp kiểm tra quyền dự đoán** - áp dụng cho tất cả nút dự đoán
+3. **Điều chỉnh logic lưu dự đoán** - liên kết thông tin người dùng
+4. **Kiểm thử toàn bộ luồng** - bảo đảm các chức năng hoạt động đúng
+5. **Bổ sung chức năng thành viên** - có thể mở rộng cơ chế nâng cấp trả phí sau này
 
-用户系统的核心框架已经完成，现在需要完善样式和集成到现有预测功能中！
+Khung hệ thống người dùng cốt lõi đã hoàn thành; bước tiếp theo là hoàn thiện kiểu hiển thị và tích hợp sâu hơn với chức năng dự đoán.

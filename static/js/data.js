@@ -1,40 +1,40 @@
-// 联赛名称映射
+// Ánh xạ tên giải đấu
 const LEAGUES = {
-    "PL": "英超",
-    "PD": "西甲",
-    "SA": "意甲",
-    "BL1": "德甲",
-    "FL1": "法甲"
+    "PL": "Ngoại hạng Anh",
+    "PD": "La Liga",
+    "SA": "Serie A",
+    "BL1": "Bundesliga",
+    "FL1": "Ligue 1"
 };
 
-// 存储各联赛的球队特征数据
+// Lưu dữ liệu đặc trưng đội bóng của từng giải
 let featuresData = {};
 
-// 预加载所有联赛的数据
+// Tải trước dữ liệu của tất cả giải đấu
 async function loadAllLeaguesData() {
     try {
-        // 从API获取球队数据
+        // Lấy dữ liệu đội bóng từ API
         const response = await fetch('/api/teams');
         if (!response.ok) {
-            throw new Error('无法获取球队数据');
+            throw new Error('Không thể lấy dữ liệu đội bóng');
         }
         
         const data = await response.json();
         if (data.success) {
             featuresData = data.teams;
             
-            // 填充球队选择框
+            // Điền danh sách đội vào các ô chọn
             for (const [leagueCode, teams] of Object.entries(featuresData)) {
                 populateTeamSelects(leagueCode, teams);
             }
             
-            console.log('所有联赛数据加载完成');
+            console.log('Đã tải xong dữ liệu của tất cả giải đấu');
         } else {
-            throw new Error(data.message || '获取球队数据失败');
+            throw new Error(data.message || 'Lấy dữ liệu đội bóng thất bại');
         }
     } catch (error) {
-        console.error('加载数据失败:', error);
-        // 使用默认数据
+        console.error('Tải dữ liệu thất bại:', error);
+        // Dùng dữ liệu mặc định
         featuresData = {
             "PL": ["Arsenal FC", "Manchester City FC", "Liverpool FC", "Manchester United FC", "Chelsea FC", "Tottenham Hotspur FC"],
             "PD": ["Real Madrid CF", "FC Barcelona", "Atlético de Madrid", "Sevilla FC", "Valencia CF", "Real Betis Balompié"],
@@ -43,22 +43,22 @@ async function loadAllLeaguesData() {
             "FL1": ["Paris Saint-Germain FC", "Olympique de Marseille", "AS Monaco FC", "Olympique Lyonnais", "OGC Nice", "Stade Rennais FC"]
         };
         
-        // 填充默认数据
+        // Điền dữ liệu mặc định
         for (const [leagueCode, teams] of Object.entries(featuresData)) {
             populateTeamSelects(leagueCode, teams);
         }
         
-        console.log('使用默认球队数据');
+        console.log('Đang sử dụng dữ liệu đội bóng mặc định');
     }
 }
 
-// 获取球队特征 (简化版)
+// Lấy đặc trưng đội bóng (bản đơn giản)
 function getTeamFeatures(teamName, leagueCode = null) {
-    // 返回基础信息，不再依赖复杂的统计数据
+    // Trả về thông tin cơ bản, không còn phụ thuộc dữ liệu thống kê phức tạp
     return {
         team_name: teamName,
         league_code: leagueCode,
-        // 默认数据，实际预测会通过AI进行
+        // Dữ liệu mặc định; quá trình dự đoán thực tế sẽ do AI xử lý
         home_goals_scored_avg: 1.5,
         away_goals_scored_avg: 1.2,
         home_goals_conceded_avg: 1.0,
@@ -66,13 +66,13 @@ function getTeamFeatures(teamName, leagueCode = null) {
     };
 }
 
-// 填充球队选择框
+// Điền danh sách đội vào các ô chọn
 function populateTeamSelects(leagueCode, teamsList) {
-    // 这个函数会在app.js中实现
-    // 这里只是声明，实际实现会在主应用逻辑中
+    // Hàm này được triển khai trong app.js
+    // Ở đây chỉ khai báo, phần xử lý thực tế nằm trong logic ứng dụng chính
 }
 
-// 记录用户预测到本地存储
+// Ghi nhật ký dự đoán của người dùng vào bộ nhớ cục bộ
 function logUserPrediction(matches) {
     const timestamp = new Date().toISOString();
     
@@ -81,7 +81,7 @@ function logUserPrediction(matches) {
         matches
     };
     
-    // 获取现有日志
+    // Lấy nhật ký hiện có
     let logs = [];
     try {
         const storedLogs = localStorage.getItem('prediction_logs');
@@ -89,34 +89,34 @@ function logUserPrediction(matches) {
             logs = JSON.parse(storedLogs);
         }
     } catch (e) {
-        console.warn('读取本地日志失败:', e);
+        console.warn('Không thể đọc nhật ký cục bộ:', e);
         logs = [];
     }
     
-    // 添加新日志
+    // Thêm nhật ký mới
     logs.push(logEntry);
     
-    // 限制日志数量，防止本地存储过大
+    // Giới hạn số bản ghi để tránh bộ nhớ cục bộ quá lớn
     if (logs.length > 100) {
         logs = logs.slice(-100);
     }
     
-    // 保存到本地存储
+    // Lưu vào bộ nhớ cục bộ
     try {
         localStorage.setItem('prediction_logs', JSON.stringify(logs));
     } catch (e) {
-        console.warn('保存本地日志失败:', e);
+        console.warn('Không thể lưu nhật ký cục bộ:', e);
     }
 }
 
-// 页面加载完成后初始化
+// Khởi tạo sau khi trang tải xong
 document.addEventListener('DOMContentLoaded', function() {
-    // 确保加载遮罩在页面加载后隐藏
+    // Bảo đảm lớp phủ tải được ẩn sau khi trang đã tải
     const loadingOverlay = document.getElementById('loading-overlay');
     if (loadingOverlay) {
         loadingOverlay.classList.add('hidden');
     }
     
-    // 加载球队数据
+    // Tải dữ liệu đội bóng
     loadAllLeaguesData();
 });

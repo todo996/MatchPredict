@@ -1,5 +1,5 @@
 /**
- * 中国体育彩票数据处理模块
+ * Mô-đun xử lý dữ liệu Xổ số Thể thao Trung Quốc
  */
 
 class LotteryManager {
@@ -10,13 +10,13 @@ class LotteryManager {
     }
 
     initializeEventListeners() {
-        // 刷新比赛数据按钮
+        // Nút làm mới dữ liệu trận đấu
         const refreshBtn = document.getElementById('refresh-lottery-btn');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => this.refreshMatches());
         }
 
-        // 天数筛选
+        // Bộ lọc số ngày
         const daysFilter = document.getElementById('days-filter');
         if (daysFilter) {
             daysFilter.addEventListener('change', (e) => {
@@ -28,67 +28,67 @@ class LotteryManager {
     async refreshMatches(days = 3) {
         const refreshBtn = document.getElementById('refresh-lottery-btn');
         const container = document.getElementById('lottery-matches');
-        
+
         try {
-            // 显示加载状态
+            // Hiển thị trạng thái tải
             if (refreshBtn) {
                 refreshBtn.disabled = true;
-                refreshBtn.innerHTML = '<i class="fas fa-spin fa-spinner"></i> 获取中...';
+                refreshBtn.innerHTML = '<i class="fas fa-spin fa-spinner"></i> Đang lấy dữ liệu...';
             }
-            
-            container.innerHTML = '<div class="loading-message"><i class="fas fa-spin fa-spinner"></i> 正在获取最新比赛数据...</div>';
 
-            // 调用API获取比赛数据
+            container.innerHTML = '<div class="loading-message"><i class="fas fa-spin fa-spinner"></i> Đang lấy dữ liệu trận đấu mới nhất...</div>';
+
+            // Gọi API lấy dữ liệu trận đấu
             const response = await fetch(`/api/lottery/matches?days=${days}`);
             const data = await response.json();
 
             if (data.success) {
                 this.matches = data.matches;
                 this.renderMatches();
-                this.showMessage(`成功获取 ${data.count} 场比赛`, 'success');
+                this.showMessage(`Đã lấy thành công ${data.count} trận`, 'success');
             } else {
-                throw new Error(data.message || '获取比赛数据失败');
+                throw new Error(data.message || 'Không thể lấy dữ liệu trận đấu');
             }
 
         } catch (error) {
-            console.error('获取彩票数据失败:', error);
-            container.innerHTML = '<div class="error-message">获取比赛数据失败，请稍后重试</div>';
-            this.showMessage('获取数据失败: ' + error.message, 'error');
+            console.error('Không thể lấy dữ liệu xổ số thể thao:', error);
+            container.innerHTML = '<div class="error-message">Không thể lấy dữ liệu trận đấu, vui lòng thử lại sau</div>';
+            this.showMessage('Không thể lấy dữ liệu: ' + error.message, 'error');
         } finally {
-            // 恢复按钮状态
+            // Khôi phục trạng thái nút
             if (refreshBtn) {
                 refreshBtn.disabled = false;
-                refreshBtn.innerHTML = '<i class="fas fa-sync"></i> 刷新比赛数据';
+                refreshBtn.innerHTML = '<i class="fas fa-sync"></i> Làm mới dữ liệu trận đấu';
             }
         }
     }
 
     renderMatches() {
         const container = document.getElementById('lottery-matches');
-        
+
         if (!this.matches || this.matches.length === 0) {
-            container.innerHTML = '<div class="empty-message">暂无比赛数据</div>';
+            container.innerHTML = '<div class="empty-message">Chưa có dữ liệu trận đấu</div>';
             return;
         }
 
-        // 按联赛分组
+        // Nhóm theo giải đấu
         const matchesByLeague = this.groupMatchesByLeague(this.matches);
-        
+
         let html = '';
         for (const [leagueName, matches] of Object.entries(matchesByLeague)) {
             html += this.renderLeagueSection(leagueName, matches);
         }
 
         container.innerHTML = html;
-        
-        // 绑定事件
+
+        // Gắn sự kiện
         this.bindMatchEvents();
     }
 
     groupMatchesByLeague(matches) {
         const grouped = {};
         matches.forEach(match => {
-            const league = match.league_name || '其他';
+            const league = match.league_name || 'Khác';
             if (!grouped[league]) {
                 grouped[league] = [];
             }
@@ -101,8 +101,8 @@ class LotteryManager {
         let html = `
             <div class="league-section">
                 <h3 class="league-title">
-                    <i class="fas fa-futbol"></i> ${leagueName} 
-                    <span class="match-count">(${matches.length}场)</span>
+                    <i class="fas fa-futbol"></i> ${leagueName}
+                    <span class="match-count">(${matches.length} trận)</span>
                 </h3>
                 <div class="league-matches">
         `;
@@ -122,19 +122,19 @@ class LotteryManager {
     renderMatchCard(match) {
         const isSelected = this.selectedMatches.has(match.match_id);
         const matchTime = this.formatMatchTime(match.match_time, match.match_date);
-        
-        // 获取赔率信息
+
+        // Lấy thông tin tỷ lệ cược
         const odds = match.odds || {};
         const hhadOdds = odds.hhad || {};
-        
+
         return `
-            <div class="lottery-match-card ${isSelected ? 'selected' : ''}" 
+            <div class="lottery-match-card ${isSelected ? 'selected' : ''}"
                  data-match-id="${match.match_id}">
                 <div class="match-header">
                     <div class="match-time">${matchTime}</div>
                     <div class="match-status">${this.getMatchStatus(match.status)}</div>
                 </div>
-                
+
                 <div class="match-teams">
                     <div class="team home-team">
                         <span class="team-name">${match.home_team}</span>
@@ -144,14 +144,14 @@ class LotteryManager {
                         <span class="team-name">${match.away_team}</span>
                     </div>
                 </div>
-                
+
                 ${this.renderOddsSection(odds)}
-                
+
                 <div class="match-actions">
-                    <button class="select-match-btn ${isSelected ? 'selected' : ''}" 
+                    <button class="select-match-btn ${isSelected ? 'selected' : ''}"
                             data-match-id="${match.match_id}">
                         <i class="fas ${isSelected ? 'fa-check-square' : 'fa-square'}"></i>
-                        ${isSelected ? '已选择' : '选择比赛'}
+                        ${isSelected ? 'Đã chọn' : 'Chọn trận'}
                     </button>
                 </div>
             </div>
@@ -166,26 +166,26 @@ class LotteryManager {
 
         let html = '<div class="odds-section">';
 
-        // 胜平负赔率
+        // Tỷ lệ 1X2
         if (hhadOdds.h || hhadOdds.d || hhadOdds.a) {
             html += `
                 <div class="odds-group">
-                    <div class="odds-title">胜平负</div>
+                    <div class="odds-title">1X2</div>
                     <div class="odds-values">
-                        <span class="odds-item">主胜: ${hhadOdds.h || 'N/A'}</span>
-                        <span class="odds-item">平局: ${hhadOdds.d || 'N/A'}</span>
-                        <span class="odds-item">客胜: ${hhadOdds.a || 'N/A'}</span>
+                        <span class="odds-item">Chủ nhà: ${hhadOdds.h || 'N/A'}</span>
+                        <span class="odds-item">Hòa: ${hhadOdds.d || 'N/A'}</span>
+                        <span class="odds-item">Đội khách: ${hhadOdds.a || 'N/A'}</span>
                     </div>
                 </div>
             `;
         }
 
-        // 如果有其他赔率，也可以显示
+        // Nếu có các loại tỷ lệ khác thì hiển thị thêm
         if (Object.keys(scoreOdds).length > 0) {
             html += `
                 <div class="odds-group">
-                    <div class="odds-title">比分玩法</div>
-                    <div class="odds-note">共 ${Object.keys(scoreOdds).length} 个选项</div>
+                    <div class="odds-title">Tỷ số</div>
+                    <div class="odds-note">Có ${Object.keys(scoreOdds).length} lựa chọn</div>
                 </div>
             `;
         }
@@ -203,25 +203,25 @@ class LotteryManager {
             } else if (matchTime) {
                 return matchTime;
             } else {
-                return '时间待定';
+                return 'Chưa xác định thời gian';
             }
         } catch (error) {
-            return '时间待定';
+            return 'Chưa xác định thời gian';
         }
     }
 
     getMatchStatus(status) {
         const statusMap = {
-            'PENDING': '未开始',
-            'LIVE': '进行中',
-            'FINISHED': '已结束',
-            'CANCELLED': '已取消'
+            'PENDING': 'Chưa bắt đầu',
+            'LIVE': 'Đang diễn ra',
+            'FINISHED': 'Đã kết thúc',
+            'CANCELLED': 'Đã hủy'
         };
-        return statusMap[status] || '未知';
+        return statusMap[status] || 'Chưa xác định';
     }
 
     bindMatchEvents() {
-        // 选择比赛按钮
+        // Nút chọn trận
         document.querySelectorAll('.select-match-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -230,7 +230,7 @@ class LotteryManager {
             });
         });
 
-        // 点击比赛卡片也能选择
+        // Có thể chọn trận bằng cách nhấn vào thẻ
         document.querySelectorAll('.lottery-match-card').forEach(card => {
             card.addEventListener('click', () => {
                 const matchId = card.getAttribute('data-match-id');
@@ -249,7 +249,7 @@ class LotteryManager {
             this.selectedMatches.add(matchId);
         }
 
-        // 更新显示
+        // Cập nhật hiển thị
         this.updateMatchCardSelection(matchId);
         this.updateSelectionInfo();
     }
@@ -262,30 +262,30 @@ class LotteryManager {
         if (isSelected) {
             card.classList.add('selected');
             btn.classList.add('selected');
-            btn.innerHTML = '<i class="fas fa-check-square"></i> 已选择';
+            btn.innerHTML = '<i class="fas fa-check-square"></i> Đã chọn';
         } else {
             card.classList.remove('selected');
             btn.classList.remove('selected');
-            btn.innerHTML = '<i class="fas fa-square"></i> 选择比赛';
+            btn.innerHTML = '<i class="fas fa-square"></i> Chọn trận';
         }
     }
 
     updateSelectionInfo() {
         const count = this.selectedMatches.size;
-        
-        // 更新按钮状态
+
+        // Cập nhật trạng thái nút
         const predictBtn = document.getElementById('ai-predict-btn');
         if (predictBtn) {
             if (count > 0) {
                 predictBtn.disabled = false;
-                predictBtn.innerHTML = `<i class="fas fa-brain"></i> AI预测选中的 ${count} 场比赛`;
+                predictBtn.innerHTML = `<i class="fas fa-brain"></i> Dự đoán AI ${count} trận đã chọn`;
             } else {
                 predictBtn.disabled = true;
-                predictBtn.innerHTML = '<i class="fas fa-brain"></i> AI智能预测';
+                predictBtn.innerHTML = '<i class="fas fa-brain"></i> Dự đoán AI thông minh';
             }
         }
 
-        // 更新匹配数计数
+        // Cập nhật số trận
         const matchCount = document.getElementById('match-count');
         if (matchCount) {
             matchCount.textContent = `(${count})`;
@@ -303,32 +303,32 @@ class LotteryManager {
         });
         document.querySelectorAll('.select-match-btn').forEach(btn => {
             btn.classList.remove('selected');
-            btn.innerHTML = '<i class="fas fa-square"></i> 选择比赛';
+            btn.innerHTML = '<i class="fas fa-square"></i> Chọn trận';
         });
         this.updateSelectionInfo();
     }
 
     showMessage(message, type = 'info') {
-        // 简单的消息提示
+        // Thông báo đơn giản
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}`;
         messageDiv.textContent = message;
-        
+
         document.body.appendChild(messageDiv);
-        
+
         setTimeout(() => {
             messageDiv.remove();
         }, 3000);
     }
 }
 
-// 全局实例
+// Biến toàn cục
 let lotteryManager = null;
 
-// 初始化
+// Khởi tạo
 document.addEventListener('DOMContentLoaded', function() {
     lotteryManager = new LotteryManager();
 });
 
-// 导出给其他模块使用
-window.LotteryManager = LotteryManager; 
+// Xuất cho các mô-đun khác sử dụng
+window.LotteryManager = LotteryManager;

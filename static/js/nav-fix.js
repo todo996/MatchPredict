@@ -1,101 +1,101 @@
 /**
- * 导航按钮修复脚本
- * 确保导航按钮正常工作
+ * Script hỗ trợ nút điều hướng
+ * Bảo đảm các nút điều hướng hoạt động ổn định
  */
 
-// 等待页面完全加载
+// Chờ trang tải hoàn toàn
 window.addEventListener('load', function() {
-    console.log('页面完全加载，开始修复导航按钮');
-    
-    // 等待一小段时间确保所有脚本都已执行
+    console.log('Trang đã tải hoàn toàn, bắt đầu thiết lập lại nút điều hướng');
+
+    // Chờ một khoảng ngắn để bảo đảm các script khác đã chạy xong
     setTimeout(function() {
         setupNavigation();
     }, 200);
 });
 
-// 设置导航功能
+// Thiết lập chức năng điều hướng
 function setupNavigation() {
     const navButtons = document.querySelectorAll('.nav-btn');
-    console.log('找到导航按钮:', navButtons.length);
-    
-    // 为每个按钮绑定事件
+    console.log('Số nút điều hướng tìm thấy:', navButtons.length);
+
+    // Gắn sự kiện cho từng nút
     navButtons.forEach((btn, index) => {
-        console.log(`设置按钮 ${index + 1}:`, btn.id, btn.getAttribute('data-mode'));
-        
-        // 移除所有可能的旧事件
+        console.log(`Thiết lập nút ${index + 1}:`, btn.id, btn.getAttribute('data-mode'));
+
+        // Xóa các sự kiện cũ có thể tồn tại
         btn.onclick = null;
         btn.removeAttribute('onclick');
-        
-        // 添加新的点击事件
+
+        // Thêm sự kiện nhấn mới
         btn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const mode = this.getAttribute('data-mode');
-            console.log('导航按钮点击:', this.id, '模式:', mode);
-            
+            console.log('Đã nhấn nút điều hướng:', this.id, 'chế độ:', mode);
+
             if (mode) {
                 switchToMode(mode);
             }
         });
-        
-        // 添加悬停效果确保按钮可交互
+
+        // Bảo đảm con trỏ thể hiện nút có thể tương tác
         btn.style.cursor = 'pointer';
     });
 }
 
-// 切换模式
+// Chuyển chế độ
 function switchToMode(mode) {
-    console.log('切换到模式:', mode);
-    
+    console.log('Chuyển sang chế độ:', mode);
+
     try {
-        // 1. 更新导航按钮状态
+        // 1. Cập nhật trạng thái nút điều hướng
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        
+
         const activeBtn = document.querySelector(`[data-mode="${mode}"]`);
         if (activeBtn) {
             activeBtn.classList.add('active');
-            console.log('激活按钮:', activeBtn.id);
+            console.log('Kích hoạt nút:', activeBtn.id);
         }
-        
-        // 2. 隐藏所有模式区域
+
+        // 2. Ẩn tất cả khu vực chế độ
         document.querySelectorAll('.match-input-section').forEach(section => {
             section.classList.add('hidden');
         });
-        
-        // 3. 显示目标模式区域
+
+        // 3. Hiển thị khu vực chế độ đích
         const targetSection = document.getElementById(mode + '-mode');
         if (targetSection) {
             targetSection.classList.remove('hidden');
-            console.log('显示模式区域:', mode + '-mode');
+            console.log('Hiển thị khu vực chế độ:', mode + '-mode');
         } else {
-            console.error('找不到模式区域:', mode + '-mode');
+            console.error('Không tìm thấy khu vực chế độ:', mode + '-mode');
         }
-        
-        // 4. 隐藏结果区域
+
+        // 4. Ẩn khu vực kết quả
         const resultsSection = document.getElementById('results-section');
         if (resultsSection) {
             resultsSection.classList.add('hidden');
         }
-        
-        console.log('模式切换完成:', mode);
-        
+
+        console.log('Đã chuyển chế độ:', mode);
+
     } catch (error) {
-        console.error('模式切换失败:', error);
+        console.error('Chuyển chế độ thất bại:', error);
     }
 }
 
-// 调试函数：显示当前状态
+// Hàm gỡ lỗi: hiển thị trạng thái hiện tại
 function debugNavigation() {
-    console.log('=== 导航调试信息 ===');
-    
+    console.log('=== Thông tin gỡ lỗi điều hướng ===');
+
     const navButtons = document.querySelectorAll('.nav-btn');
-    console.log('导航按钮数量:', navButtons.length);
-    
+    console.log('Số nút điều hướng:', navButtons.length);
+
     navButtons.forEach((btn, index) => {
-        console.log(`按钮 ${index + 1}:`, {
+        console.log(`Nút ${index + 1}:`, {
             id: btn.id,
             mode: btn.getAttribute('data-mode'),
             active: btn.classList.contains('active'),
@@ -103,12 +103,12 @@ function debugNavigation() {
             clickable: btn.style.pointerEvents !== 'none'
         });
     });
-    
+
     const sections = document.querySelectorAll('.match-input-section');
-    console.log('模式区域数量:', sections.length);
-    
+    console.log('Số khu vực chế độ:', sections.length);
+
     sections.forEach((section, index) => {
-        console.log(`区域 ${index + 1}:`, {
+        console.log(`Khu vực ${index + 1}:`, {
             id: section.id,
             hidden: section.classList.contains('hidden'),
             visible: !section.hidden
@@ -116,5 +116,5 @@ function debugNavigation() {
     });
 }
 
-// 暴露调试函数到全局
+// Đưa hàm gỡ lỗi ra phạm vi toàn cục
 window.debugNavigation = debugNavigation;

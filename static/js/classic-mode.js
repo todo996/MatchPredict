@@ -1,18 +1,18 @@
 /**
- * 经典模式 - 本地预测功能
- * 使用本地特征数据进行预测，不依赖AI
+ * Chế độ cổ điển - dự đoán cục bộ
+ * Sử dụng dữ liệu đặc trưng cục bộ để dự đoán, không phụ thuộc AI
  */
 
-// 全局变量
+// Biến toàn cục
 let classicMatches = [];
 let teamFeaturesData = {};
 
-// 初始化经典模式
+// Khởi tạo chế độ cổ điển
 function initClassicMode() {
-    // 加载本地特征数据
+    // Tải dữ liệu đặc trưng đội bóng cục bộ
     loadTeamFeatures();
     
-    // 绑定事件监听器
+    // Gắn trình lắng nghe sự kiện
     const addMatchBtn = document.getElementById('add-match-btn');
     const clearClassicBtn = document.getElementById('clear-classic-selection-btn');
     const classicPredictBtn = document.getElementById('classic-predict-btn');
@@ -30,38 +30,38 @@ function initClassicMode() {
     }
 }
 
-// 加载球队特征数据
+// Tải dữ liệu đặc trưng đội bóng
 async function loadTeamFeatures() {
     const leagues = ['PL', 'PD', 'SA', 'BL1', 'FL1'];
     
     for (const league of leagues) {
         try {
-            // 尝试加载JSON特征文件
+            // Thử tải tệp đặc trưng JSON
             const response = await fetch(`/data/features_${league}2024.json`);
             if (response.ok) {
                 const data = await response.json();
                 teamFeaturesData[league] = data;
-                console.log(`成功加载 ${league} 特征数据`);
+                console.log(`Đã tải thành công dữ liệu đặc trưng ${league}`);
             } else {
-                console.warn(`无法加载 ${league} 特征数据`);
-                // 使用默认数据
+                console.warn(`Không thể tải dữ liệu đặc trưng ${league}`);
+                // Dùng dữ liệu mặc định
                 teamFeaturesData[league] = generateDefaultFeatures(league);
             }
         } catch (error) {
-            console.error(`加载 ${league} 特征数据失败:`, error);
+            console.error(`Tải dữ liệu đặc trưng ${league} thất bại:`, error);
             teamFeaturesData[league] = generateDefaultFeatures(league);
         }
     }
 }
 
-// 生成默认特征数据
+// Tạo dữ liệu đặc trưng mặc định
 function generateDefaultFeatures(league) {
     const teams = getTeamsByLeague(league);
     const features = {};
     
     teams.forEach((team, index) => {
-        // 基于球队名称生成一些基础特征
-        const seed = hashCode(team) / 2147483647; // 归一化到 0-1
+        // Sinh một số đặc trưng cơ bản dựa trên tên đội
+        const seed = hashCode(team) / 2147483647; // Chuẩn hóa về khoảng 0-1
         
         features[team] = {
             home_goals_scored_avg: 1.2 + seed * 1.5,
@@ -82,18 +82,18 @@ function generateDefaultFeatures(league) {
     return features;
 }
 
-// 字符串哈希函数
+// Hàm băm chuỗi
 function hashCode(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
         const char = str.charCodeAt(i);
         hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // 转换为32位整数
+        hash = hash & hash; // Chuyển sang số nguyên 32 bit
     }
     return hash;
 }
 
-// 根据联赛获取球队列表
+// Lấy danh sách đội theo giải đấu
 function getTeamsByLeague(league) {
     const teams = {
         'PL': ['Arsenal FC', 'Manchester City FC', 'Liverpool FC', 'Manchester United FC', 'Chelsea FC', 'Tottenham Hotspur FC', 'Newcastle United FC', 'Brighton & Hove Albion FC'],
@@ -106,7 +106,7 @@ function getTeamsByLeague(league) {
     return teams[league] || [];
 }
 
-// 添加经典模式比赛
+// Thêm trận đấu ở chế độ cổ điển
 function addClassicMatch() {
     const leagueSelect = document.getElementById('league-select');
     const homeTeamSelect = document.getElementById('home-team-select');
@@ -115,28 +115,28 @@ function addClassicMatch() {
     const drawOddsInput = document.getElementById('draw-odds');
     const awayOddsInput = document.getElementById('away-odds');
     
-    // 验证输入
+    // Kiểm tra dữ liệu đầu vào
     if (!leagueSelect.value) {
-        showMessage('请选择联赛', 'error');
+        showMessage('Vui lòng chọn giải đấu', 'error');
         return;
     }
     
     if (!homeTeamSelect.value || !awayTeamSelect.value) {
-        showMessage('请选择主队和客队', 'error');
+        showMessage('Vui lòng chọn đội chủ nhà và đội khách', 'error');
         return;
     }
     
     if (homeTeamSelect.value === awayTeamSelect.value) {
-        showMessage('主队和客队不能相同', 'error');
+        showMessage('Đội chủ nhà và đội khách không thể trùng nhau', 'error');
         return;
     }
     
     if (!homeOddsInput.value || !drawOddsInput.value || !awayOddsInput.value) {
-        showMessage('请填写完整的赔率信息', 'error');
+        showMessage('Vui lòng nhập đầy đủ thông tin tỷ lệ cược', 'error');
         return;
     }
     
-    // 检查是否已存在相同比赛
+    // Kiểm tra trận đấu trùng lặp
     const existingMatch = classicMatches.find(match => 
         match.league_code === leagueSelect.value &&
         match.home_team === homeTeamSelect.value &&
@@ -144,11 +144,11 @@ function addClassicMatch() {
     );
     
     if (existingMatch) {
-        showMessage('该比赛已存在', 'error');
+        showMessage('Trận đấu này đã được thêm', 'error');
         return;
     }
     
-    // 创建比赛对象
+    // Tạo đối tượng trận đấu
     const match = {
         id: Date.now(),
         league_code: leagueSelect.value,
@@ -160,31 +160,31 @@ function addClassicMatch() {
         away_odds: parseFloat(awayOddsInput.value)
     };
     
-    // 添加到数组
+    // Thêm vào mảng
     classicMatches.push(match);
     
-    // 更新显示
+    // Cập nhật hiển thị
     updateClassicMatchesDisplay();
     
-    // 清空表单
+    // Xóa dữ liệu biểu mẫu
     homeOddsInput.value = '';
     drawOddsInput.value = '';
     awayOddsInput.value = '';
     
-    showMessage('比赛已添加到购物车', 'success');
+    showMessage('Đã thêm trận đấu vào danh sách', 'success');
 }
 
-// 更新经典模式比赛显示
+// Cập nhật danh sách trận đấu của chế độ cổ điển
 function updateClassicMatchesDisplay() {
     const container = document.getElementById('classic-selected-matches');
     const countSpan = document.getElementById('classic-match-count');
     const clearBtn = document.getElementById('clear-classic-selection-btn');
     const predictBtn = document.getElementById('classic-predict-btn');
     
-    // 更新计数
+    // Cập nhật số lượng
     countSpan.textContent = `(${classicMatches.length})`;
     
-    // 更新按钮状态
+    // Cập nhật trạng thái nút
     const hasMatches = classicMatches.length > 0;
     clearBtn.disabled = !hasMatches;
     predictBtn.disabled = !hasMatches;
@@ -193,14 +193,14 @@ function updateClassicMatchesDisplay() {
         container.innerHTML = `
             <div class="empty-cart-message">
                 <i class="fas fa-shopping-cart"></i>
-                <p>购物车为空</p>
-                <small>请在左侧添加比赛</small>
+                <p>Danh sách đang trống</p>
+                <small>Hãy thêm trận đấu ở khung bên trái</small>
             </div>
         `;
         return;
     }
     
-    // 生成比赛卡片
+    // Tạo thẻ trận đấu
     container.innerHTML = classicMatches.map(match => `
         <div class="match-card" data-match-id="${match.id}">
             <div class="match-info">
@@ -214,7 +214,7 @@ function updateClassicMatchesDisplay() {
             
             <div class="odds-info">
                 <div class="odds-group">
-                    <span class="odds-label">赔率</span>
+                    <span class="odds-label">Tỷ lệ cược</span>
                     <span class="odds-values">${match.home_odds} / ${match.draw_odds} / ${match.away_odds}</span>
                 </div>
             </div>
@@ -228,101 +228,101 @@ function updateClassicMatchesDisplay() {
     `).join('');
 }
 
-// 移除经典模式比赛
+// Xóa một trận đấu khỏi chế độ cổ điển
 function removeClassicMatch(matchId) {
     classicMatches = classicMatches.filter(match => match.id !== matchId);
     updateClassicMatchesDisplay();
-    showMessage('比赛已移除', 'info');
+    showMessage('Đã xóa trận đấu', 'info');
 }
 
-// 清空经典模式比赛
+// Xóa toàn bộ trận đấu ở chế độ cổ điển
 function clearClassicMatches() {
     classicMatches = [];
     updateClassicMatchesDisplay();
-    showMessage('购物车已清空', 'info');
+    showMessage('Đã xóa toàn bộ danh sách', 'info');
 }
 
-// 预测经典模式比赛
+// Dự đoán các trận đấu ở chế độ cổ điển
 async function predictClassicMatches() {
-    // 检查登录状态和预测权限
+    // Kiểm tra trạng thái đăng nhập và quyền dự đoán
     if (!await window.authManager.checkPredictionLimit()) {
         return;
     }
     
     if (classicMatches.length === 0) {
-        showMessage('请先添加比赛', 'error');
+        showMessage('Vui lòng thêm trận đấu trước', 'error');
         return;
     }
     
     showLoading(true);
     
     try {
-        // 使用本地预测算法
+        // Sử dụng thuật toán dự đoán cục bộ
         const predictions = classicMatches.map(match => {
             return predictMatchLocally(match);
         });
         
-        // 生成串关组合
+        // Tạo các tổ hợp xiên
         const parlayPredictions = generateClassicParlays(predictions);
         
-        // 显示结果
+        // Hiển thị kết quả
         displayClassicPredictions(predictions);
         displayClassicParlays(parlayPredictions);
         
-        // 保存预测结果到数据库
+        // Lưu kết quả dự đoán vào cơ sở dữ liệu
         saveClassicPredictionsToDatabase(predictions);
         
-        // 显示结果区域
+        // Hiển thị khu vực kết quả
         const resultsSection = document.getElementById('results-section');
         resultsSection.classList.remove('hidden');
         
-        // 切换到单场预测标签
+        // Chuyển sang tab dự đoán từng trận
         const individualTab = document.querySelector('[data-tab="individual"]');
         if (individualTab) {
             individualTab.click();
         }
         
-        showMessage(`成功预测 ${predictions.length} 场比赛`, 'success');
+        showMessage(`Đã dự đoán thành công ${predictions.length} trận đấu`, 'success');
         
     } catch (error) {
-        console.error('预测失败:', error);
-        showMessage('预测失败，请稍后重试', 'error');
+        console.error('Dự đoán thất bại:', error);
+        showMessage('Dự đoán thất bại, vui lòng thử lại sau', 'error');
     } finally {
         showLoading(false);
     }
 }
 
-// 本地预测算法
+// Thuật toán dự đoán cục bộ
 function predictMatchLocally(match) {
     const homeFeatures = getTeamFeatures(match.home_team, match.league_code);
     const awayFeatures = getTeamFeatures(match.away_team, match.league_code);
     
     if (!homeFeatures || !awayFeatures) {
-        throw new Error(`找不到球队数据: ${match.home_team} 或 ${match.away_team}`);
+        throw new Error(`Không tìm thấy dữ liệu đội bóng: ${match.home_team} hoặc ${match.away_team}`);
     }
     
-    // 计算预期进球
+    // Tính số bàn thắng kỳ vọng
     const homeExpectedGoals = calculateExpectedGoals(homeFeatures, awayFeatures, true, match.home_odds, match.away_odds);
     const awayExpectedGoals = calculateExpectedGoals(awayFeatures, homeFeatures, false, match.away_odds, match.home_odds);
     
-    // 使用泊松分布计算概率
+    // Dùng phân phối Poisson để tính xác suất
     const probabilities = calculateMatchProbabilities(homeExpectedGoals, awayExpectedGoals);
     
-    // 根据赔率调整概率
+    // Điều chỉnh xác suất theo tỷ lệ cược
     const adjustedProbs = adjustProbabilitiesWithOdds(probabilities, match.home_odds, match.draw_odds, match.away_odds);
     
-    // 计算期望值
+    // Tính giá trị kỳ vọng
     const homeEV = (adjustedProbs.home * match.home_odds) - 1;
     const drawEV = (adjustedProbs.draw * match.draw_odds) - 1;
     const awayEV = (adjustedProbs.away * match.away_odds) - 1;
     
-    // 确定最佳投注
+    // Xác định lựa chọn tốt nhất
     const bestBet = homeEV > drawEV && homeEV > awayEV ? 'home' : 
                    drawEV > awayEV ? 'draw' : 'away';
     
     const bestEV = Math.max(homeEV, drawEV, awayEV);
     
-    // 计算最可能的比分
+    // Tính các tỷ số có khả năng xảy ra cao nhất
     const mostLikelyScores = calculateMostLikelyScores(homeExpectedGoals, awayExpectedGoals);
     
     return {
@@ -347,7 +347,7 @@ function predictMatchLocally(match) {
     };
 }
 
-// 获取球队特征
+// Lấy đặc trưng đội bóng
 function getTeamFeatures(teamName, leagueCode) {
     const leagueData = teamFeaturesData[leagueCode];
     if (!leagueData) return null;
@@ -355,7 +355,7 @@ function getTeamFeatures(teamName, leagueCode) {
     return leagueData[teamName] || null;
 }
 
-// 计算预期进球
+// Tính số bàn thắng kỳ vọng
 function calculateExpectedGoals(teamFeatures, opponentFeatures, isHome, teamOdds, opponentOdds) {
     let expectedGoals;
     
@@ -367,7 +367,7 @@ function calculateExpectedGoals(teamFeatures, opponentFeatures, isHome, teamOdds
             (teamFeatures.xG || 1.2) * 0.1
         );
         
-        // 主场优势
+        // Lợi thế sân nhà
         expectedGoals *= 1.05;
     } else {
         expectedGoals = (
@@ -378,26 +378,26 @@ function calculateExpectedGoals(teamFeatures, opponentFeatures, isHome, teamOdds
         );
     }
     
-    // 根据对手防守调整
+    // Điều chỉnh theo khả năng phòng ngự của đối thủ
     const opponentDefense = opponentFeatures.defense || 1.0;
-    expectedGoals *= (2.0 - opponentDefense) / 1.0; // 防守越强，进球越少
+    expectedGoals *= (2.0 - opponentDefense) / 1.0; // Phòng ngự càng mạnh thì số bàn kỳ vọng càng thấp
     
-    // 根据赔率调整
+    // Điều chỉnh theo tỷ lệ cược
     const oddsRatio = teamOdds / opponentOdds;
-    if (oddsRatio < 0.7) { // 明显强队
+    if (oddsRatio < 0.7) { // Đội mạnh rõ rệt
         expectedGoals *= 1.2;
-    } else if (oddsRatio > 1.5) { // 明显弱队
+    } else if (oddsRatio > 1.5) { // Đội yếu rõ rệt
         expectedGoals *= 0.8;
     }
     
-    return Math.max(expectedGoals, 0.3); // 最小期望进球
+    return Math.max(expectedGoals, 0.3); // Số bàn kỳ vọng tối thiểu
 }
 
-// 计算比赛概率
+// Tính xác suất trận đấu
 function calculateMatchProbabilities(homeGoals, awayGoals) {
     let homeWin = 0, draw = 0, awayWin = 0;
     
-    // 使用泊松分布计算各种比分的概率
+    // Dùng phân phối Poisson để tính xác suất cho từng tỷ số
     for (let h = 0; h <= 5; h++) {
         for (let a = 0; a <= 5; a++) {
             const prob = poissonProbability(h, homeGoals) * poissonProbability(a, awayGoals);
@@ -408,7 +408,7 @@ function calculateMatchProbabilities(homeGoals, awayGoals) {
         }
     }
     
-    // 归一化
+    // Chuẩn hóa
     const total = homeWin + draw + awayWin;
     return {
         home: homeWin / total,
@@ -417,12 +417,12 @@ function calculateMatchProbabilities(homeGoals, awayGoals) {
     };
 }
 
-// 泊松概率质量函数
+// Hàm khối xác suất Poisson
 function poissonProbability(k, lambda) {
     return Math.exp(-lambda) * Math.pow(lambda, k) / factorial(k);
 }
 
-// 阶乘函数
+// Hàm giai thừa
 function factorial(n) {
     if (n <= 1) return 1;
     let result = 1;
@@ -432,23 +432,23 @@ function factorial(n) {
     return result;
 }
 
-// 根据赔率调整概率
+// Điều chỉnh xác suất theo tỷ lệ cược
 function adjustProbabilitiesWithOdds(probs, homeOdds, drawOdds, awayOdds) {
-    // 计算隐含概率
+    // Tính xác suất ngụ ý từ tỷ lệ cược
     const totalMargin = 1/homeOdds + 1/drawOdds + 1/awayOdds - 1;
     const homeImplied = (1/homeOdds) / (1 + totalMargin);
     const drawImplied = (1/drawOdds) / (1 + totalMargin);
     const awayImplied = (1/awayOdds) / (1 + totalMargin);
     
-    // 混合计算概率和隐含概率
-    const weight = 0.7; // 计算概率权重
-    const oddsWeight = 0.3; // 赔率权重
+    // Kết hợp xác suất tính toán và xác suất ngụ ý
+    const weight = 0.7; // Trọng số xác suất tính toán
+    const oddsWeight = 0.3; // Trọng số tỷ lệ cược
     
     const adjustedHome = probs.home * weight + homeImplied * oddsWeight;
     const adjustedDraw = probs.draw * weight + drawImplied * oddsWeight;
     const adjustedAway = probs.away * weight + awayImplied * oddsWeight;
     
-    // 归一化
+    // Chuẩn hóa
     const total = adjustedHome + adjustedDraw + adjustedAway;
     return {
         home: adjustedHome / total,
@@ -457,7 +457,7 @@ function adjustProbabilitiesWithOdds(probs, homeOdds, drawOdds, awayOdds) {
     };
 }
 
-// 计算最可能的比分
+// Tính các tỷ số có khả năng xảy ra cao nhất
 function calculateMostLikelyScores(homeGoals, awayGoals) {
     const scores = [];
     
@@ -477,24 +477,24 @@ function calculateMostLikelyScores(homeGoals, awayGoals) {
         .map(s => ({ score: s.score, probability: s.probability }));
 }
 
-// 获取投注建议
+// Tạo khuyến nghị lựa chọn
 function getBetRecommendation(bestBet, bestEV) {
     const betNames = {
-        'home': '主胜',
-        'draw': '平局', 
-        'away': '客胜'
+        'home': 'Chủ nhà thắng',
+        'draw': 'Hòa', 
+        'away': 'Khách thắng'
     };
     
     if (bestEV > 0.05) {
-        return `强烈推荐 ${betNames[bestBet]} (EV: ${(bestEV * 100).toFixed(1)}%)`;
+        return `Khuyến nghị mạnh: ${betNames[bestBet]} (EV: ${(bestEV * 100).toFixed(1)}%)`;
     } else if (bestEV > 0) {
-        return `推荐 ${betNames[bestBet]} (EV: ${(bestEV * 100).toFixed(1)}%)`;
+        return `Khuyến nghị: ${betNames[bestBet]} (EV: ${(bestEV * 100).toFixed(1)}%)`;
     } else {
-        return `谨慎投注 ${betNames[bestBet]} (EV: ${(bestEV * 100).toFixed(1)}%)`;
+        return `Nên thận trọng: ${betNames[bestBet]} (EV: ${(bestEV * 100).toFixed(1)}%)`;
     }
 }
 
-// 显示经典预测结果
+// Hiển thị kết quả dự đoán cổ điển
 function displayClassicPredictions(predictions) {
     const container = document.getElementById('individual-results');
     
@@ -506,24 +506,24 @@ function displayClassicPredictions(predictions) {
             </div>
             
             <div class="probabilities-section">
-                <h4>胜平负概率</h4>
+                <h4>Xác suất thắng - hòa - thua</h4>
                 <div class="probability-bars">
                     <div class="prob-bar">
-                        <span class="prob-label">主胜</span>
+                        <span class="prob-label">Chủ nhà thắng</span>
                         <div class="prob-value">${(pred.home_win_prob * 100).toFixed(1)}%</div>
                         <div class="prob-visual">
                             <div class="prob-fill" style="width: ${pred.home_win_prob * 100}%"></div>
                         </div>
                     </div>
                     <div class="prob-bar">
-                        <span class="prob-label">平局</span>
+                        <span class="prob-label">Hòa</span>
                         <div class="prob-value">${(pred.draw_prob * 100).toFixed(1)}%</div>
                         <div class="prob-visual">
                             <div class="prob-fill" style="width: ${pred.draw_prob * 100}%"></div>
                         </div>
                     </div>
                     <div class="prob-bar">
-                        <span class="prob-label">客胜</span>
+                        <span class="prob-label">Khách thắng</span>
                         <div class="prob-value">${(pred.away_win_prob * 100).toFixed(1)}%</div>
                         <div class="prob-visual">
                             <div class="prob-fill" style="width: ${pred.away_win_prob * 100}%"></div>
@@ -534,33 +534,33 @@ function displayClassicPredictions(predictions) {
             
             <div class="prediction-details">
                 <div class="detail-item">
-                    <strong>预期进球:</strong> 
+                    <strong>Bàn thắng kỳ vọng:</strong> 
                     ${pred.expected_goals.home.toFixed(1)} - ${pred.expected_goals.away.toFixed(1)}
                 </div>
                 <div class="detail-item">
-                    <strong>最可能比分:</strong> 
+                    <strong>Tỷ số có khả năng cao nhất:</strong> 
                     ${pred.most_likely_scores.map(s => s.score).join(', ')}
                 </div>
                 <div class="detail-item recommendation">
-                    <strong>投注建议:</strong> ${pred.recommendation}
+                    <strong>Khuyến nghị:</strong> ${pred.recommendation}
                 </div>
             </div>
             
             <div class="odds-comparison">
-                <h4>赔率对比</h4>
+                <h4>So sánh tỷ lệ cược</h4>
                 <div class="odds-row">
-                    <span>主胜: ${pred.home_odds}</span>
-                    <span>平局: ${pred.draw_odds}</span>
-                    <span>客胜: ${pred.away_odds}</span>
+                    <span>Chủ nhà thắng: ${pred.home_odds}</span>
+                    <span>Hòa: ${pred.draw_odds}</span>
+                    <span>Khách thắng: ${pred.away_odds}</span>
                 </div>
             </div>
         </div>
     `).join('');
 }
 
-// 显示消息
+// Hiển thị thông báo
 function showMessage(message, type = 'info') {
-    // 创建消息元素
+    // Tạo phần tử thông báo
     const messageEl = document.createElement('div');
     messageEl.className = `message ${type}`;
     messageEl.innerHTML = `
@@ -568,16 +568,16 @@ function showMessage(message, type = 'info') {
         ${message}
     `;
     
-    // 添加到页面
+    // Thêm vào trang
     document.body.appendChild(messageEl);
     
-    // 3秒后移除
+    // Xóa sau 3 giây
     setTimeout(() => {
         messageEl.remove();
     }, 3000);
 }
 
-// 显示/隐藏加载状态
+// Hiển thị/ẩn trạng thái tải
 function showLoading(show) {
     const overlay = document.getElementById('loading-overlay');
     if (overlay) {
@@ -585,7 +585,7 @@ function showLoading(show) {
     }
 }
 
-// 生成经典模式串关组合
+// Tạo các tổ hợp xiên cho chế độ cổ điển
 function generateClassicParlays(predictions) {
     if (predictions.length < 2) {
         return { best: null, all: [] };
@@ -593,14 +593,14 @@ function generateClassicParlays(predictions) {
     
     const allCombinations = [];
     
-    // 为每场比赛创建所有可能的选择
+    // Tạo toàn bộ lựa chọn có thể có cho từng trận
     const allSelections = predictions.map(pred => [
         { type: 'home', odds: pred.home_odds, prob: pred.home_win_prob, ev: (pred.home_win_prob * pred.home_odds) - 1 },
         { type: 'draw', odds: pred.draw_odds, prob: pred.draw_prob, ev: (pred.draw_prob * pred.draw_odds) - 1 },
         { type: 'away', odds: pred.away_odds, prob: pred.away_win_prob, ev: (pred.away_win_prob * pred.away_odds) - 1 }
     ]);
     
-    // 生成所有可能的组合（笛卡尔积）
+    // Tạo mọi tổ hợp có thể có (tích Descartes)
     function generateCombinations(index, currentCombo) {
         if (index === allSelections.length) {
             const combo = {
@@ -628,29 +628,29 @@ function generateClassicParlays(predictions) {
     
     generateCombinations(0, []);
     
-    // 按期望值排序
+    // Sắp xếp theo giá trị kỳ vọng
     allCombinations.sort((a, b) => b.expectedValue - a.expectedValue);
     
     return {
         best: allCombinations[0],
-        all: allCombinations.slice(0, 10) // 只取前10个最佳组合
+        all: allCombinations.slice(0, 10) // Chỉ lấy 10 tổ hợp tốt nhất
     };
 }
 
-// 显示经典模式串关结果
+// Hiển thị kết quả xiên của chế độ cổ điển
 function displayClassicParlays(parlayPredictions) {
-    // 显示最佳串关
+    // Hiển thị tổ hợp xiên tốt nhất
     const bestParlayContainer = document.getElementById('best-parlay-results');
     if (parlayPredictions.best) {
         bestParlayContainer.innerHTML = `
             <div class="best-parlay-card">
-                <h3><i class="fas fa-star"></i> 最佳串关组合</h3>
+                <h3><i class="fas fa-star"></i> Tổ hợp xiên tốt nhất</h3>
                 <div class="parlay-details">
                     <div class="parlay-info">
-                        <span class="parlay-odds">总赔率: ${parlayPredictions.best.totalOdds.toFixed(2)}</span>
-                        <span class="parlay-prob">成功概率: ${(parlayPredictions.best.totalProb * 100).toFixed(1)}%</span>
+                        <span class="parlay-odds">Tổng tỷ lệ cược: ${parlayPredictions.best.totalOdds.toFixed(2)}</span>
+                        <span class="parlay-prob">Xác suất thành công: ${(parlayPredictions.best.totalProb * 100).toFixed(1)}%</span>
                         <span class="parlay-ev ${parlayPredictions.best.expectedValue > 0 ? 'positive' : 'negative'}">
-                            期望值: ${(parlayPredictions.best.expectedValue * 100).toFixed(1)}%
+                            Giá trị kỳ vọng: ${(parlayPredictions.best.expectedValue * 100).toFixed(1)}%
                         </span>
                     </div>
                     <div class="parlay-selections">
@@ -669,17 +669,17 @@ function displayClassicParlays(parlayPredictions) {
         bestParlayContainer.innerHTML = `
             <div class="empty-message">
                 <i class="fas fa-info-circle"></i>
-                <p>需要至少2场比赛才能生成串关</p>
+                <p>Cần ít nhất 2 trận đấu để tạo tổ hợp xiên</p>
             </div>
         `;
     }
     
-    // 显示其他组合
+    // Hiển thị các tổ hợp khác
     const allParlaysContainer = document.getElementById('all-parlays-results');
     if (parlayPredictions.all.length > 1) {
         allParlaysContainer.innerHTML = `
             <div class="parlays-list">
-                <h3><i class="fas fa-layer-group"></i> 其他推荐组合</h3>
+                <h3><i class="fas fa-layer-group"></i> Các tổ hợp đề xuất khác</h3>
                 ${parlayPredictions.all.slice(1).map((parlay, index) => `
                     <div class="parlay-item">
                         <div class="parlay-header">
@@ -703,37 +703,37 @@ function displayClassicParlays(parlayPredictions) {
         allParlaysContainer.innerHTML = `
             <div class="empty-message">
                 <i class="fas fa-info-circle"></i>
-                <p>暂无其他组合可显示</p>
+                <p>Không có tổ hợp nào khác để hiển thị</p>
             </div>
         `;
     }
 }
 
-// 获取投注类型显示名称
+// Lấy tên hiển thị của loại lựa chọn
 function getPickDisplayName(pick) {
     const names = {
-        'home': '主胜',
-        'draw': '平局',
-        'away': '客胜'
+        'home': 'Chủ nhà thắng',
+        'draw': 'Hòa',
+        'away': 'Khách thắng'
     };
     return names[pick] || pick;
 }
 
-// 暴露给全局使用的函数和变量
+// Các hàm và biến được xuất ra phạm vi toàn cục
 window.getClassicMatches = () => classicMatches;
 window.setClassicMatches = (matches) => { classicMatches = matches; };
 window.updateClassicMatchesDisplay = updateClassicMatchesDisplay;
 window.clearClassicMatches = clearClassicMatches;
 
-// 保存经典预测结果到数据库
+// Lưu kết quả dự đoán cổ điển vào cơ sở dữ liệu
 async function saveClassicPredictionsToDatabase(predictions) {
     try {
         for (const prediction of predictions) {
-            // 确定预测结果
+            // Xác định kết quả dự đoán. Giữ nguyên literal nội bộ để tương thích dữ liệu cũ.
             let predictedResult = '主胜';
-            let confidence = prediction.home_win_prob * 10; // 转换为0-10分
+            let confidence = prediction.home_win_prob * 10; // Chuyển sang thang điểm 0-10
             
-            // 选择概率最高的结果
+            // Chọn kết quả có xác suất cao nhất
             if (prediction.draw_prob > prediction.home_win_prob && prediction.draw_prob > prediction.away_win_prob) {
                 predictedResult = '平局';
                 confidence = prediction.draw_prob * 10;
@@ -753,11 +753,11 @@ async function saveClassicPredictionsToDatabase(predictions) {
                     away_odds: prediction.away_odds
                 },
                 prediction_result: predictedResult,
-                confidence: Math.round(confidence * 100) / 100, // 保留2位小数
-                ai_analysis: `经典模式预测 - 主胜概率:${(prediction.home_win_prob*100).toFixed(1)}% 平局概率:${(prediction.draw_prob*100).toFixed(1)}% 客胜概率:${(prediction.away_win_prob*100).toFixed(1)}%`
+                confidence: Math.round(confidence * 100) / 100, // Giữ 2 chữ số thập phân
+                ai_analysis: `Dự đoán chế độ cổ điển - Xác suất chủ nhà thắng:${(prediction.home_win_prob*100).toFixed(1)}% Xác suất hòa:${(prediction.draw_prob*100).toFixed(1)}% Xác suất khách thắng:${(prediction.away_win_prob*100).toFixed(1)}%`
             };
             
-            // 发送到后端保存
+            // Gửi về backend để lưu
             const response = await fetch('/api/save-prediction', {
                 method: 'POST',
                 headers: {
@@ -767,17 +767,17 @@ async function saveClassicPredictionsToDatabase(predictions) {
             });
             
             if (response.ok) {
-                console.log(`✅ 经典预测结果已保存: ${prediction.home_team} vs ${prediction.away_team}`);
+                console.log(`✅ Đã lưu kết quả dự đoán cổ điển: ${prediction.home_team} vs ${prediction.away_team}`);
             } else {
-                console.warn(`⚠️ 经典预测结果保存失败: ${prediction.home_team} vs ${prediction.away_team}`);
+                console.warn(`⚠️ Không thể lưu kết quả dự đoán cổ điển: ${prediction.home_team} vs ${prediction.away_team}`);
             }
         }
     } catch (error) {
-        console.error('保存经典预测结果到数据库失败:', error);
+        console.error('Không thể lưu kết quả dự đoán cổ điển vào cơ sở dữ liệu:', error);
     }
 }
 
-// 页面加载完成后初始化
+// Khởi tạo sau khi trang tải xong
 document.addEventListener('DOMContentLoaded', function() {
     initClassicMode();
 });

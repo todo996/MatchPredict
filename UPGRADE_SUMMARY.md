@@ -1,89 +1,89 @@
-# 项目升级总结
+# Tổng kết nâng cấp dự án
 
-## 🎯 主要改进
+## 🎯 Các cải tiến chính
 
-### 1. 前端响应式设计优化 ✅
-- **经典模式**: 改为左右分栏布局，左侧添加比赛，右侧显示"购物车"
-- **彩票模式**: 同样采用左右分栏设计，右侧为购物车形式
-- **响应式支持**: 在移动端自动切换为单栏布局
-- **移除冗余**: 删除了经典模式下多余的已添加比赛区域
+### 1. Tối ưu thiết kế responsive của frontend ✅
+- **Chế độ cổ điển**: chuyển sang bố cục hai cột, bên trái thêm trận và bên phải hiển thị danh sách đã chọn
+- **Chế độ xổ số thể thao**: sử dụng bố cục hai cột tương tự, bên phải là danh sách trận đã chọn
+- **Hỗ trợ responsive**: tự động chuyển về bố cục một cột trên thiết bị di động
+- **Loại bỏ phần dư thừa**: xóa khu vực danh sách trận bị lặp trong chế độ cổ điển
 
-### 2. 经典模式功能完善 ✅
-- **本地预测算法**: 使用本地特征数据进行预测，不依赖AI
-- **串关组合**: 新增最佳串关和其他组合预测功能
-- **特征数据**: 支持加载本地CSV/JSON特征文件
-- **购物车体验**: 类似电商的添加到购物车体验
+### 2. Hoàn thiện chức năng chế độ cổ điển ✅
+- **Thuật toán dự đoán cục bộ**: dùng dữ liệu đặc trưng cục bộ, không phụ thuộc AI
+- **Tổ hợp nhiều trận**: bổ sung tổ hợp tốt nhất và các tổ hợp khác
+- **Dữ liệu đặc trưng**: hỗ trợ nạp các tệp CSV/JSON cục bộ
+- **Trải nghiệm danh sách chọn**: thao tác thêm và quản lý trận trực quan
 
-### 3. 彩票模式UI优化 ✅
-- **布局重构**: 左侧显示可选比赛，右侧为购物车
-- **移除滚动**: 比赛列表不再有滚动限制，完整显示
-- **选择体验**: 更直观的比赛选择和管理
+### 3. Tối ưu giao diện chế độ xổ số thể thao ✅
+- **Tái cấu trúc bố cục**: bên trái hiển thị các trận có thể chọn, bên phải là danh sách đã chọn
+- **Hiển thị danh sách**: tối ưu cách hiển thị danh sách trận
+- **Trải nghiệm chọn trận**: quản lý trận đấu trực quan hơn
 
-### 4. 安全性提升 ✅
-- **环境变量**: 所有API密钥移动到环境变量
-- **配置文件**: 创建了环境变量配置指南
-- **部署安全**: 支持Vercel等平台的安全配置
+### 4. Nâng cao bảo mật ✅
+- **Biến môi trường**: chuyển toàn bộ khóa API sang biến môi trường
+- **Tệp cấu hình**: bổ sung tài liệu hướng dẫn cấu hình biến môi trường
+- **An toàn khi triển khai**: hỗ trợ cấu hình bảo mật trên Vercel và các nền tảng tương tự
 
-### 5. 交互体验改进 ✅
-- **模式切换**: 切换模式时自动清空所有数据和预测结果
-- **状态管理**: 更好的状态管理和数据隔离
-- **用户反馈**: 改进的消息提示和状态显示
+### 5. Cải thiện trải nghiệm tương tác ✅
+- **Chuyển chế độ**: tự động xóa dữ liệu và kết quả dự đoán khi đổi chế độ
+- **Quản lý trạng thái**: tách dữ liệu giữa các chế độ rõ ràng hơn
+- **Phản hồi người dùng**: cải thiện thông báo và trạng thái thao tác
 
-## 🔧 技术改进
+## 🔧 Cải tiến kỹ thuật
 
-### 前端架构
-- 模块化JavaScript设计
-- 响应式CSS Grid布局
-- 改进的事件处理和状态管理
+### Kiến trúc frontend
+- Thiết kế JavaScript theo mô-đun
+- Bố cục CSS Grid responsive
+- Cải thiện xử lý sự kiện và quản lý trạng thái
 
-### 后端优化
-- 环境变量配置支持
-- 更好的错误处理
-- 安全的API密钥管理
+### Tối ưu backend
+- Hỗ trợ cấu hình bằng biến môi trường
+- Xử lý lỗi tốt hơn
+- Quản lý khóa API an toàn hơn
 
-### 数据处理
-- 本地特征数据支持
-- 改进的预测算法
-- 串关组合生成逻辑
+### Xử lý dữ liệu
+- Hỗ trợ dữ liệu đặc trưng cục bộ
+- Cải thiện thuật toán dự đoán
+- Logic tạo tổ hợp nhiều trận
 
-## 📁 新增文件
+## 📁 Tệp mới
 
-- `static/js/classic-mode.js` - 经典模式本地预测逻辑
-- `ENV_CONFIG.md` - 环境变量配置指南
+- `static/js/classic-mode.js` - logic dự đoán cục bộ của chế độ cổ điển
+- `ENV_CONFIG.md` - hướng dẫn cấu hình biến môi trường
 
-## 🚀 部署说明
+## 🚀 Hướng dẫn triển khai
 
-### 环境变量配置
-在Vercel中设置以下环境变量：
-- `GEMINI_API_KEY`: 你的Gemini API密钥
-- `GEMINI_MODEL`: 模型名称（默认: gemini-2.0-flash-exp）
+### Cấu hình biến môi trường
+Thiết lập các biến sau trên Vercel:
+- `GEMINI_API_KEY`: khóa Gemini API của bạn
+- `GEMINI_MODEL`: tên mô hình (mặc định: `gemini-2.0-flash-exp`)
 
-### 功能说明
-- **经典模式**: 完全本地化，不需要API密钥
-- **彩票模式**: 爬取公开数据，不需要API密钥  
-- **AI模式**: 需要GEMINI_API_KEY，如未设置将显示错误提示
+### Hành vi chức năng
+- **Chế độ cổ điển**: hoạt động cục bộ, không cần khóa API
+- **Chế độ xổ số thể thao**: sử dụng nguồn dữ liệu của hệ thống, không cần khóa Gemini API
+- **Chế độ AI**: cần `GEMINI_API_KEY`; nếu chưa cấu hình sẽ hiển thị thông báo lỗi
 
-## 🎨 UI/UX 改进
+## 🎨 Cải tiến UI/UX
 
-### 布局优化
-- 左右分栏设计提供更好的用户体验
-- 购物车式的比赛管理更直观
-- 响应式设计确保移动端体验
+### Tối ưu bố cục
+- Bố cục hai cột giúp quản lý trận rõ ràng hơn
+- Danh sách trận đã chọn trực quan hơn
+- Thiết kế responsive bảo đảm trải nghiệm trên thiết bị di động
 
-### 视觉改进
-- 更现代的卡片设计
-- 改进的颜色方案和状态指示
-- 更好的间距和排版
+### Cải thiện hình ảnh
+- Thiết kế thẻ hiện đại hơn
+- Cải thiện phối màu và trạng thái hiển thị
+- Khoảng cách và cách sắp chữ hợp lý hơn
 
-### 交互优化
-- 更清晰的操作流程
-- 即时的状态反馈
-- 智能的数据管理
+### Tối ưu tương tác
+- Quy trình thao tác rõ ràng hơn
+- Phản hồi trạng thái tức thời
+- Quản lý dữ liệu theo từng chế độ
 
-## ✨ 用户体验亮点
+## ✨ Điểm nổi bật về trải nghiệm người dùng
 
-1. **购物车式体验**: 像网购一样添加和管理比赛
-2. **模式隔离**: 切换模式时自动清空，避免混淆
-3. **响应式设计**: 在任何设备上都有良好体验
-4. **本地预测**: 经典模式无需网络即可工作
-5. **安全配置**: 密钥管理更安全规范
+1. **Quản lý trận trực quan**: dễ thêm và xóa các trận cần phân tích
+2. **Tách biệt chế độ**: tự động làm sạch dữ liệu khi chuyển chế độ để tránh nhầm lẫn
+3. **Thiết kế responsive**: hoạt động tốt trên nhiều kích thước màn hình
+4. **Dự đoán cục bộ**: chế độ cổ điển có thể hoạt động mà không cần API AI
+5. **Cấu hình an toàn**: quản lý khóa API đúng chuẩn hơn

@@ -1,53 +1,53 @@
-# 环境变量配置指南
+# Hướng dẫn cấu hình biến môi trường
 
-本项目已将所有敏感信息（如API密钥）移动到环境变量中，以提高安全性。
+Dự án đã chuyển toàn bộ thông tin nhạy cảm (ví dụ khóa API) sang biến môi trường để tăng mức độ an toàn.
 
-## 必需的环境变量
+## Các biến môi trường cần thiết
 
-### 1. GEMINI_API_KEY
-- **描述**: Google Gemini API 密钥
-- **必需**: 是（如果使用AI预测功能）
-- **示例**: `GEMINI_API_KEY=AIza9pYAEW7e2Ewk__9TCHAD5X_G1VhCtVw`
+### 1. `GEMINI_API_KEY`
+- **Mô tả**: khóa Google Gemini API
+- **Bắt buộc**: Có, nếu sử dụng chức năng dự đoán AI
+- **Ví dụ**: `GEMINI_API_KEY=your_api_key_here`
 
-### 2. GEMINI_MODEL
-- **描述**: Gemini 模型名称
-- **必需**: 否（有默认值）
-- **默认值**: `gemini-2.0-flash-exp`
-- **示例**: `GEMINI_MODEL=gemini-2.0-flash-exp`
+### 2. `GEMINI_MODEL`
+- **Mô tả**: tên mô hình Gemini
+- **Bắt buộc**: Không, đã có giá trị mặc định
+- **Giá trị mặc định**: `gemini-2.0-flash-exp`
+- **Ví dụ**: `GEMINI_MODEL=gemini-2.0-flash-exp`
 
-## 本地开发配置
+## Cấu hình môi trường phát triển cục bộ
 
-### 方法1: 使用 .env 文件
-创建 `.env` 文件（已在 .gitignore 中）：
+### Cách 1: dùng tệp `.env`
+Tạo tệp `.env` (đã được khai báo trong `.gitignore`):
 ```bash
 GEMINI_API_KEY=your_api_key_here
 GEMINI_MODEL=gemini-2.0-flash-exp
 ```
 
-### 方法2: 直接设置环境变量
+### Cách 2: đặt biến môi trường trực tiếp
 ```bash
 export GEMINI_API_KEY="your_api_key_here"
 export GEMINI_MODEL="gemini-2.0-flash-exp"
 ```
 
-## Vercel 部署配置
+## Cấu hình triển khai trên Vercel
 
-1. 登录 Vercel 控制台
-2. 选择你的项目
-3. 进入 "Settings" → "Environment Variables"
-4. 添加以下环境变量：
-   - Name: `GEMINI_API_KEY`, Value: `你的API密钥`
+1. Đăng nhập bảng điều khiển Vercel
+2. Chọn dự án
+3. Vào **Settings** → **Environment Variables**
+4. Thêm các biến môi trường sau:
+   - Name: `GEMINI_API_KEY`, Value: `khóa API của bạn`
    - Name: `GEMINI_MODEL`, Value: `gemini-2.0-flash-exp`
 
-## 安全注意事项
+## Lưu ý bảo mật
 
-1. **永远不要**将 API 密钥提交到版本控制系统
-2. **永远不要**在代码中硬编码敏感信息
-3. 定期轮换 API 密钥
-4. 使用最小权限原则配置 API 密钥
+1. **Tuyệt đối không** commit khóa API vào hệ thống quản lý phiên bản
+2. **Tuyệt đối không** hard-code thông tin nhạy cảm trong mã nguồn
+3. Định kỳ thay mới khóa API
+4. Áp dụng nguyên tắc phân quyền tối thiểu khi cấu hình khóa API
 
-## 功能说明
+## Hành vi của hệ thống
 
-- 如果未设置 `GEMINI_API_KEY`，AI预测功能将不可用，但经典模式和彩票模式仍然可以正常使用
-- 经典模式使用本地算法，不依赖任何外部API
-- 彩票模式爬取公开数据，不需要API密钥
+- Nếu chưa đặt `GEMINI_API_KEY`, chức năng dự đoán AI sẽ không khả dụng, nhưng chế độ cổ điển và chế độ xổ số thể thao vẫn có thể hoạt động
+- Chế độ cổ điển sử dụng thuật toán cục bộ, không phụ thuộc API bên ngoài
+- Chế độ xổ số thể thao sử dụng dữ liệu công khai và không cần khóa API Gemini

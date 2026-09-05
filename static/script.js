@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 全局变量
+    // Biến toàn cục
     const leagueSelect = document.getElementById('league-select');
     const homeTeamSelect = document.getElementById('home-team-select');
     const awayTeamSelect = document.getElementById('away-team-select');
@@ -13,131 +13,126 @@ document.addEventListener('DOMContentLoaded', function() {
     const matchCountSpan = document.getElementById('match-count');
     const resultsSection = document.getElementById('results-section');
     const loadingOverlay = document.getElementById('loading-overlay');
-    
-    // 联赛名称映射
+
+    // Ánh xạ tên giải đấu
     const leagueNames = {
-        'PL': '英超',
-        'PD': '西甲',
-        'SA': '意甲',
-        'BL1': '德甲',
-        'FL1': '法甲'
+        'PL': 'Ngoại hạng Anh',
+        'PD': 'La Liga',
+        'SA': 'Serie A',
+        'BL1': 'Bundesliga',
+        'FL1': 'Ligue 1'
     };
-    
-    // 存储已添加的比赛
+
+    // Lưu danh sách trận đã thêm
     let matches = [];
-    
-    // 存储各联赛的球队
+
+    // Lưu danh sách đội theo từng giải
     let teams = {};
-    
-    // 初始化函数
+
+    // Khởi tạo
     function init() {
-        // 加载所有联赛的球队数据
+        // Tải dữ liệu đội bóng của tất cả giải
         fetchTeams();
-        
-        // 事件监听器
+
+        // Trình lắng nghe sự kiện
         leagueSelect.addEventListener('change', handleLeagueChange);
         addMatchBtn.addEventListener('click', addMatch);
         clearMatchesBtn.addEventListener('click', clearMatches);
         predictBtn.addEventListener('click', predictMatches);
-        
-        // 标签切换
+
+        // Chuyển tab
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                // 移除所有标签的活动状态
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // 添加当前标签的活动状态
+
                 this.classList.add('active');
                 const tabId = this.getAttribute('data-tab') + '-tab';
                 document.getElementById(tabId).classList.add('active');
             });
         });
     }
-    
-    // 获取各联赛的球队数据
+
+    // Lấy dữ liệu đội bóng của các giải
     async function fetchTeams() {
         try {
             const response = await fetch('/api/teams');
             const data = await response.json();
-            
+
             if (data.success) {
                 teams = data.teams;
-                console.log('球队数据加载成功');
+                console.log('Đã tải dữ liệu đội bóng');
             } else {
-                console.error('加载球队数据失败:', data.message);
-                alert('加载球队数据失败，请刷新页面重试');
+                console.error('Tải dữ liệu đội bóng thất bại:', data.message);
+                alert('Không thể tải dữ liệu đội bóng, vui lòng tải lại trang');
             }
         } catch (error) {
-            console.error('加载球队数据出错:', error);
-            alert('加载球队数据出错，请刷新页面重试');
+            console.error('Lỗi khi tải dữ liệu đội bóng:', error);
+            alert('Đã xảy ra lỗi khi tải dữ liệu đội bóng, vui lòng tải lại trang');
         }
     }
-    
-    // 处理联赛选择变化
+
+    // Xử lý khi đổi giải đấu
     function handleLeagueChange() {
         const selectedLeague = leagueSelect.value;
-        
-        // 清空并禁用球队选择框
-        homeTeamSelect.innerHTML = '<option value="">请选择主队</option>';
-        awayTeamSelect.innerHTML = '<option value="">请选择客队</option>';
-        
+
+        homeTeamSelect.innerHTML = '<option value="">Chọn đội chủ nhà</option>';
+        awayTeamSelect.innerHTML = '<option value="">Chọn đội khách</option>';
+
         if (!selectedLeague) {
             homeTeamSelect.disabled = true;
             awayTeamSelect.disabled = true;
             return;
         }
-        
-        // 如果已加载该联赛的球队数据
+
         if (teams[selectedLeague]) {
             populateTeamSelects(teams[selectedLeague]);
         } else {
-            // 如果尚未加载，尝试从服务器获取
             fetchLeagueTeams(selectedLeague);
         }
     }
-    
-    // 获取特定联赛的球队
+
+    // Lấy danh sách đội của một giải cụ thể
     async function fetchLeagueTeams(leagueCode) {
         try {
             const response = await fetch(`/api/teams/${leagueCode}`);
             const data = await response.json();
-            
+
             if (data.success) {
                 teams[leagueCode] = data.teams;
                 populateTeamSelects(data.teams);
             } else {
-                console.error(`加载${leagueNames[leagueCode]}球队数据失败:`, data.message);
-                alert(`加载${leagueNames[leagueCode]}球队数据失败，请重试`);
+                console.error(`Không thể tải dữ liệu đội của ${leagueNames[leagueCode]}:`, data.message);
+                alert(`Không thể tải dữ liệu đội của ${leagueNames[leagueCode]}, vui lòng thử lại`);
             }
         } catch (error) {
-            console.error(`加载${leagueNames[leagueCode]}球队数据出错:`, error);
-            alert(`加载${leagueNames[leagueCode]}球队数据出错，请重试`);
+            console.error(`Lỗi khi tải dữ liệu đội của ${leagueNames[leagueCode]}:`, error);
+            alert(`Lỗi khi tải dữ liệu đội của ${leagueNames[leagueCode]}, vui lòng thử lại`);
         }
     }
-    
-    // 填充球队选择框
+
+    // Điền danh sách đội vào ô chọn
     function populateTeamSelects(teamsList) {
-        homeTeamSelect.innerHTML = '<option value="">请选择主队</option>';
-        awayTeamSelect.innerHTML = '<option value="">请选择客队</option>';
-        
+        homeTeamSelect.innerHTML = '<option value="">Chọn đội chủ nhà</option>';
+        awayTeamSelect.innerHTML = '<option value="">Chọn đội khách</option>';
+
         teamsList.forEach(team => {
             const homeOption = document.createElement('option');
             homeOption.value = team;
             homeOption.textContent = team;
             homeTeamSelect.appendChild(homeOption);
-            
+
             const awayOption = document.createElement('option');
             awayOption.value = team;
             awayOption.textContent = team;
             awayTeamSelect.appendChild(awayOption);
         });
-        
+
         homeTeamSelect.disabled = false;
         awayTeamSelect.disabled = false;
     }
-    
-    // 添加比赛
+
+    // Thêm trận đấu
     function addMatch() {
         const league = leagueSelect.value;
         const homeTeam = homeTeamSelect.value;
@@ -145,46 +140,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const homeOdds = parseFloat(homeOddsInput.value);
         const drawOdds = parseFloat(drawOddsInput.value);
         const awayOdds = parseFloat(awayOddsInput.value);
-        
-        // 验证输入
+
+        // Kiểm tra dữ liệu đầu vào
         if (!league) {
-            alert('请选择联赛');
+            alert('Vui lòng chọn giải đấu');
             return;
         }
-        
+
         if (!homeTeam) {
-            alert('请选择主队');
+            alert('Vui lòng chọn đội chủ nhà');
             return;
         }
-        
+
         if (!awayTeam) {
-            alert('请选择客队');
+            alert('Vui lòng chọn đội khách');
             return;
         }
-        
+
         if (homeTeam === awayTeam) {
-            alert('主队和客队不能相同');
+            alert('Đội chủ nhà và đội khách không thể trùng nhau');
             return;
         }
-        
+
         if (isNaN(homeOdds) || homeOdds < 1.01) {
-            alert('请输入有效的主胜赔率（大于1.01）');
+            alert('Vui lòng nhập tỷ lệ chủ nhà thắng hợp lệ (lớn hơn 1.01)');
             return;
         }
-        
+
         if (isNaN(drawOdds) || drawOdds < 1.01) {
-            alert('请输入有效的平局赔率（大于1.01）');
+            alert('Vui lòng nhập tỷ lệ hòa hợp lệ (lớn hơn 1.01)');
             return;
         }
-        
+
         if (isNaN(awayOdds) || awayOdds < 1.01) {
-            alert('请输入有效的客胜赔率（大于1.01）');
+            alert('Vui lòng nhập tỷ lệ khách thắng hợp lệ (lớn hơn 1.01)');
             return;
         }
-        
-        // 创建比赛对象
+
         const match = {
-            id: Date.now(), // 使用时间戳作为唯一ID
+            id: Date.now(), // Dùng timestamp làm ID duy nhất
             league,
             leagueName: leagueNames[league],
             homeTeam,
@@ -193,38 +187,35 @@ document.addEventListener('DOMContentLoaded', function() {
             drawOdds,
             awayOdds
         };
-        
-        // 添加到比赛列表
+
         matches.push(match);
-        
-        // 更新UI
+
         renderMatches();
         updateMatchCount();
-        
-        // 启用按钮
+
         clearMatchesBtn.disabled = false;
         predictBtn.disabled = false;
-        
-        // 重置表单
+
+        // Đặt lại biểu mẫu
         leagueSelect.selectedIndex = 0;
-        homeTeamSelect.innerHTML = '<option value="">请先选择联赛</option>';
-        awayTeamSelect.innerHTML = '<option value="">请先选择联赛</option>';
+        homeTeamSelect.innerHTML = '<option value="">Hãy chọn giải đấu trước</option>';
+        awayTeamSelect.innerHTML = '<option value="">Hãy chọn giải đấu trước</option>';
         homeTeamSelect.disabled = true;
         awayTeamSelect.disabled = true;
         homeOddsInput.value = '';
         drawOddsInput.value = '';
         awayOddsInput.value = '';
     }
-    
-    // 渲染已添加的比赛
+
+    // Hiển thị các trận đã thêm
     function renderMatches() {
         if (matches.length === 0) {
-            matchesContainer.innerHTML = '<p class="empty-message">尚未添加任何比赛</p>';
+            matchesContainer.innerHTML = '<p class="empty-message">Chưa thêm trận nào</p>';
             return;
         }
-        
+
         matchesContainer.innerHTML = '';
-        
+
         matches.forEach(match => {
             const matchCard = document.createElement('div');
             matchCard.className = 'match-card';
@@ -243,23 +234,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="match-odds">
                     <div class="odd-item">
                         <div class="odd-value">${match.homeOdds.toFixed(2)}</div>
-                        <div class="odd-label">主胜</div>
+                        <div class="odd-label">Chủ nhà thắng</div>
                     </div>
                     <div class="odd-item">
                         <div class="odd-value">${match.drawOdds.toFixed(2)}</div>
-                        <div class="odd-label">平局</div>
+                        <div class="odd-label">Hòa</div>
                     </div>
                     <div class="odd-item">
                         <div class="odd-value">${match.awayOdds.toFixed(2)}</div>
-                        <div class="odd-label">客胜</div>
+                        <div class="odd-label">Khách thắng</div>
                     </div>
                 </div>
             `;
-            
+
             matchesContainer.appendChild(matchCard);
         });
-        
-        // 添加删除比赛的事件监听器
+
+        // Gắn sự kiện xóa trận
         document.querySelectorAll('.remove-match').forEach(btn => {
             btn.addEventListener('click', function() {
                 const matchId = parseInt(this.getAttribute('data-id'));
@@ -267,49 +258,46 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
-    // 更新比赛计数
+
+    // Cập nhật số trận
     function updateMatchCount() {
         matchCountSpan.textContent = `(${matches.length})`;
     }
-    
-    // 删除比赛
+
+    // Xóa một trận
     function removeMatch(matchId) {
         matches = matches.filter(match => match.id !== matchId);
         renderMatches();
         updateMatchCount();
-        
+
         clearMatchesBtn.disabled = matches.length === 0;
         predictBtn.disabled = matches.length < 1;
     }
-    
-    // 清空所有比赛
+
+    // Xóa tất cả trận
     function clearMatches() {
-        if (confirm('确定要清空所有已添加的比赛吗？')) {
+        if (confirm('Bạn có chắc muốn xóa toàn bộ các trận đã thêm không?')) {
             matches = [];
             renderMatches();
             updateMatchCount();
-            
+
             clearMatchesBtn.disabled = true;
             predictBtn.disabled = true;
-            
-            // 隐藏结果区域
+
             resultsSection.classList.add('hidden');
         }
     }
-    
-    // 预测比赛
+
+    // Dự đoán trận đấu
     async function predictMatches() {
         if (matches.length === 0) {
-            alert('请至少添加一场比赛');
+            alert('Hãy thêm ít nhất một trận đấu');
             return;
         }
-        
+
         try {
-            // 显示加载动画
             loadingOverlay.classList.remove('hidden');
-            
-            // 准备请求数据
+
             const requestData = {
                 matches: matches.map(match => ({
                     league_code: match.league,
@@ -320,8 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     away_odds: match.awayOdds
                 }))
             };
-            
-            // 发送预测请求
+
             const response = await fetch('/api/predict', {
                 method: 'POST',
                 headers: {
@@ -329,116 +316,108 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(requestData)
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
-                // 显示结果区域
                 resultsSection.classList.remove('hidden');
-                
-                // 渲染预测结果
+
                 renderIndividualPredictions(result.individual_predictions);
                 renderBestParlay(result.best_parlay);
                 renderAllParlays(result.all_combinations);
-                
-                // 滚动到结果区域
+
                 resultsSection.scrollIntoView({ behavior: 'smooth' });
             } else {
-                alert(`预测失败: ${result.message}`);
+                alert(`Dự đoán thất bại: ${result.message}`);
             }
         } catch (error) {
-            console.error('预测出错:', error);
-            alert('预测过程中发生错误，请重试');
+            console.error('Lỗi dự đoán:', error);
+            alert('Đã xảy ra lỗi trong quá trình dự đoán, vui lòng thử lại');
         } finally {
-            // 隐藏加载动画
             loadingOverlay.classList.add('hidden');
         }
     }
-    
-    // 渲染单场预测结果
+
+    // Hiển thị dự đoán từng trận
     function renderIndividualPredictions(predictions) {
         const container = document.getElementById('individual-results');
         container.innerHTML = '';
-        
+
         predictions.forEach((pred, index) => {
-            // 格式化结果名称
             function formatResult(result) {
-                if (result === 'home') return '主胜';
-                if (result === 'draw') return '平局';
-                if (result === 'away') return '客胜';
+                if (result === 'home') return 'Chủ nhà thắng';
+                if (result === 'draw') return 'Hòa';
+                if (result === 'away') return 'Khách thắng';
                 return result;
             }
-            
-            // 创建投注选项HTML
+
             let betsHTML = '';
             pred.all_bets.forEach(([result, ev, odds, prob]) => {
                 const resultName = formatResult(result);
                 const evClass = ev > 0 ? 'positive-ev' : 'negative-ev';
-                
+
                 betsHTML += `
                     <div class="bet-option ${result === pred.best_bet ? 'best-bet' : ''}">
                         <div class="bet-name">${resultName}</div>
                         <div class="bet-details">
-                            <span class="bet-odds">赔率: ${odds.toFixed(2)}</span>
-                            <span class="bet-prob">概率: ${(prob * 100).toFixed(1)}%</span>
-                            <span class="bet-ev ${evClass}">期望值: ${ev.toFixed(4)}</span>
+                            <span class="bet-odds">Tỷ lệ: ${odds.toFixed(2)}</span>
+                            <span class="bet-prob">Xác suất: ${(prob * 100).toFixed(1)}%</span>
+                            <span class="bet-ev ${evClass}">Giá trị kỳ vọng: ${ev.toFixed(4)}</span>
                         </div>
                     </div>
                 `;
             });
-            
+
             const card = document.createElement('div');
             card.className = 'prediction-card';
-            
+
             card.innerHTML = `
                 <div class="prediction-header">
                     <h3>${pred.home_team} vs ${pred.away_team}</h3>
-                    <div class="match-number">比赛 #${index + 1}</div>
+                    <div class="match-number">Trận #${index + 1}</div>
                 </div>
                 <div class="prediction-content">
                     <div class="probabilities">
                         <div class="prob-item">
                             <div class="prob-value">${(pred.home_win_prob * 100).toFixed(1)}%</div>
-                            <div class="prob-label">主胜</div>
+                            <div class="prob-label">Chủ nhà thắng</div>
                         </div>
                         <div class="prob-item">
                             <div class="prob-value">${(pred.draw_prob * 100).toFixed(1)}%</div>
-                            <div class="prob-label">平局</div>
+                            <div class="prob-label">Hòa</div>
                         </div>
                         <div class="prob-item">
                             <div class="prob-value">${(pred.away_win_prob * 100).toFixed(1)}%</div>
-                            <div class="prob-label">客胜</div>
+                            <div class="prob-label">Khách thắng</div>
                         </div>
                     </div>
                     <div class="betting-options">
-                        <h4>投注选项</h4>
+                        <h4>Các lựa chọn</h4>
                         ${betsHTML}
                     </div>
                     <div class="best-prediction">
-                        <div class="best-label">最佳投注</div>
+                        <div class="best-label">Lựa chọn tốt nhất</div>
                         <div class="best-value">${formatResult(pred.best_bet)}</div>
-                        <div class="best-ev">期望值: ${pred.best_ev.toFixed(4)}</div>
+                        <div class="best-ev">Giá trị kỳ vọng: ${pred.best_ev.toFixed(4)}</div>
                     </div>
                 </div>
             `;
-            
+
             container.appendChild(card);
         });
     }
-    
-    // 渲染最佳串关
+
+    // Hiển thị tổ hợp tốt nhất
     function renderBestParlay(parlay) {
         const container = document.getElementById('best-parlay-result');
-        
-        // 格式化结果名称
+
         function formatResult(result) {
-            if (result === 'home') return '主胜';
-            if (result === 'draw') return '平局';
-            if (result === 'away') return '客胜';
+            if (result === 'home') return 'Chủ nhà thắng';
+            if (result === 'draw') return 'Hòa';
+            if (result === 'away') return 'Khách thắng';
             return result;
         }
-        
-        // 创建选择项HTML
+
         let selectionsHTML = '';
         parlay.selections.forEach((sel, index) => {
             selectionsHTML += `
@@ -451,24 +430,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         });
-        
+
         container.innerHTML = `
             <div class="parlay-header">
-                <h3>最佳串关组合</h3>
-                <div class="parlay-odds">总赔率: ${parlay.total_odds.toFixed(2)}</div>
+                <h3>Tổ hợp tốt nhất</h3>
+                <div class="parlay-odds">Tổng tỷ lệ: ${parlay.total_odds.toFixed(2)}</div>
             </div>
             <div class="parlay-stats">
                 <div class="parlay-stat">
                     <div class="stat-value">${(parlay.total_prob * 100).toFixed(2)}%</div>
-                    <div class="stat-label">中奖概率</div>
+                    <div class="stat-label">Xác suất</div>
                 </div>
                 <div class="parlay-stat">
                     <div class="stat-value">${parlay.expected_value.toFixed(4)}</div>
-                    <div class="stat-label">期望值</div>
+                    <div class="stat-label">Giá trị kỳ vọng</div>
                 </div>
                 <div class="parlay-stat">
                     <div class="stat-value">${parlay.selections.length}</div>
-                    <div class="stat-label">比赛数量</div>
+                    <div class="stat-label">Số trận</div>
                 </div>
             </div>
             <div class="parlay-selections">
@@ -476,25 +455,23 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
     }
-    
-    // 渲染所有串关组合
+
+    // Hiển thị các tổ hợp khác
     function renderAllParlays(combinations) {
         const container = document.getElementById('all-parlays-results');
         container.innerHTML = '';
-        
-        // 跳过第一个组合，因为它是最佳组合，已经在另一个标签中显示
+
+        // Bỏ tổ hợp đầu vì đã hiển thị ở tab tốt nhất
         for (let i = 1; i < Math.min(combinations.length, 5); i++) {
             const parlay = combinations[i];
-            
-            // 格式化结果名称
+
             function formatResult(result) {
-                if (result === 'home') return '主胜';
-                if (result === 'draw') return '平局';
-                if (result === 'away') return '客胜';
+                if (result === 'home') return 'Chủ nhà thắng';
+                if (result === 'draw') return 'Hòa';
+                if (result === 'away') return 'Khách thắng';
                 return result;
             }
-            
-            // 创建选择项HTML
+
             let selectionsHTML = '';
             parlay.selections.forEach((sel, index) => {
                 selectionsHTML += `
@@ -507,37 +484,36 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             });
-            
+
             const parlayElement = document.createElement('div');
             parlayElement.className = 'parlay-result';
             parlayElement.innerHTML = `
                 <div class="parlay-header">
-                    <h3>组合 #${i + 1}</h3>
-                    <div class="parlay-odds">总赔率: ${parlay.total_odds.toFixed(2)}</div>
+                    <h3>Tổ hợp #${i + 1}</h3>
+                    <div class="parlay-odds">Tổng tỷ lệ: ${parlay.total_odds.toFixed(2)}</div>
                 </div>
                 <div class="parlay-stats">
                     <div class="parlay-stat">
                         <div class="stat-value">${(parlay.total_prob * 100).toFixed(2)}%</div>
-                        <div class="stat-label">中奖概率</div>
+                        <div class="stat-label">Xác suất</div>
                     </div>
                     <div class="parlay-stat">
                         <div class="stat-value">${parlay.expected_value.toFixed(4)}</div>
-                        <div class="stat-label">期望值</div>
+                        <div class="stat-label">Giá trị kỳ vọng</div>
                     </div>
                     <div class="parlay-stat">
                         <div class="stat-value">${parlay.selections.length}</div>
-                        <div class="stat-label">比赛数量</div>
+                        <div class="stat-label">Số trận</div>
                     </div>
                 </div>
                 <div class="parlay-selections">
                     ${selectionsHTML}
                 </div>
             `;
-            
+
             container.appendChild(parlayElement);
         }
     }
-    
-    // 调用初始化函数
+
     init();
-}); 
+});

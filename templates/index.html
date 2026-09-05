@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI足球预测 - 智能分析平台</title>
+    <title>Dự đoán bóng đá AI - Nền tảng phân tích thông minh</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,32 +12,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- 导航栏 -->
+    <!-- Thanh điều hướng -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
                 <i class="fas fa-futbol"></i>
-                <span>AI足球预测</span>
+                <span>Dự đoán bóng đá AI</span>
             </div>
             <div class="nav-menu">
                 <button type="button" id="classic-mode-btn" class="nav-btn active" data-mode="classic">
                     <i class="fas fa-chart-bar"></i>
-                    <span>经典模式</span>
+                    <span>Cổ điển</span>
                 </button>
                 <button type="button" id="lottery-mode-btn" class="nav-btn" data-mode="lottery">
                     <i class="fas fa-ticket-alt"></i>
-                    <span>彩票模式</span>
+                    <span>Xổ số thể thao</span>
                 </button>
                 <button type="button" id="ai-mode-btn" class="nav-btn" data-mode="ai">
                     <i class="fas fa-brain"></i>
-                    <span>AI智能模式</span>
+                    <span>AI thông minh</span>
                 </button>
             </div>
-            
-            <!-- 用户区域 -->
+
+            <!-- Khu vực người dùng -->
             <div class="nav-user">
                 {% if current_user %}
-                <!-- 已登录用户信息 -->
+                <!-- Thông tin người dùng đã đăng nhập -->
                 <div class="user-info">
                     <div class="user-avatar">
                         <i class="fas fa-user"></i>
@@ -45,28 +45,28 @@
                     <div class="user-details">
                         <span class="username">{{ current_user.username }}</span>
                         <span class="user-type-badge {{ 'premium' if current_user.user_type == 'premium' else 'free' }}">
-                            {{ '会员' if current_user.user_type == 'premium' else '免费' }}
+                            {{ 'VIP' if current_user.user_type == 'premium' else 'Miễn phí' }}
                         </span>
                         {% if current_user.user_type == 'free' %}
                         <span class="predictions-remaining">
-                            今日剩余: <span id="predictions-remaining">{{ 3 - current_user.daily_predictions_used }}</span>/3
+                            Còn hôm nay: <span id="predictions-remaining">{{ 3 - current_user.daily_predictions_used }}</span>/3
                         </span>
                         {% else %}
-                        <span class="predictions-remaining">无限制预测</span>
+                        <span class="predictions-remaining">Dự đoán không giới hạn</span>
                         {% endif %}
                     </div>
                     <button id="logout-btn" class="btn compact-btn secondary-btn">
-                        <i class="fas fa-sign-out-alt"></i> 退出
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
                     </button>
                 </div>
                 {% else %}
-                <!-- 未登录状态 -->
+                <!-- Trạng thái chưa đăng nhập -->
                 <div class="auth-buttons">
                     <button id="login-btn" class="btn compact-btn primary-btn">
-                        <i class="fas fa-sign-in-alt"></i> 登录
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
                     </button>
                     <button id="register-btn" class="btn compact-btn secondary-btn">
-                        <i class="fas fa-user-plus"></i> 注册
+                        <i class="fas fa-user-plus"></i> Đăng ký
                     </button>
                 </div>
                 {% endif %}
@@ -75,87 +75,87 @@
     </nav>
 
     <div class="container">
-        <!-- 主页面头部 -->
+        <!-- Phần đầu trang chính -->
         <header class="main-header">
             <div class="header-layout">
-                <!-- 左侧：标题和介绍 -->
+                <!-- Bên trái: tiêu đề và giới thiệu -->
                 <div class="hero-section">
-                    <h1>AI足球预测</h1>
-                    <p class="subtitle">基于大语言模型的智能足球比赛分析平台</p>
-                    
-              <!-- 使用指南 -->
-              <div class="usage-guide">
-                  <h3><i class="fas fa-compass"></i> 快速开始</h3>
-                  <p>注册登录 → 选择预测模式 → 添加比赛 → 获取AI分析</p>
-                  <p><strong>免费用户</strong>每日3次预测，<strong>会员用户</strong>无限制使用</p>
-              </div>
+                    <h1>Dự đoán bóng đá AI</h1>
+                    <p class="subtitle">Nền tảng phân tích trận đấu bóng đá thông minh dựa trên mô hình ngôn ngữ lớn</p>
+
+                    <!-- Hướng dẫn sử dụng -->
+                    <div class="usage-guide">
+                        <h3><i class="fas fa-compass"></i> Bắt đầu nhanh</h3>
+                        <p>Đăng ký/Đăng nhập → Chọn chế độ → Thêm trận → Nhận phân tích AI</p>
+                        <p><strong>Tài khoản miễn phí</strong> có 3 lượt/ngày, <strong>tài khoản VIP</strong> không giới hạn</p>
+                    </div>
                 </div>
-                
-                <!-- 右侧：预测成功案例 -->
+
+                <!-- Bên phải: ví dụ dự đoán thành công -->
                 <div class="success-cases">
-                    <h2><i class="fas fa-trophy"></i> 预测成功案例</h2>
+                    <h2><i class="fas fa-trophy"></i> Ví dụ dự đoán thành công</h2>
                     <div class="cases-table-container">
                         <table class="cases-table">
                             <thead>
                                 <tr>
-                                    <th>准确率</th>
-                                    <th>日期</th>
-                                    <th>场次</th>
-                                    <th>预测结果</th>
-                                    <th>比分结果</th>
-                                    <th>赔率</th>
-                                    <th>场次</th>
-                                    <th>预测结果</th>
-                                    <th>比分结果</th>
-                                    <th>赔率</th>
+                                    <th>Chính xác</th>
+                                    <th>Ngày</th>
+                                    <th>Mã trận</th>
+                                    <th>Dự đoán</th>
+                                    <th>Tỷ số</th>
+                                    <th>Tỷ lệ</th>
+                                    <th>Mã trận</th>
+                                    <th>Dự đoán</th>
+                                    <th>Tỷ số</th>
+                                    <th>Tỷ lệ</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr class="success-row">
                                     <td class="accuracy">100%</td>
                                     <td>2025-03-02</td>
-                                    <td class="match-code">周日008</td>
-                                    <td class="prediction win">胜</td>
+                                    <td class="match-code">CN008</td>
+                                    <td class="prediction win">Thắng</td>
                                     <td class="score">1-0</td>
                                     <td class="odds">@2.900</td>
-                                    <td class="match-code">周日011</td>
-                                    <td class="prediction win">胜</td>
+                                    <td class="match-code">CN011</td>
+                                    <td class="prediction win">Thắng</td>
                                     <td class="score">2-1</td>
                                     <td class="odds">@1.430</td>
                                 </tr>
                                 <tr class="success-row">
                                     <td class="accuracy">100%</td>
                                     <td>2025-03-03</td>
-                                    <td class="match-code">周日019</td>
-                                    <td class="prediction lose">负</td>
+                                    <td class="match-code">CN019</td>
+                                    <td class="prediction lose">Thua</td>
                                     <td class="score">1-2</td>
                                     <td class="odds">@3.40</td>
-                                    <td class="match-code">周日021</td>
-                                    <td class="prediction draw">平</td>
+                                    <td class="match-code">CN021</td>
+                                    <td class="prediction draw">Hòa</td>
                                     <td class="score">3-3</td>
                                     <td class="odds">@2.83</td>
                                 </tr>
                                 <tr class="success-row">
                                     <td class="accuracy">90%</td>
                                     <td>2025-03-01</td>
-                                    <td class="match-code">周六012</td>
-                                    <td class="prediction win">胜</td>
+                                    <td class="match-code">T7-012</td>
+                                    <td class="prediction win">Thắng</td>
                                     <td class="score">3-1</td>
                                     <td class="odds">@2.15</td>
-                                    <td class="match-code">周六015</td>
-                                    <td class="prediction draw">平</td>
+                                    <td class="match-code">T7-015</td>
+                                    <td class="prediction draw">Hòa</td>
                                     <td class="score">1-1</td>
                                     <td class="odds">@3.20</td>
                                 </tr>
                                 <tr class="success-row">
                                     <td class="accuracy">100%</td>
                                     <td>2025-02-28</td>
-                                    <td class="match-code">周五007</td>
-                                    <td class="prediction lose">负</td>
+                                    <td class="match-code">T6-007</td>
+                                    <td class="prediction lose">Thua</td>
                                     <td class="score">0-2</td>
                                     <td class="odds">@4.20</td>
-                                    <td class="match-code">周五009</td>
-                                    <td class="prediction win">胜</td>
+                                    <td class="match-code">T6-009</td>
+                                    <td class="prediction win">Thắng</td>
                                     <td class="score">2-0</td>
                                     <td class="odds">@1.85</td>
                                 </tr>
@@ -165,15 +165,15 @@
                     <div class="cases-stats">
                         <div class="stat-item">
                             <div class="stat-number">97.5%</div>
-                            <div class="stat-label">平均准确率</div>
+                            <div class="stat-label">Độ chính xác trung bình</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number">128</div>
-                            <div class="stat-label">成功预测场次</div>
+                            <div class="stat-label">Dự đoán đúng</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number">+245%</div>
-                            <div class="stat-label">投注回报率</div>
+                            <div class="stat-label">ROI tham khảo</div>
                         </div>
                     </div>
                 </div>
@@ -181,337 +181,334 @@
         </header>
 
         <main>
-
-            <!-- 经典模式 -->
+            <!-- Chế độ cổ điển -->
             <section id="classic-mode" class="match-input-section active">
-                <h2><i class="fas fa-plus-circle"></i> 五大联赛分析 - 经典模式</h2>
+                <h2><i class="fas fa-plus-circle"></i> Phân tích 5 giải hàng đầu - Chế độ cổ điển</h2>
                 <div class="classic-layout">
-                    <!-- 左侧：比赛添加 -->
+                    <!-- Bên trái: thêm trận -->
                     <div class="match-selection-panel">
-                        <h3><i class="fas fa-list"></i> 添加比赛</h3>
+                        <h3><i class="fas fa-list"></i> Thêm trận</h3>
                         <div class="match-form">
                             <div class="form-group">
-                                <label for="league-select">选择联赛:</label>
+                                <label for="league-select">Chọn giải:</label>
                                 <select id="league-select">
-                                    <option value="">请选择联赛</option>
-                                    <option value="PL">英超 Premier League</option>
-                                    <option value="PD">西甲 La Liga</option>
-                                    <option value="SA">意甲 Serie A</option>
-                                    <option value="BL1">德甲 Bundesliga</option>
-                                    <option value="FL1">法甲 Ligue 1</option>
+                                    <option value="">Chọn giải đấu</option>
+                                    <option value="PL">Ngoại hạng Anh - Premier League</option>
+                                    <option value="PD">La Liga</option>
+                                    <option value="SA">Serie A</option>
+                                    <option value="BL1">Bundesliga</option>
+                                    <option value="FL1">Ligue 1</option>
                                 </select>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="home-team-select">主队:</label>
+                                    <label for="home-team-select">Chủ nhà:</label>
                                     <select id="home-team-select" disabled>
-                                        <option value="">请选择主队</option>
+                                        <option value="">Chọn đội chủ nhà</option>
                                     </select>
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label for="away-team-select">客队:</label>
+                                    <label for="away-team-select">Đội khách:</label>
                                     <select id="away-team-select" disabled>
-                                        <option value="">请选择客队</option>
+                                        <option value="">Chọn đội khách</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="form-row odds-row">
                                 <div class="form-group">
-                                    <label for="home-odds">主胜赔率:</label>
-                                    <input type="number" id="home-odds" step="0.01" min="1.01" placeholder="例如: 2.10">
+                                    <label for="home-odds">Tỷ lệ chủ nhà thắng:</label>
+                                    <input type="number" id="home-odds" step="0.01" min="1.01" placeholder="Ví dụ: 2.10">
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label for="draw-odds">平局赔率:</label>
-                                    <input type="number" id="draw-odds" step="0.01" min="1.01" placeholder="例如: 3.50">
+                                    <label for="draw-odds">Tỷ lệ hòa:</label>
+                                    <input type="number" id="draw-odds" step="0.01" min="1.01" placeholder="Ví dụ: 3.50">
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label for="away-odds">客胜赔率:</label>
-                                    <input type="number" id="away-odds" step="0.01" min="1.01" placeholder="例如: 2.80">
+                                    <label for="away-odds">Tỷ lệ khách thắng:</label>
+                                    <input type="number" id="away-odds" step="0.01" min="1.01" placeholder="Ví dụ: 2.80">
                                 </div>
                             </div>
 
                             <button id="add-match-btn" class="btn primary-btn">
-                                <i class="fas fa-plus"></i> 添加到购物车
+                                <i class="fas fa-plus"></i> Thêm vào danh sách
                             </button>
                         </div>
                     </div>
 
-                    <!-- 右侧：已选择的比赛 -->
+                    <!-- Bên phải: các trận đã chọn -->
                     <div class="selected-matches-panel">
-                        <h3><i class="fas fa-shopping-cart"></i> 已选择比赛 <span id="classic-match-count">(0)</span></h3>
+                        <h3><i class="fas fa-shopping-cart"></i> Trận đã chọn <span id="classic-match-count">(0)</span></h3>
                         <div id="classic-selected-matches" class="selected-matches-container">
                             <div class="empty-cart-message">
                                 <i class="fas fa-shopping-cart"></i>
-                                <p>购物车为空</p>
-                                <small>请在左侧添加比赛</small>
+                                <p>Chưa chọn trận nào</p>
+                                <small>Hãy thêm trận ở cột bên trái</small>
                             </div>
                         </div>
-                        
+
                         <div class="classic-actions">
                             <button id="clear-classic-selection-btn" class="btn secondary-btn" disabled>
-                                <i class="fas fa-trash"></i> 清空购物车
+                                <i class="fas fa-trash"></i> Xóa danh sách
                             </button>
-                            
+
                             <button id="classic-predict-btn" class="btn primary-btn" disabled>
-                                <i class="fas fa-chart-line"></i> 开始预测分析
+                                <i class="fas fa-chart-line"></i> Bắt đầu phân tích
                             </button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 彩票模式 -->
+            <!-- Chế độ xổ số thể thao -->
             <section id="lottery-mode" class="match-input-section hidden">
-                <h2><i class="fas fa-globe"></i> 中国体育彩票 - 实时比赛</h2>
+                <h2><i class="fas fa-globe"></i> Xổ số Thể thao Trung Quốc - Trận đấu mới nhất</h2>
                 <div class="lottery-layout">
-                    <!-- 左侧：比赛列表 -->
+                    <!-- Bên trái: danh sách trận -->
                     <div class="lottery-matches-panel">
                         <div class="lottery-controls">
-                            <h3><i class="fas fa-list"></i> 可选比赛</h3>
+                            <h3><i class="fas fa-list"></i> Trận có thể chọn</h3>
                             <div class="controls-row">
                                 <button id="refresh-lottery-btn" class="btn secondary-btn">
-                                    <i class="fas fa-sync"></i> 刷新数据
+                                    <i class="fas fa-sync"></i> Làm mới dữ liệu
                                 </button>
-                                <button id="force-refresh-lottery-btn" class="btn secondary-btn" title="获取最新数据到数据库">
-                                    <i class="fas fa-download"></i> 更新数据
+                                <button id="force-refresh-lottery-btn" class="btn secondary-btn" title="Cập nhật dữ liệu mới nhất vào cơ sở dữ liệu">
+                                    <i class="fas fa-download"></i> Cập nhật dữ liệu
                                 </button>
                                 <div class="filter-controls">
-                                    <label for="days-filter">获取天数:</label>
+                                    <label for="days-filter">Số ngày:</label>
                                     <select id="days-filter">
-                                        <option value="1">今天</option>
-                                        <option value="3" selected>3天</option>
-                                        <option value="7">7天</option>
+                                        <option value="1">Hôm nay</option>
+                                        <option value="3" selected>3 ngày</option>
+                                        <option value="7">7 ngày</option>
                                     </select>
                                 </div>
                             </div>
-                            
-                            <!-- 比赛统计和折叠控制 -->
+
+                            <!-- Thống kê và điều khiển thu gọn -->
                             <div class="matches-summary">
                                 <div class="matches-count">
-                                    <span id="total-matches-count">0</span> 场比赛
+                                    <span id="total-matches-count">0</span> trận
                                     <span class="matches-separator">|</span>
-                                    <span id="visible-matches-count">0</span> 显示
+                                    <span id="visible-matches-count">0</span> đang hiển thị
                                 </div>
                                 <button id="toggle-matches-btn" class="btn compact-btn">
-                                    <i class="fas fa-eye"></i> 显示全部
+                                    <i class="fas fa-eye"></i> Hiển thị tất cả
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div id="lottery-matches" class="lottery-matches-list">
                             <div class="loading-message">
                                 <i class="fas fa-info-circle"></i>
-                                点击"刷新数据"获取最新比赛
+                                Nhấn "Làm mới dữ liệu" để lấy danh sách trận mới nhất
                             </div>
                         </div>
                     </div>
 
-                    <!-- 右侧：购物车 -->
+                    <!-- Bên phải: danh sách đã chọn -->
                     <div class="lottery-cart-panel">
-                        <!-- 最佳串关推荐 -->
+                        <!-- Đề xuất tổ hợp tốt nhất -->
                         <div id="best-parlay-recommendation" class="best-parlay-section hidden">
                             <div class="parlay-header">
-                                <h4><i class="fas fa-star"></i> AI推荐最佳串关</h4>
+                                <h4><i class="fas fa-star"></i> AI đề xuất tổ hợp tốt nhất</h4>
                                 <button id="generate-parlay-btn" class="btn compact-btn primary-btn">
-                                    <i class="fas fa-magic"></i> 生成推荐
+                                    <i class="fas fa-magic"></i> Tạo đề xuất
                                 </button>
                             </div>
                             <div id="parlay-content" class="parlay-content">
                                 <div class="parlay-loading">
-                                    <i class="fas fa-spinner fa-spin"></i> AI正在分析最佳组合...
+                                    <i class="fas fa-spinner fa-spin"></i> AI đang phân tích tổ hợp tốt nhất...
                                 </div>
                             </div>
                         </div>
-                        
-                        <h3><i class="fas fa-shopping-cart"></i> 比赛购物车 <span id="lottery-selected-count">(0)</span></h3>
+
+                        <h3><i class="fas fa-shopping-cart"></i> Trận đã chọn <span id="lottery-selected-count">(0)</span></h3>
                         <div id="lottery-selected-matches" class="lottery-cart-container">
                             <div class="empty-cart-message">
                                 <i class="fas fa-shopping-cart"></i>
-                                <p>购物车为空</p>
-                                <small>请在左侧选择比赛</small>
+                                <p>Chưa chọn trận nào</p>
+                                <small>Hãy chọn trận ở cột bên trái</small>
                             </div>
                         </div>
-                        
+
                         <div class="lottery-actions">
                             <button id="clear-lottery-selection-btn" class="btn secondary-btn" disabled>
-                                <i class="fas fa-trash"></i> 清空购物车
+                                <i class="fas fa-trash"></i> Xóa danh sách
                             </button>
-                            
+
                             <button id="lottery-ai-predict-btn" class="btn primary-btn" disabled>
-                                <i class="fas fa-brain"></i> AI智能预测
+                                <i class="fas fa-brain"></i> Dự đoán bằng AI
                             </button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- AI智能模式 -->
+            <!-- Chế độ AI thông minh -->
             <section id="ai-mode" class="match-input-section hidden">
-                <h2><i class="fas fa-robot"></i> AI智能分析模式</h2>
+                <h2><i class="fas fa-robot"></i> Chế độ phân tích AI thông minh</h2>
                 <div class="ai-intro">
-                    <p><i class="fas fa-lightbulb"></i> 使用先进的大语言模型进行智能分析，提供专业的比赛预测建议</p>
+                    <p><i class="fas fa-lightbulb"></i> Dùng mô hình ngôn ngữ lớn để phân tích và đưa ra dự đoán trận đấu chuyên sâu</p>
                 </div>
-                
+
                 <div class="ai-layout">
-                    <!-- 左侧：比赛添加 -->
+                    <!-- Bên trái: thêm trận -->
                     <div class="ai-input-panel">
-                        <h3><i class="fas fa-plus-circle"></i> 添加比赛</h3>
+                        <h3><i class="fas fa-plus-circle"></i> Thêm trận</h3>
                         <div class="ai-match-form">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="ai-home-team">主队:</label>
-                                    <input type="text" id="ai-home-team" placeholder="请输入主队名称">
+                                    <label for="ai-home-team">Chủ nhà:</label>
+                                    <input type="text" id="ai-home-team" placeholder="Nhập tên đội chủ nhà">
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label for="ai-away-team">客队:</label>
-                                    <input type="text" id="ai-away-team" placeholder="请输入客队名称">
+                                    <label for="ai-away-team">Đội khách:</label>
+                                    <input type="text" id="ai-away-team" placeholder="Nhập tên đội khách">
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label for="ai-league">联赛:</label>
-                                    <input type="text" id="ai-league" placeholder="请输入联赛名称">
+                                    <label for="ai-league">Giải đấu:</label>
+                                    <input type="text" id="ai-league" placeholder="Nhập tên giải đấu">
                                 </div>
                             </div>
-                            
+
                             <div class="form-row odds-row">
                                 <div class="form-group">
-                                    <label for="ai-home-odds">主胜赔率:</label>
-                                    <input type="number" id="ai-home-odds" step="0.01" min="1.01" placeholder="例如: 2.10">
+                                    <label for="ai-home-odds">Tỷ lệ chủ nhà thắng:</label>
+                                    <input type="number" id="ai-home-odds" step="0.01" min="1.01" placeholder="Ví dụ: 2.10">
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label for="ai-draw-odds">平局赔率:</label>
-                                    <input type="number" id="ai-draw-odds" step="0.01" min="1.01" placeholder="例如: 3.50">
+                                    <label for="ai-draw-odds">Tỷ lệ hòa:</label>
+                                    <input type="number" id="ai-draw-odds" step="0.01" min="1.01" placeholder="Ví dụ: 3.50">
                                 </div>
-                                
+
                                 <div class="form-group">
-                                    <label for="ai-away-odds">客胜赔率:</label>
-                                    <input type="number" id="ai-away-odds" step="0.01" min="1.01" placeholder="例如: 2.80">
+                                    <label for="ai-away-odds">Tỷ lệ khách thắng:</label>
+                                    <input type="number" id="ai-away-odds" step="0.01" min="1.01" placeholder="Ví dụ: 2.80">
                                 </div>
                             </div>
 
                             <button id="add-ai-match-btn" class="btn primary-btn">
-                                <i class="fas fa-plus"></i> 添加到购物车
+                                <i class="fas fa-plus"></i> Thêm vào danh sách
                             </button>
                         </div>
                     </div>
 
-                    <!-- 右侧：已选择的比赛 -->
+                    <!-- Bên phải: các trận đã chọn -->
                     <div class="ai-cart-panel">
-                        <h3><i class="fas fa-shopping-cart"></i> AI分析购物车 <span id="ai-match-count">(0)</span></h3>
+                        <h3><i class="fas fa-shopping-cart"></i> Danh sách phân tích AI <span id="ai-match-count">(0)</span></h3>
                         <div id="ai-selected-matches" class="ai-cart-container">
                             <div class="empty-cart-message">
                                 <i class="fas fa-shopping-cart"></i>
-                                <p>购物车为空</p>
-                                <small>请在左侧添加比赛</small>
+                                <p>Chưa chọn trận nào</p>
+                                <small>Hãy thêm trận ở cột bên trái</small>
                             </div>
                         </div>
-                        
+
                         <div class="ai-actions">
                             <button id="clear-ai-selection-btn" class="btn secondary-btn" disabled>
-                                <i class="fas fa-trash"></i> 清空购物车
+                                <i class="fas fa-trash"></i> Xóa danh sách
                             </button>
-                            
+
                             <button id="ai-predict-btn" class="btn primary-btn" disabled>
-                                <i class="fas fa-brain"></i> AI智能预测
+                                <i class="fas fa-brain"></i> Dự đoán bằng AI
                             </button>
                         </div>
                     </div>
                 </div>
             </section>
 
-
             <section id="results-section" class="results-section hidden">
-                <h2><i class="fas fa-trophy"></i> 预测结果</h2>
-                
+                <h2><i class="fas fa-trophy"></i> Kết quả dự đoán</h2>
+
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="individual">
-                        <i class="fas fa-chart-pie"></i> 单场预测
+                        <i class="fas fa-chart-pie"></i> Từng trận
                     </button>
                     <button class="tab-btn" data-tab="best-parlay">
-                        <i class="fas fa-star"></i> 最佳串关
+                        <i class="fas fa-star"></i> Tổ hợp tốt nhất
                     </button>
                     <button class="tab-btn" data-tab="all-parlays">
-                        <i class="fas fa-layer-group"></i> 其他组合
+                        <i class="fas fa-layer-group"></i> Tổ hợp khác
                     </button>
                     <button class="tab-btn hidden ai-tab" data-tab="ai-analysis">
-                        <i class="fas fa-brain"></i> AI分析
+                        <i class="fas fa-brain"></i> Phân tích AI
                     </button>
                 </div>
-                
+
                 <div id="individual-tab" class="tab-content active">
                     <div id="individual-results" class="individual-results">
-                        <!-- 单场预测结果将在这里动态生成 -->
+                        <!-- Kết quả dự đoán từng trận được tạo động tại đây -->
                     </div>
                 </div>
-                
+
                 <div id="best-parlay-tab" class="tab-content">
                     <div id="best-parlay-results" class="best-parlay-results">
-                        <!-- 最佳串关结果将在这里动态生成 -->
+                        <!-- Kết quả tổ hợp tốt nhất được tạo động tại đây -->
                     </div>
                 </div>
-                
+
                 <div id="all-parlays-tab" class="tab-content">
                     <div id="all-parlays-results" class="all-parlays-results">
-                        <!-- 其他串关组合将在这里动态生成 -->
+                        <!-- Các tổ hợp khác được tạo động tại đây -->
                     </div>
                 </div>
-                
-                <!-- AI分析结果标签页 -->
+
+                <!-- Tab kết quả phân tích AI -->
                 <div id="ai-analysis-tab" class="tab-content">
                     <div id="ai-analysis-results" class="ai-analysis-results">
-                        <!-- AI分析结果将在这里动态生成 -->
+                        <!-- Kết quả phân tích AI được tạo động tại đây -->
                     </div>
                 </div>
             </section>
         </main>
 
         <footer>
-            <p><i class="fas fa-shield-alt"></i> © 2024 AI足球预测平台 | 数据仅供参考，请理性投注</p>
+            <p><i class="fas fa-shield-alt"></i> © 2024 Nền tảng dự đoán bóng đá AI | Dữ liệu chỉ để tham khảo, hãy đánh giá thận trọng</p>
         </footer>
     </div>
 
-    <!-- Loading Overlay -->
+    <!-- Lớp phủ tải dữ liệu -->
     <div id="loading-overlay" class="loading-overlay hidden">
         <div class="loading-spinner"></div>
     </div>
 
-              <!-- 环境变量注入 -->
-              <script>
-                  // 将后端环境变量注入到前端
-                  {% if gemini_api_key %}
-                  window.GEMINI_API_KEY = "{{ gemini_api_key }}";
-                  console.log('✅ Gemini API密钥已从环境变量加载，长度:', "{{ gemini_api_key }}".length);
-                  {% else %}
-                  console.warn('❌ 未检测到GEMINI_API_KEY环境变量');
-                  {% endif %}
-                  {% if gemini_model %}
-                  window.GEMINI_MODEL = "{{ gemini_model }}";
-                  console.log('✅ Gemini模型设置为:', "{{ gemini_model }}");
-                  {% else %}
-                  console.warn('❌ 未检测到GEMINI_MODEL环境变量');
-                  {% endif %}
-              </script>
-              <script src="{{ url_for('static', filename='js/data.js') }}"></script>
-              <script src="{{ url_for('static', filename='js/prediction.js') }}"></script>
-              <script src="{{ url_for('static', filename='js/classic-mode.js') }}"></script>
-              <script src="{{ url_for('static', filename='js/lottery.js') }}"></script>
-              <script src="{{ url_for('static', filename='js/ai-prediction.js') }}"></script>
-              <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-              <script src="{{ url_for('static', filename='js/nav-fix.js') }}"></script>
-              <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <!-- Đưa biến môi trường từ backend sang frontend -->
+    <script>
+        {% if gemini_api_key %}
+        window.GEMINI_API_KEY = "{{ gemini_api_key }}";
+        console.log('✅ Đã nạp khóa Gemini API từ biến môi trường, độ dài:', "{{ gemini_api_key }}".length);
+        {% else %}
+        console.warn('❌ Không tìm thấy biến môi trường GEMINI_API_KEY');
+        {% endif %}
+        {% if gemini_model %}
+        window.GEMINI_MODEL = "{{ gemini_model }}";
+        console.log('✅ Mô hình Gemini:', "{{ gemini_model }}");
+        {% else %}
+        console.warn('❌ Không tìm thấy biến môi trường GEMINI_MODEL');
+        {% endif %}
+    </script>
+    <script src="{{ url_for('static', filename='js/data.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/prediction.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/classic-mode.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lottery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ai-prediction.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nav-fix.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 
-    <!-- 登录弹窗 -->
+    <!-- Hộp thoại đăng nhập -->
     <div id="login-modal" class="auth-modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-sign-in-alt"></i> 用户登录</h3>
+                <h3><i class="fas fa-sign-in-alt"></i> Đăng nhập</h3>
                 <button class="modal-close" onclick="closeModal('login-modal')">
                     <i class="fas fa-times"></i>
                 </button>
@@ -519,33 +516,31 @@
             <div class="modal-body">
                 <form id="login-form" class="auth-form">
                     <div class="form-group">
-                        <label for="login-username">用户名</label>
-                        <input type="text" id="login-username" name="username" required 
-                               placeholder="请输入用户名">
+                        <label for="login-username">Tên người dùng</label>
+                        <input type="text" id="login-username" name="username" required placeholder="Nhập tên người dùng">
                     </div>
                     <div class="form-group">
-                        <label for="login-password">密码</label>
-                        <input type="password" id="login-password" name="password" required 
-                               placeholder="请输入密码">
+                        <label for="login-password">Mật khẩu</label>
+                        <input type="password" id="login-password" name="password" required placeholder="Nhập mật khẩu">
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn primary-btn full-width">
-                            <i class="fas fa-sign-in-alt"></i> 登录
+                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
                         </button>
                     </div>
                 </form>
                 <div class="auth-switch">
-                    还没有账号？<a href="#" onclick="switchToRegister()">立即注册</a>
+                    Chưa có tài khoản? <a href="#" onclick="switchToRegister()">Đăng ký ngay</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 注册弹窗 -->
+    <!-- Hộp thoại đăng ký -->
     <div id="register-modal" class="auth-modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-user-plus"></i> 用户注册</h3>
+                <h3><i class="fas fa-user-plus"></i> Đăng ký tài khoản</h3>
                 <button class="modal-close" onclick="closeModal('register-modal')">
                     <i class="fas fa-times"></i>
                 </button>
@@ -553,37 +548,33 @@
             <div class="modal-body">
                 <form id="register-form" class="auth-form">
                     <div class="form-group">
-                        <label for="register-username">用户名</label>
-                        <input type="text" id="register-username" name="username" required 
-                               placeholder="请输入用户名（至少3个字符）">
+                        <label for="register-username">Tên người dùng</label>
+                        <input type="text" id="register-username" name="username" required placeholder="Nhập tên người dùng (ít nhất 3 ký tự)">
                     </div>
                     <div class="form-group">
-                        <label for="register-email">邮箱</label>
-                        <input type="email" id="register-email" name="email" required 
-                               placeholder="请输入邮箱地址">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" name="email" required placeholder="Nhập địa chỉ email">
                     </div>
                     <div class="form-group">
-                        <label for="register-password">密码</label>
-                        <input type="password" id="register-password" name="password" required 
-                               placeholder="请输入密码（至少6个字符）">
+                        <label for="register-password">Mật khẩu</label>
+                        <input type="password" id="register-password" name="password" required placeholder="Nhập mật khẩu (ít nhất 6 ký tự)">
                     </div>
                     <div class="form-group">
-                        <label for="register-confirm-password">确认密码</label>
-                        <input type="password" id="register-confirm-password" name="confirm-password" required 
-                               placeholder="请再次输入密码">
+                        <label for="register-confirm-password">Xác nhận mật khẩu</label>
+                        <input type="password" id="register-confirm-password" name="confirm-password" required placeholder="Nhập lại mật khẩu">
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn primary-btn full-width">
-                            <i class="fas fa-user-plus"></i> 注册
+                            <i class="fas fa-user-plus"></i> Đăng ký
                         </button>
                     </div>
                 </form>
                 <div class="auth-switch">
-                    已有账号？<a href="#" onclick="switchToLogin()">立即登录</a>
+                    Đã có tài khoản? <a href="#" onclick="switchToLogin()">Đăng nhập ngay</a>
                 </div>
             </div>
         </div>
     </div>
 
 </body>
-</html> 
+</html>

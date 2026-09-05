@@ -1,94 +1,94 @@
-# 配置文件示例
-# 请复制此文件为 config_local.py 并填入您的实际配置
+# Tệp cấu hình mẫu
+# Sao chép tệp này thành config_local.py nếu cần cấu hình cục bộ.
 
-# Gemini API配置  
-# 请设置环境变量: export GEMINI_API_KEY="your_api_key_here"
-GEMINI_API_KEY = ""  # 已移动到环境变量
+# Cấu hình Gemini API
+# Khuyến nghị dùng biến môi trường: export GEMINI_API_KEY="your_api_key_here"
+GEMINI_API_KEY = ""  # Khóa thực tế được chuyển sang biến môi trường
 GEMINI_MODEL = "gemini-2.5-flash-preview-05-20"
 
-# Flask配置
+# Cấu hình Flask
 DEBUG = True
 SECRET_KEY = "your_secret_key_here"
 
-# 中国体育彩票API配置
+# Cấu hình API Xổ số Thể thao Trung Quốc
 LOTTERY_API_BASE_URL = "https://webapi.sporttery.cn"
 LOTTERY_REQUEST_TIMEOUT = 10
-LOTTERY_REQUEST_DELAY = 0.5  # 请求间隔（秒）
+LOTTERY_REQUEST_DELAY = 0.5  # Khoảng nghỉ giữa các yêu cầu (giây)
 
-# 日志配置
+# Cấu hình log
 LOG_LEVEL = "INFO"
 LOG_FILE = "user_predictions.log"
 
-# 数据文件路径
+# Đường dẫn dữ liệu
 DATA_PATH = "data/"
 FEATURES_FILE_PATTERN = "features_{league_code}2024.csv"
 
-# AI预测配置
-AI_PREDICTION_TIMEOUT = 30  # AI预测超时时间（秒）
-AI_MAX_RETRIES = 3  # AI预测最大重试次数
-AI_CONFIDENCE_THRESHOLD = 0.6  # AI预测置信度阈值
+# Cấu hình dự đoán AI
+AI_PREDICTION_TIMEOUT = 30  # Thời gian chờ tối đa cho dự đoán AI (giây)
+AI_MAX_RETRIES = 3  # Số lần thử lại tối đa
+AI_CONFIDENCE_THRESHOLD = 0.6  # Ngưỡng độ tin cậy
 
-# 缓存配置
+# Cấu hình cache
 CACHE_ENABLED = True
-CACHE_TIMEOUT = 3600  # 缓存超时时间（秒）
+CACHE_TIMEOUT = 3600  # Thời gian hết hạn cache (giây)
 
-# 模型配置
+# Cấu hình giải đấu
 SUPPORTED_LEAGUES = {
-    "PL": "英超",
-    "PD": "西甲",
-    "SA": "意甲", 
-    "BL1": "德甲",
-    "FL1": "法甲",
-    "CL": "欧冠",
-    "EL": "欧联",
-    "CSL": "中超",
-    "AFC": "亚冠"
+    "PL": "Ngoại hạng Anh",
+    "PD": "La Liga",
+    "SA": "Serie A",
+    "BL1": "Bundesliga",
+    "FL1": "Ligue 1",
+    "CL": "UEFA Champions League",
+    "EL": "UEFA Europa League",
+    "CSL": "Chinese Super League",
+    "AFC": "AFC Champions League"
 }
 
-# 预测模式配置
+# Cấu hình chế độ dự đoán
 PREDICTION_MODES = {
     "classic": {
-        "name": "经典模式",
-        "description": "基于历史数据的统计分析",
+        "name": "Chế độ cổ điển",
+        "description": "Phân tích thống kê dựa trên dữ liệu lịch sử",
         "enabled": True
     },
     "lottery": {
-        "name": "彩票模式", 
-        "description": "中国体育彩票实时数据",
+        "name": "Xổ số thể thao",
+        "description": "Dữ liệu Xổ số Thể thao Trung Quốc",
         "enabled": True
     },
     "ai": {
-        "name": "AI智能模式",
-        "description": "大模型智能分析预测",
+        "name": "AI thông minh",
+        "description": "Phân tích và dự đoán bằng mô hình ngôn ngữ lớn",
         "enabled": True
     }
 }
 
-# 投注类型配置
+# Cấu hình loại kèo. Giữ nguyên key kỹ thuật để tương thích dữ liệu/API.
 BET_TYPES = {
     "hhad": {
-        "name": "胜平负",
-        "description": "主胜、平局、客胜",
+        "name": "1X2",
+        "description": "Chủ nhà thắng, hòa, khách thắng",
         "enabled": True
     },
     "haad": {
-        "name": "让球胜平负",
-        "description": "让球主胜、平局、客胜",
+        "name": "1X2 có chấp",
+        "description": "Kết quả thắng/hòa/thua sau khi áp dụng mức chấp",
         "enabled": True
     },
     "crs": {
-        "name": "比分",
-        "description": "准确比分预测",
+        "name": "Tỷ số chính xác",
+        "description": "Dự đoán tỷ số chính xác",
         "enabled": True
     },
     "ttg": {
-        "name": "总进球数",
-        "description": "比赛总进球数区间",
+        "name": "Tổng bàn thắng",
+        "description": "Khoảng tổng số bàn của trận đấu",
         "enabled": True
     },
     "hhft": {
-        "name": "半全场",
-        "description": "半场/全场结果组合",
+        "name": "Hiệp 1/Cả trận",
+        "description": "Tổ hợp kết quả hiệp 1 và cả trận",
         "enabled": True
     }
-} 
+}

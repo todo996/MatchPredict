@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-每日比赛数据同步脚本
-自动从体彩官网获取最新比赛数据并保存到数据库
+Script đồng bộ dữ liệu trận đấu hằng ngày.
+Tự động lấy dữ liệu trận mới nhất từ nguồn xổ số thể thao và lưu vào cơ sở dữ liệu.
 """
 
 import sys
@@ -12,13 +12,13 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List
 import argparse
 
-# 添加项目根目录到路径
+# Thêm thư mục gốc của dự án vào đường dẫn import
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scripts.database import prediction_db
 from scripts.china_lottery_spider import ChinaLotterySpider
 
-# 配置日志
+# Cấu hình log
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -30,91 +30,87 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+
 class MatchSyncManager:
-    """比赛数据同步管理器"""
-    
+    """Quản lý đồng bộ dữ liệu trận đấu."""
+
     def __init__(self):
         self.spider = ChinaLotterySpider()
         self.db = prediction_db
-    
+
     def sync_matches(self, days_ahead: int = 7, force_update: bool = False) -> Dict[str, int]:
         """
-        同步比赛数据
-        
+        Đồng bộ dữ liệu trận đấu.
+
         Args:
-            days_ahead: 同步未来天数
-            force_update: 是否强制更新
-            
+            days_ahead: số ngày phía trước cần đồng bộ
+            force_update: có ép cập nhật hay không
+
         Returns:
-            同步统计信息
+            thống kê kết quả đồng bộ
         """
-        logger.info(f"🔄 开始同步未来 {days_ahead} 天的比赛数据...")
-        
+        logger.info(f"🔄 Bắt đầu đồng bộ dữ liệu trong {days_ahead} ngày tới...")
+
         try:
-            # 从API获取最新数据
-            logger.info("📡 正在从体彩官网获取数据...")
+            logger.info("📡 Đang lấy dữ liệu từ nguồn xổ số thể thao...")
             matches_data = self.spider.get_formatted_matches(days_ahead=days_ahead)
-            
+
             if not matches_data:
-                logger.warning("⚠️ 未获取到任何比赛数据")
+                logger.warning("⚠️ Không nhận được dữ liệu trận đấu")
                 return {'inserted': 0, 'updated': 0, 'skipped': 0}
-            
-            logger.info(f"✅ 成功获取 {len(matches_data)} 场比赛数据")
-            
-            # 保存到数据库
-            logger.info("💾 正在保存到数据库...")
+
+            logger.info(f"✅ Đã lấy {len(matches_data)} trận")
+
+            logger.info("💾 Đang lưu vào cơ sở dữ liệu...")
             stats = self.db.save_daily_matches(matches_data)
-            
-            logger.info(f"📊 同步完成 - 新增: {stats['inserted']}, 更新: {stats['updated']}, 跳过: {stats['skipped']}")
-            
+
+            logger.info(
+                f"📊 Đồng bộ hoàn tất - Thêm mới: {stats['inserted']}, "
+                f"Cập nhật: {stats['updated']}, Bỏ qua: {stats['skipped']}"
+            )
+
             return stats
-            
+
         except Exception as e:
-            logger.error(f"❌ 同步失败: {e}")
+            logger.error(f"❌ Đồng bộ thất bại: {e}")
             return {'inserted': 0, 'updated': 0, 'skipped': 0, 'error': str(e)}
-    
+
     def cleanup_old_data(self, days_to_keep: int = 30) -> int:
         """
-        清理旧数据
-        
+        Dọn dữ liệu cũ.
+
         Args:
-            days_to_keep: 保留天数
-            
+            days_to_keep: số ngày dữ liệu cần giữ lại
+
         Returns:
-            删除的记录数
+            số bản ghi đã xóa
         """
-        logger.info(f"🧹 开始清理 {days_to_keep} 天前的旧数据...")
-        
+        logger.info(f"🧹 Bắt đầu dọn dữ liệu cũ hơn {days_to_keep} ngày...")
+
         try:
             deleted_count = self.db.cleanup_old_matches(days_to_keep)
-            logger.info(f"✅ 清理完成，删除了 {deleted_count} 条记录")
+            logger.info(f"✅ Đã dọn xong, xóa {deleted_count} bản ghi")
             return deleted_count
-            
+
         except Exception as e:
-            logger.error(f"❌ 清理失败: {e}")
+            logger.error(f"❌ Dọn dữ liệu thất bại: {e}")
             return 0
-    
+
     def get_database_stats(self) -> Dict[str, int]:
-        """
-        获取数据库统计信息
-        
-        Returns:
-            统计信息字典
-        """
+        """Lấy thống kê cơ sở dữ liệu."""
         try:
             matches = self.db.get_daily_matches(days_ahead=30)
-            
-            # 按日期统计
+
             date_stats = {}
             league_stats = {}
-            
+
             for match in matches:
                 match_date = match.get('match_date', '')
-                league = match.get('league_name', '未知')
-                
+                league = match.get('league_name', 'Chưa xác định')
+
                 date_stats[match_date] = date_stats.get(match_date, 0) + 1
                 league_stats[league] = league_stats.get(league, 0) + 1
-            
+
             return {
                 'total_matches': len(matches),
                 'dates_count': len(date_stats),
@@ -122,98 +118,87 @@ class MatchSyncManager:
                 'date_stats': date_stats,
                 'league_stats': league_stats
             }
-            
+
         except Exception as e:
-            logger.error(f"获取统计信息失败: {e}")
+            logger.error(f"Không thể lấy thống kê: {e}")
             return {}
-    
+
     def test_connection(self) -> bool:
-        """
-        测试数据库连接
-        
-        Returns:
-            连接是否成功
-        """
+        """Kiểm tra kết nối cơ sở dữ liệu."""
         try:
             conn = self.db.connect_to_database()
             conn.close()
-            logger.info("✅ 数据库连接测试成功")
+            logger.info("✅ Kết nối cơ sở dữ liệu hoạt động bình thường")
             return True
         except Exception as e:
-            logger.error(f"❌ 数据库连接测试失败: {e}")
+            logger.error(f"❌ Kiểm tra kết nối cơ sở dữ liệu thất bại: {e}")
             return False
 
 
 def main():
-    """主函数"""
-    parser = argparse.ArgumentParser(description='每日比赛数据同步脚本')
-    parser.add_argument('--days', type=int, default=7, help='同步未来天数 (默认: 7)')
-    parser.add_argument('--cleanup', type=int, help='清理多少天前的旧数据')
-    parser.add_argument('--stats', action='store_true', help='显示数据库统计信息')
-    parser.add_argument('--test', action='store_true', help='测试数据库连接')
-    parser.add_argument('--force', action='store_true', help='强制更新所有数据')
-    
+    """Điểm vào chính của script."""
+    parser = argparse.ArgumentParser(description='Đồng bộ dữ liệu trận đấu hằng ngày')
+    parser.add_argument('--days', type=int, default=7, help='Số ngày phía trước cần đồng bộ (mặc định: 7)')
+    parser.add_argument('--cleanup', type=int, help='Xóa dữ liệu cũ hơn số ngày đã chỉ định')
+    parser.add_argument('--stats', action='store_true', help='Hiển thị thống kê cơ sở dữ liệu')
+    parser.add_argument('--test', action='store_true', help='Kiểm tra kết nối cơ sở dữ liệu')
+    parser.add_argument('--force', action='store_true', help='Ép cập nhật toàn bộ dữ liệu')
+
     args = parser.parse_args()
-    
-    # 创建同步管理器
     sync_manager = MatchSyncManager()
-    
+
     print("=" * 60)
-    print("🏈 每日比赛数据同步脚本")
+    print("🏈 Đồng bộ dữ liệu trận đấu hằng ngày")
     print("=" * 60)
-    
-    # 测试连接
+
     if args.test:
-        print("🔍 测试数据库连接...")
+        print("🔍 Đang kiểm tra kết nối cơ sở dữ liệu...")
         if sync_manager.test_connection():
-            print("✅ 数据库连接正常")
+            print("✅ Kết nối cơ sở dữ liệu bình thường")
         else:
-            print("❌ 数据库连接失败")
+            print("❌ Không thể kết nối cơ sở dữ liệu")
             return 1
-    
-    # 显示统计信息
+
     if args.stats:
-        print("📊 获取数据库统计信息...")
+        print("📊 Đang lấy thống kê cơ sở dữ liệu...")
         stats = sync_manager.get_database_stats()
         if stats:
-            print(f"📈 总比赛数: {stats.get('total_matches', 0)}")
-            print(f"📅 覆盖日期: {stats.get('dates_count', 0)} 天")
-            print(f"🏆 联赛数量: {stats.get('leagues_count', 0)}")
-            
-            print("\n📅 按日期分布:")
+            print(f"📈 Tổng số trận: {stats.get('total_matches', 0)}")
+            print(f"📅 Số ngày có dữ liệu: {stats.get('dates_count', 0)}")
+            print(f"🏆 Số giải đấu: {stats.get('leagues_count', 0)}")
+
+            print("\n📅 Phân bố theo ngày:")
             for date, count in sorted(stats.get('date_stats', {}).items()):
-                print(f"  {date}: {count} 场")
-            
-            print("\n🏆 按联赛分布:")
+                print(f"  {date}: {count} trận")
+
+            print("\n🏆 Phân bố theo giải:")
             for league, count in sorted(stats.get('league_stats', {}).items(), key=lambda x: x[1], reverse=True):
-                print(f"  {league}: {count} 场")
+                print(f"  {league}: {count} trận")
         else:
-            print("❌ 无法获取统计信息")
-    
-    # 清理旧数据
+            print("❌ Không thể lấy thống kê")
+
     if args.cleanup:
-        print(f"🧹 清理 {args.cleanup} 天前的旧数据...")
+        print(f"🧹 Đang xóa dữ liệu cũ hơn {args.cleanup} ngày...")
         deleted = sync_manager.cleanup_old_data(args.cleanup)
-        print(f"✅ 清理完成，删除了 {deleted} 条记录")
-    
-    # 同步数据
+        print(f"✅ Đã xóa {deleted} bản ghi")
+
     if not args.test and not args.stats and not args.cleanup:
-        print(f"🔄 开始同步未来 {args.days} 天的比赛数据...")
+        print(f"🔄 Bắt đầu đồng bộ {args.days} ngày tới...")
         stats = sync_manager.sync_matches(days_ahead=args.days, force_update=args.force)
-        
+
         if 'error' in stats:
-            print(f"❌ 同步失败: {stats['error']}")
+            print(f"❌ Đồng bộ thất bại: {stats['error']}")
             return 1
         else:
-            print("✅ 同步完成!")
-            print(f"  📥 新增: {stats['inserted']} 场")
-            print(f"  🔄 更新: {stats['updated']} 场")
-            print(f"  ⏭️ 跳过: {stats['skipped']} 场")
-    
+            print("✅ Đồng bộ hoàn tất!")
+            print(f"  📥 Thêm mới: {stats['inserted']} trận")
+            print(f"  🔄 Cập nhật: {stats['updated']} trận")
+            print(f"  ⏭️ Bỏ qua: {stats['skipped']} trận")
+
     print("=" * 60)
-    print("🎉 脚本执行完成")
+    print("🎉 Script đã chạy xong")
     print("=" * 60)
-    
+
     return 0
 
 
@@ -222,8 +207,8 @@ if __name__ == "__main__":
         exit_code = main()
         sys.exit(exit_code)
     except KeyboardInterrupt:
-        print("\n⚠️ 用户中断执行")
+        print("\n⚠️ Người dùng đã dừng chương trình")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"脚本执行失败: {e}")
+        logger.error(f"Script chạy thất bại: {e}")
         sys.exit(1)

@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/MatchPredict-AI足球预测-38c073?style=for-the-badge&logo=futbol&logoColor=white" alt="MatchPredict"/> 
+<img src="https://img.shields.io/badge/MatchPredict-AI%20Football%20Prediction-38c073?style=for-the-badge&logo=futbol&logoColor=white" alt="MatchPredict"/>
 
 # ⚽ MatchPredict
 
-**融合五大联赛大数据 × AI 大语言模型的足球赛事分析平台**
+**Nền tảng phân tích trận đấu bóng đá kết hợp dữ liệu lớn của 5 giải hàng đầu châu Âu × mô hình ngôn ngữ lớn AI**
 
-[🌐 在线体验](https://match-predict.vercel.app) &nbsp;·&nbsp; [🎯 策略推荐](https://match-predict.vercel.app) &nbsp;·&nbsp; [📋 用户协议](https://match-predict.vercel.app/terms)
+[🌐 Trải nghiệm trực tuyến](https://match-predict.vercel.app) &nbsp;·&nbsp; [🎯 Đề xuất chiến lược](https://match-predict.vercel.app) &nbsp;·&nbsp; [📋 Điều khoản người dùng](https://match-predict.vercel.app/terms)
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=flat-square&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
@@ -18,419 +18,411 @@
 
 ---
 
-## 📌 项目简介
+## 📌 Giới thiệu dự án
 
-MatchPredict 是一个**纯技术研究性质**的足球赛事 AI 分析平台，通过以下方式生成赛事分析：
+MatchPredict là một nền tảng phân tích bóng đá bằng AI **phục vụ nghiên cứu kỹ thuật**, tạo phân tích trận đấu theo quy trình sau:
 
-1. **数据获取**：自动同步英超、西甲、意甲、德甲、法甲五大联赛赛程与实时赔率（Pinnacle 公开接口）
-2. **AI 分析**：调用大语言模型（via OpenRouter）对每场比赛深度分析，输出胜平负预测、比分预测、半全场预测
-3. **历史回测**：对历史预测与真实比分进行对比，统计命中率与各策略 ROI
-4. **串关策略**：基于数学模型提供 5 种串关组合参考方案
+1. **Thu thập dữ liệu**: tự động đồng bộ lịch thi đấu và tỷ lệ cược thời gian thực của Ngoại hạng Anh, La Liga, Serie A, Bundesliga và Ligue 1 (giao diện công khai của Pinnacle)
+2. **Phân tích AI**: gọi mô hình ngôn ngữ lớn (thông qua OpenRouter) để phân tích sâu từng trận, đưa ra dự đoán 1X2, tỷ số và hiệp 1/cả trận
+3. **Backtest lịch sử**: so sánh dự đoán trước đây với tỷ số thực tế, thống kê tỷ lệ chính xác và ROI của từng chiến lược
+4. **Chiến lược tổ hợp nhiều trận**: dùng mô hình toán học để đưa ra 5 phương án tổ hợp tham khảo
 
-> ⚠️ **声明**：本项目仅供学术研究与技术展示，不构成任何形式的投注建议。使用本平台须遵守[用户协议](https://match-predict.vercel.app/terms)。
+> ⚠️ **Tuyên bố**: dự án chỉ phục vụ nghiên cứu học thuật và trình diễn kỹ thuật, không cấu thành khuyến nghị đặt cược dưới bất kỳ hình thức nào. Việc sử dụng nền tảng phải tuân thủ [Điều khoản người dùng](https://match-predict.vercel.app/terms).
 
 ---
 
-## ✨ 核心功能
+## ✨ Chức năng cốt lõi
 
-| 功能模块 | 描述 |
+| Mô-đun | Mô tả |
 |---------|------|
-| 🤖 **AI 赛事分析** | LLM 生成胜平负预测、比分、半全场分析，实时显示置信度 |
-| 📊 **实时赔率** | Pinnacle 公开接口获取五大联赛实时 1X2 赔率，自动过滤 Bookings/Corners 市场 |
-| 🏆 **历史命中率** | 完整回测数据，预测结果 vs 真实比分对比可查，按日期浏览 |
-| 🎯 **串关策略引擎** | 信心稳单 / 博冷出击 / 奖金优化 / 平衡串关 / 价值挖掘 5 种模式 |
-| 📅 **历史记录中心** | 按日期浏览所有历史预测，附日历切换与当日准确率统计 |
-| 👤 **用户积分系统** | 注册 → 每日签到 → 消耗积分查看 AI 分析，VIP 每日 +30 积分 |
-| 🔧 **Admin 后台** | 比赛管理、用户管理、VIP 设置、手动同步、策略回测 |
+| 🤖 **Phân tích trận đấu bằng AI** | LLM tạo dự đoán 1X2, tỷ số, hiệp 1/cả trận và hiển thị độ tin cậy |
+| 📊 **Tỷ lệ cược thời gian thực** | Lấy tỷ lệ 1X2 của 5 giải hàng đầu qua giao diện công khai của Pinnacle, tự động lọc thị trường Bookings/Corners |
+| 🏆 **Độ chính xác lịch sử** | Dữ liệu backtest đầy đủ, cho phép so sánh dự đoán với tỷ số thực tế và duyệt theo ngày |
+| 🎯 **Bộ máy chiến lược tổ hợp** | 5 chế độ: ưu tiên an toàn / tìm bất ngờ / tối ưu mức trả thưởng / cân bằng / tìm giá trị |
+| 📅 **Trung tâm lịch sử** | Duyệt toàn bộ dự đoán lịch sử theo ngày, có lịch chuyển ngày và thống kê độ chính xác trong ngày |
+| 👤 **Hệ thống điểm người dùng** | Đăng ký → điểm danh hằng ngày → dùng điểm để xem phân tích AI; VIP nhận thêm 30 điểm mỗi ngày |
+| 🔧 **Trang quản trị** | Quản lý trận đấu, người dùng, VIP, đồng bộ thủ công và backtest chiến lược |
 
 ---
 
-## 🖥️ 界面预览
+## 🖥️ Xem trước giao diện
 <img width="2914" height="2242" alt="71554b2a245d11e0d22786d22e513a95" src="https://github.com/user-attachments/assets/d3e33cff-8aa5-435c-af5f-856310cd03f8" />
 
+## 🌟 Điểm nổi bật của chức năng mới
 
+### Ba chế độ dự đoán
+- **Chế độ cổ điển**: phân tích thống kê dựa trên dữ liệu lịch sử của 5 giải hàng đầu (bố cục hai cột, quản lý trận theo danh sách chọn)
+- **Chế độ xổ số thể thao**: tích hợp dữ liệu trận đấu và tỷ lệ cược thời gian thực từ Xổ số Thể thao Trung Quốc
+- **Chế độ AI thông minh**: tích hợp mô hình ngôn ngữ lớn để phân tích và dự đoán (hỗ trợ cấu hình an toàn bằng biến môi trường)
 
-## 🌟 新功能亮点
+### Các loại dự đoán toàn diện
+- ✅ **1X2**: xác suất chủ nhà thắng, hòa, khách thắng
+- ✅ **Hiệp 1/Cả trận**: dự đoán 9 tổ hợp kết quả hiệp 1 và cả trận
+- ✅ **Tổng bàn thắng**: dự đoán theo các khoảng 0-1, 2-3, 4-6, 7+ bàn
+- ✅ **Tỷ số**: 5 tỷ số chính xác có khả năng cao nhất và xác suất tương ứng
+- ✅ **Phân tích giá trị**: AI nhận diện các lựa chọn có giá trị kỳ vọng dương
 
-### 三种预测模式
-- **经典模式**: 基于五大联赛历史数据的统计分析（左右分栏设计，类似购物车体验）
-- **彩票模式**: 接入中国体育彩票实时比赛数据和赔率
-- **AI智能模式**: 集成大模型进行智能分析预测（支持环境变量安全配置）
+### Phân tích AI thông minh
+- 🧠 Sử dụng các mô hình lớn như GPT-4 để phân tích chuyên sâu
+- 📊 Tổng hợp sức mạnh đội bóng, phong độ gần đây, lợi thế sân nhà/sân khách và các yếu tố khác
+- 🎯 Cung cấp lý do phân tích chi tiết và chiến lược tham khảo
+- 🔍 Tự động tìm các cơ hội có giá trị kỳ vọng tốt
 
-### 全方位预测类型
-- ✅ **胜平负**: 主胜、平局、客胜概率预测
-- ✅ **半全场**: 9种半场/全场结果组合预测
-- ✅ **进球数**: 0-1球、2-3球、4-6球、7+球区间预测  
-- ✅ **比分预测**: 最可能的5个准确比分及概率
-- ✅ **价值投注**: AI识别期望值为正的投注机会
-
-### AI智能分析
-- 🧠 使用GPT-4等大模型进行深度分析
-- 📊 综合考虑球队实力、近期状态、主客场优势等因素
-- 🎯 提供详细的分析理由和推荐投注策略
-- 🔍 自动寻找价值投注机会
-
-|准确率    | 日期       | 场次    | 预测结果   | 结果   | 赔率   | 场次   | 预测结果   |  结果  |赔率  |
+| Độ chính xác | Ngày | Mã trận | Dự đoán | Kết quả | Tỷ lệ | Mã trận | Dự đoán | Kết quả | Tỷ lệ |
 |---:|:-----------|:--------|:--------|:--------|:-----------|:-------|:-------|:-------|:-------|
-|  100% | 2025-03-02 | 周日008 | 胜     | 1-0         | @2.900         | 周日011      | 胜     |2-1     |@1.430     |
-| 100%  | 2025-03-03 |周日019  |  负    | 1-2    |   @3.40      | 周日021      |  平    |    3-3 |   @2.83  |
+| 100% | 2025-03-02 | CN008 | Thắng | 1-0 | @2.900 | CN011 | Thắng | 2-1 | @1.430 |
+| 100% | 2025-03-03 | CN019 | Thua | 1-2 | @3.40 | CN021 | Hòa | 3-3 | @2.83 |
 
-## 项目简介
+## Giới thiệu dự án
 
-足球比赛预测系统是一个融合传统统计分析和AI智能的工具，现已扩展支持中国体育彩票数据接入和大模型智能分析。系统通过多维度数据分析，为用户提供准确的比赛预测和投注建议，综合测试准确率达到90%以上。
+Hệ thống dự đoán bóng đá là công cụ kết hợp phân tích thống kê truyền thống và AI. Hệ thống đã được mở rộng để hỗ trợ dữ liệu Xổ số Thể thao Trung Quốc và phân tích bằng mô hình ngôn ngữ lớn. Dữ liệu được phân tích theo nhiều chiều nhằm cung cấp kết quả dự đoán và thông tin tham khảo cho người dùng; kết quả thử nghiệm tổng hợp được tài liệu gốc ghi nhận ở mức trên 90%.
 
-### ⚠️注意：足球是圆的，任何比赛都没有绝对。
+### ⚠️ Lưu ý: bóng đá luôn có tính bất định, không có trận đấu nào tuyệt đối.
 
-1. 预测结果仅供参考，不构成投注建议
-2. 实际比赛结果受多种因素影响，预测系统无法考虑所有变量
-3. 请确保您的API使用符合数据提供方的服务条款
-4. 在某些地区，博彩活动可能受到法律限制，请遵守当地法规
-5. 请勿用于任何违法行为以及参与非法活动
+1. Kết quả dự đoán chỉ để tham khảo, không cấu thành khuyến nghị đặt cược
+2. Kết quả thực tế chịu ảnh hưởng bởi nhiều yếu tố mà hệ thống không thể bao quát hoàn toàn
+3. Hãy bảo đảm việc sử dụng API tuân thủ điều khoản dịch vụ của nhà cung cấp dữ liệu
+4. Hoạt động cá cược có thể bị giới hạn theo pháp luật tại một số khu vực; hãy tuân thủ quy định địa phương
+5. Không sử dụng dự án cho bất kỳ hành vi trái pháp luật hoặc hoạt động bất hợp pháp nào
 
-## 已完成
+## Đã hoàn thành
 
-1. 过去五个赛季数据载入以及预测模型
-2. 联赛主客场优势、平局参数
-3. 开发Web界面和移动应用
+1. Nạp dữ liệu của 5 mùa giải gần nhất và mô hình dự đoán
+2. Tham số lợi thế sân nhà/sân khách và tham số hòa theo giải đấu
+3. Phát triển giao diện Web và ứng dụng di động
 
+## Cải tiến trong tương lai
 
-## 未来改进
+1. Bổ sung thêm đặc trưng (chấn thương cầu thủ, thời tiết, huấn luyện viên, bảng xếp hạng thời gian thực...)
+2. Hoàn thiện mô hình dự đoán
+3. Cập nhật dữ liệu và tỷ số các trận đáng chú ý theo thời gian thực
+4. Thống kê độ chính xác của các dự đoán trước đây
+5. Hỗ trợ thêm giải đấu, loại trận và chức năng đề xuất trận
 
-1. 添加更多特征(球员伤病、天气、主教练、实时排行榜等)
-2. 实现更完整的预测模型
-3. 实时更新热门比赛数据及比分
-4. 过去预测准确率
-5. 支持更多联赛和比赛类型、推荐比赛
+## Cách sử dụng
 
+### Sử dụng trực tuyến
+Truy cập https://match-predict.vercel.app để sử dụng chức năng dự đoán.
 
-## 使用方法
+### Hướng dẫn chức năng mới
 
-### 在线使用
-访问 https://match-predict.vercel.app 进行预测
+#### 1. Chế độ Xổ số Thể thao Trung Quốc
+1. Nhấn nút "Chế độ xổ số thể thao"
+2. Chọn số ngày cần lấy dữ liệu (1-7 ngày)
+3. Nhấn "Làm mới dữ liệu" để lấy danh sách trận mới nhất
+4. Chọn các trận cần phân tích
+5. Nhấn "Dự đoán bằng AI" để nhận kết quả phân tích
 
-### 新功能使用指南
+#### 2. Chế độ phân tích AI thông minh
+1. Nhấn nút "Chế độ AI thông minh"
+2. Nhập thủ công thông tin trận đấu:
+   - Tên đội chủ nhà và đội khách
+   - Tên giải đấu
+   - Tỷ lệ 1X2
+3. Nhấn "Thêm trận để AI phân tích"
+4. Nhấn "Dự đoán bằng AI" để nhận phân tích đầy đủ
 
-#### 1. 中国体育彩票模式
-1. 点击"彩票模式"按钮
-2. 设置获取天数（1-7天）
-3. 点击"刷新比赛数据"获取最新比赛
-4. 选择要分析的比赛
-5. 点击"AI智能预测"获取分析结果
+#### 3. Kết quả phân tích AI bao gồm
+- **Dự đoán 1X2**: phân bố xác suất và lựa chọn có xác suất cao nhất
+- **Dự đoán hiệp 1/cả trận**: xếp hạng xác suất 9 tổ hợp
+- **Dự đoán tổng bàn thắng**: phân bố xác suất theo 4 khoảng
+- **Dự đoán tỷ số**: 5 tỷ số chính xác có khả năng cao nhất
+- **Phân tích giá trị**: các lựa chọn có giá trị kỳ vọng dương
+- **Lý do phân tích**: giải thích chi tiết logic phân tích
 
-#### 2. AI智能分析模式
-1. 点击"AI智能模式"按钮  
-2. 手动输入比赛信息：
-   - 主队和客队名称
-   - 联赛名称
-   - 胜平负赔率
-3. 点击"添加AI分析比赛"
-4. 点击"AI智能预测"获取全方位分析
+### Triển khai cục bộ
 
-#### 3. AI分析结果包含：
-- **胜平负预测**: 概率分布和最佳选择
-- **半全场预测**: 9种组合的概率排序
-- **进球数预测**: 4个区间的概率分布
-- **比分预测**: 最可能的5个准确比分
-- **价值投注**: 期望值为正的投注机会
-- **分析理由**: 详细的分析逻辑说明
-
-### 本地部署
-
-1. 克隆项目到本地:
+1. Clone dự án về máy:
    ```bash
    git clone https://github.com/yourusername/football-prediction.git
    cd football-prediction
    ```
 
-2. 创建虚拟环境:
+2. Tạo môi trường ảo:
    ```bash
    python -m venv venv
    source venv/bin/activate  # Windows: venv\Scripts\activate
    ```
 
-3. 安装依赖:
+3. Cài đặt phụ thuộc:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. 配置API密钥（可选，用于AI功能）:
+4. Cấu hình khóa API (tùy chọn, dùng cho chức năng AI):
    ```bash
-   # 复制配置文件
+   # Sao chép tệp cấu hình
    cp config_example.py config_local.py
-   
-   # 设置环境变量（推荐方式）
+
+   # Đặt biến môi trường (khuyến nghị)
    export GEMINI_API_KEY="your_api_key_here"
    export GEMINI_MODEL="gemini-2.0-flash-exp"
-   
-   # 或者编辑config_local.py（已弃用，建议使用环境变量）
+
+   # Hoặc sửa config_local.py (không còn khuyến nghị; nên dùng biến môi trường)
    ```
 
-5. 运行应用:
+5. Chạy ứng dụng:
    ```bash
    python app.py
    ```
 
-6. 打开浏览器访问: http://localhost:5000
-   
-4. 将需要预测的比赛信息放入matches.json并且输入赔率
+6. Mở trình duyệt và truy cập: http://localhost:5000
+
+4. Đưa thông tin trận cần dự đoán vào `matches.json` và nhập tỷ lệ cược:
 ```bash
-    {
-      "league_code": "PD",
-      "home_team": "CD Leganés",
-      "away_team": "Getafe CF",
-      "home_odds": 2.9,
-      "draw_odds": 2.48,
-      "away_odds": 2.62
-    }
+{
+  "league_code": "PD",
+  "home_team": "CD Leganés",
+  "away_team": "Getafe CF",
+  "home_odds": 2.9,
+  "draw_odds": 2.48,
+  "away_odds": 2.62
+}
 
 python parlay_predictor.py --matches matches.json
 
-已加载 英超 数据
-已加载 西甲 数据
-已加载 意甲 数据
+Đã nạp dữ liệu Ngoại hạng Anh
+Đã nạp dữ liệu La Liga
+Đã nạp dữ liệu Serie A
 
-单场比赛预测结果:
+Kết quả dự đoán từng trận:
 ==================================================
 
-比赛 #1: CD Leganés vs Getafe CF
-主胜概率: 0.36 (35.6%), 赔率: 2.9
-平局概率: 0.29 (29.2%), 赔率: 2.48
-客胜概率: 0.35 (35.0%), 赔率: 2.62
-所有投注选项 (按期望值排序):
-  主胜: 期望值=0.0316, 赔率=2.9, 概率=0.36
-  客胜: 期望值=-0.0824, 赔率=2.62, 概率=0.35
-  平局: 期望值=-0.2754, 赔率=2.48, 概率=0.29
-最佳投注: 主胜, 期望值: 0.0316
+Trận #1: CD Leganés vs Getafe CF
+Xác suất chủ nhà thắng: 0.36 (35.6%), tỷ lệ: 2.9
+Xác suất hòa: 0.29 (29.2%), tỷ lệ: 2.48
+Xác suất khách thắng: 0.35 (35.0%), tỷ lệ: 2.62
+Tất cả lựa chọn (sắp xếp theo giá trị kỳ vọng):
+  Chủ nhà thắng: giá trị kỳ vọng=0.0316, tỷ lệ=2.9, xác suất=0.36
+  Khách thắng: giá trị kỳ vọng=-0.0824, tỷ lệ=2.62, xác suất=0.35
+  Hòa: giá trị kỳ vọng=-0.2754, tỷ lệ=2.48, xác suất=0.29
+Lựa chọn tốt nhất: Chủ nhà thắng, giá trị kỳ vọng: 0.0316
 
-最佳串关组合:
+Tổ hợp tốt nhất:
 ==================================================
-总赔率: 33.54
-中奖概率: 0.0378 (3.78%)
-期望值: 0.2674
+Tổng tỷ lệ: 33.54
+Xác suất trúng: 0.0378 (3.78%)
+Giá trị kỳ vọng: 0.2674
 
-选择:
-1. CD Leganés vs Getafe CF: 主胜 (赔率: 2.9, 概率: 0.36)
+Lựa chọn:
+1. CD Leganés vs Getafe CF: Chủ nhà thắng (tỷ lệ: 2.9, xác suất: 0.36)
 
-
-其他高价值串关组合:
+Các tổ hợp giá trị cao khác:
 ==================================================
 
-组合 #1:
-总赔率: 30.30
-中奖概率: 0.0372 (3.72%)
-期望值: 0.1273
-选择:
-1. CD Leganés vs Getafe CF: 客胜 (赔率: 2.62, 概率: 0.35)
-2. Newcastle United FC vs Brighton & Hove Albion FC: 主胜 (赔率: 1.89, 概率: 0.66)
-3. Genoa CFC vs Empoli FC: 客胜 (赔率: 4.22, 概率: 0.25)
-4. Bologna FC 1909 vs Cagliari Calcio: 主胜 (赔率: 1.45, 概率: 0.64)
-
+Tổ hợp #1:
+Tổng tỷ lệ: 30.30
+Xác suất trúng: 0.0372 (3.72%)
+Giá trị kỳ vọng: 0.1273
+Lựa chọn:
+1. CD Leganés vs Getafe CF: Khách thắng (tỷ lệ: 2.62, xác suất: 0.35)
+2. Newcastle United FC vs Brighton & Hove Albion FC: Chủ nhà thắng (tỷ lệ: 1.89, xác suất: 0.66)
+3. Genoa CFC vs Empoli FC: Khách thắng (tỷ lệ: 4.22, xác suất: 0.25)
+4. Bologna FC 1909 vs Cagliari Calcio: Chủ nhà thắng (tỷ lệ: 1.45, xác suất: 0.64)
 ```
 
+## Công nghệ sử dụng
 
+- **Ngôn ngữ lập trình**: Python 3.8+
+- **Phân tích dữ liệu**: Pandas, NumPy
+- **Mô hình thống kê**: SciPy (phân phối Poisson)
+- **Machine Learning**: Scikit-learn (mở rộng tùy chọn)
+- **Thu thập dữ liệu**: Requests (gọi API)
+- **Giao diện dòng lệnh**: Argparse
 
-## 技术栈
+## Chức năng hệ thống
 
-- **编程语言**: Python 3.8+
-- **数据分析**: Pandas, NumPy
-- **统计模型**: SciPy (泊松分布)
-- **机器学习**: Scikit-learn (可选扩展)
-- **数据获取**: Requests (API调用)
-- **命令行界面**: Argparse
+1. **Thu thập dữ liệu**: lấy dữ liệu trận đấu của 5 giải hàng đầu từ API công khai
+2. **Feature Engineering**: tính các chỉ số hiệu suất của đội bóng
+3. **Dự đoán kết quả**: dự đoán 1X2 và tỷ số chính xác
+4. **Dự đoán hiệp 1/cả trận**: dự đoán tổ hợp kết quả hiệp 1 và cả trận
+5. **Phân tích tỷ lệ cược**: phân tích tỷ lệ và cung cấp thông tin tham khảo
+6. **Giao diện tương tác**: hỗ trợ tham số dòng lệnh và nhập liệu tương tác
 
-## 系统功能
-
-1. **数据收集**: 从公开API获取五大联赛的比赛数据
-2. **特征工程**: 计算球队的各项表现指标
-3. **结果预测**: 预测比赛胜平负、精确比分
-4. **半全场预测**: 预测半场和全场的比赛结果组合
-5. **赔率分析**: 分析赔率并提供投注建议
-6. **交互式界面**: 支持命令行参数和交互式输入
-
-## 项目结构
-```
+## Cấu trúc dự án
+```text
 football_prediction/
-├── data/ # 数据目录
-│ ├── features.csv # 球队特征数据
+├── data/ # Thư mục dữ liệu
+│ ├── features.csv # Dữ liệu đặc trưng đội bóng
 │ ├── premier_league_features.csv
 │ ├── la_liga_features.csv
 │ ├── serie_a_features.csv
 │ ├── bundesliga_features.csv
 │ └── ligue_1_features.csv
-├── cache/ # API数据缓存
-├── models/ # 模型目录
+├── cache/ # Bộ nhớ đệm dữ liệu API
+├── models/ # Thư mục mô hình
 │ ├── init.py
-│ ├── feature_engineering.py # 特征工程
-│ ├── match_predictor.py # 比赛结果预测
-│ └── score_predictor.py # 比分预测
-├── collect_league_data.py # 数据收集脚本
-├── match.py # 比赛预测脚本
-└── README.md # 项目文档
+│ ├── feature_engineering.py # Feature Engineering
+│ ├── match_predictor.py # Dự đoán kết quả trận đấu
+│ └── score_predictor.py # Dự đoán tỷ số
+├── collect_league_data.py # Script thu thập dữ liệu
+├── match.py # Script dự đoán trận đấu
+└── README.md # Tài liệu dự án
 ```
 
-## 五大联赛代码和球队
+## Mã giải và các đội thuộc 5 giải hàng đầu
 
-### 英超 (Premier League, PL)
+### Ngoại hạng Anh (Premier League, PL)
 
-主要球队:
-- Manchester City FC (曼城)
-- Arsenal FC (阿森纳)
-- Liverpool FC (利物浦)
-- Manchester United FC (曼联)
-- Chelsea FC (切尔西)
-- Tottenham Hotspur FC (热刺)
-- Newcastle United FC (纽卡斯尔)
-- Aston Villa FC (阿斯顿维拉)
-- Brighton & Hove Albion FC (布莱顿)
-- West Ham United FC (西汉姆联)
-- Crystal Palace FC (水晶宫)
-- Brentford FC (布伦特福德)
-- Fulham FC (富勒姆)
-- Wolverhampton Wanderers FC (狼队)
-- AFC Bournemouth (伯恩茅斯)
-- Nottingham Forest FC (诺丁汉森林)
-- Everton FC (埃弗顿)
-- Luton Town FC (卢顿)
-- Burnley FC (伯恩利)
-- Sheffield United FC (谢菲尔德联)
+Các đội chính:
+- Manchester City FC (Manchester City)
+- Arsenal FC (Arsenal)
+- Liverpool FC (Liverpool)
+- Manchester United FC (Manchester United)
+- Chelsea FC (Chelsea)
+- Tottenham Hotspur FC (Tottenham Hotspur)
+- Newcastle United FC (Newcastle United)
+- Aston Villa FC (Aston Villa)
+- Brighton & Hove Albion FC (Brighton)
+- West Ham United FC (West Ham United)
+- Crystal Palace FC (Crystal Palace)
+- Brentford FC (Brentford)
+- Fulham FC (Fulham)
+- Wolverhampton Wanderers FC (Wolverhampton)
+- AFC Bournemouth (Bournemouth)
+- Nottingham Forest FC (Nottingham Forest)
+- Everton FC (Everton)
+- Luton Town FC (Luton Town)
+- Burnley FC (Burnley)
+- Sheffield United FC (Sheffield United)
 
-### 西甲 (La Liga, PD)
+### La Liga (PD)
 
-主要球队:
-- Real Madrid CF (皇家马德里)
-- FC Barcelona (巴塞罗那)
-- Atlético de Madrid (马德里竞技)
-- Girona FC (赫罗纳)
-- Athletic Club (毕尔巴鄂竞技)
-- Real Sociedad de Fútbol (皇家社会)
-- Real Betis Balompié (皇家贝蒂斯)
-- Villarreal CF (比利亚雷亚尔)
-- Valencia CF (瓦伦西亚)
-- Sevilla FC (塞维利亚)
-- RCD Mallorca (马洛卡)
-- Deportivo Alavés (阿拉维斯)
-- CA Osasuna (奥萨苏纳)
-- Getafe CF (赫塔菲)
-- Rayo Vallecano (巴列卡诺)
-- UD Las Palmas (拉斯帕尔马斯)
-- Celta de Vigo (塞尔塔)
-- Cádiz CF (加的斯)
-- Granada CF (格拉纳达)
-- UD Almería (阿尔梅里亚)
+Các đội chính:
+- Real Madrid CF (Real Madrid)
+- FC Barcelona (Barcelona)
+- Atlético de Madrid (Atlético Madrid)
+- Girona FC (Girona)
+- Athletic Club (Athletic Bilbao)
+- Real Sociedad de Fútbol (Real Sociedad)
+- Real Betis Balompié (Real Betis)
+- Villarreal CF (Villarreal)
+- Valencia CF (Valencia)
+- Sevilla FC (Sevilla)
+- RCD Mallorca (Mallorca)
+- Deportivo Alavés (Alavés)
+- CA Osasuna (Osasuna)
+- Getafe CF (Getafe)
+- Rayo Vallecano (Rayo Vallecano)
+- UD Las Palmas (Las Palmas)
+- Celta de Vigo (Celta Vigo)
+- Cádiz CF (Cádiz)
+- Granada CF (Granada)
+- UD Almería (Almería)
 
-### 意甲 (Serie A, SA)
+### Serie A (SA)
 
-主要球队:
-- FC Internazionale Milano (国际米兰)
-- AC Milan (AC米兰)
-- Juventus FC (尤文图斯)
-- SSC Napoli (那不勒斯)
-- AS Roma (罗马)
-- SS Lazio (拉齐奥)
-- Atalanta BC (亚特兰大)
-- Bologna FC 1909 (博洛尼亚)
-- ACF Fiorentina (佛罗伦萨)
-- Torino FC (都灵)
-- AC Monza (蒙扎)
-- Genoa CFC (热那亚)
-- US Lecce (莱切)
-- Udinese Calcio (乌迪内斯)
-- Cagliari Calcio (卡利亚里)
-- Hellas Verona FC (维罗纳)
-- Empoli FC (恩波利)
-- Frosinone Calcio (弗罗西诺内)
-- US Salernitana 1919 (萨勒尼塔纳)
-- US Sassuolo Calcio (萨索洛)
+Các đội chính:
+- FC Internazionale Milano (Inter Milan)
+- AC Milan (AC Milan)
+- Juventus FC (Juventus)
+- SSC Napoli (Napoli)
+- AS Roma (Roma)
+- SS Lazio (Lazio)
+- Atalanta BC (Atalanta)
+- Bologna FC 1909 (Bologna)
+- ACF Fiorentina (Fiorentina)
+- Torino FC (Torino)
+- AC Monza (Monza)
+- Genoa CFC (Genoa)
+- US Lecce (Lecce)
+- Udinese Calcio (Udinese)
+- Cagliari Calcio (Cagliari)
+- Hellas Verona FC (Verona)
+- Empoli FC (Empoli)
+- Frosinone Calcio (Frosinone)
+- US Salernitana 1919 (Salernitana)
+- US Sassuolo Calcio (Sassuolo)
 
-### 德甲 (Bundesliga, BL1)
+### Bundesliga (BL1)
 
-主要球队:
-- FC Bayern München (拜仁慕尼黑)
-- Borussia Dortmund (多特蒙德)
-- RB Leipzig (莱比锡)
-- Bayer 04 Leverkusen (勒沃库森)
-- VfB Stuttgart (斯图加特)
-- Eintracht Frankfurt (法兰克福)
-- VfL Wolfsburg (沃尔夫斯堡)
-- SC Freiburg (弗赖堡)
-- 1. FC Union Berlin (柏林联合)
-- 1. FSV Mainz 05 (美因茨)
-- TSG 1899 Hoffenheim (霍芬海姆)
-- Borussia Mönchengladbach (门兴格拉德巴赫)
-- FC Augsburg (奥格斯堡)
-- SV Werder Bremen (不莱梅)
-- 1. FC Heidenheim 1846 (海登海姆)
-- VfL Bochum 1848 (波鸿)
-- 1. FC Köln (科隆)
-- SV Darmstadt 98 (达姆施塔特)
+Các đội chính:
+- FC Bayern München (Bayern Munich)
+- Borussia Dortmund (Borussia Dortmund)
+- RB Leipzig (RB Leipzig)
+- Bayer 04 Leverkusen (Bayer Leverkusen)
+- VfB Stuttgart (Stuttgart)
+- Eintracht Frankfurt (Eintracht Frankfurt)
+- VfL Wolfsburg (Wolfsburg)
+- SC Freiburg (Freiburg)
+- 1. FC Union Berlin (Union Berlin)
+- 1. FSV Mainz 05 (Mainz 05)
+- TSG 1899 Hoffenheim (Hoffenheim)
+- Borussia Mönchengladbach (Mönchengladbach)
+- FC Augsburg (Augsburg)
+- SV Werder Bremen (Werder Bremen)
+- 1. FC Heidenheim 1846 (Heidenheim)
+- VfL Bochum 1848 (Bochum)
+- 1. FC Köln (Köln)
+- SV Darmstadt 98 (Darmstadt)
 
-### 法甲 (Ligue 1, FL1)
+### Ligue 1 (FL1)
 
-主要球队:
-- Paris Saint-Germain FC (巴黎圣日耳曼)
-- AS Monaco FC (摩纳哥)
-- Olympique de Marseille (马赛)
-- LOSC Lille (里尔)
-- OGC Nice (尼斯)
-- RC Lens (朗斯)
-- Olympique Lyonnais (里昂)
-- Stade Rennais FC (雷恩)
-- RC Strasbourg Alsace (斯特拉斯堡)
-- Stade de Reims (兰斯)
-- Montpellier HSC (蒙彼利埃)
-- Toulouse FC (图卢兹)
-- FC Nantes (南特)
-- FC Lorient (洛里昂)
-- Stade Brestois 29 (布雷斯特)
-- AJ Auxerre (欧塞尔)
-- Clermont Foot 63 (克莱蒙)
-- FC Metz (梅斯)
+Các đội chính:
+- Paris Saint-Germain FC (Paris Saint-Germain)
+- AS Monaco FC (Monaco)
+- Olympique de Marseille (Marseille)
+- LOSC Lille (Lille)
+- OGC Nice (Nice)
+- RC Lens (Lens)
+- Olympique Lyonnais (Lyon)
+- Stade Rennais FC (Rennes)
+- RC Strasbourg Alsace (Strasbourg)
+- Stade de Reims (Reims)
+- Montpellier HSC (Montpellier)
+- Toulouse FC (Toulouse)
+- FC Nantes (Nantes)
+- FC Lorient (Lorient)
+- Stade Brestois 29 (Brest)
+- AJ Auxerre (Auxerre)
+- Clermont Foot 63 (Clermont)
+- FC Metz (Metz)
 
-## 使用指南
+## Hướng dẫn sử dụng
 
-### 安装依赖
+### Cài đặt phụ thuộc
 
 ```bash
 pip install pandas numpy scipy scikit-learn requests argparse
 ```
 
-### 收集数据
+### Thu thập dữ liệu
 
 ```bash
 python collect_league_data.py
 ```
 
-此命令将收集西甲和意甲的数据。如需收集其他联赛，请修改脚本中的联赛代码。
+Lệnh này sẽ thu thập dữ liệu La Liga và Serie A. Nếu cần thu thập giải khác, hãy sửa mã giải trong script.
 
-### 预测比赛
+### Dự đoán trận đấu
 
-**命令行方式**:
+**Dùng dòng lệnh**:
 
 ```bash
 python match.py --home "Real Madrid CF" --away "FC Barcelona" --home_odds 2.10 --draw_odds 3.50 --away_odds 3.20
 ```
 
-**交互式方式**:
+**Dùng chế độ tương tác**:
 
 ```bash
 python match.py
 ```
 
-然后按照提示输入球队名称和赔率。
+Sau đó nhập tên đội và tỷ lệ theo hướng dẫn.
 
-**查看可用球队**:
+**Xem danh sách đội khả dụng**:
 
 ```bash
 python match.py --list_teams
 ```
 
-## 部署方案
+## Phương án triển khai
 
-### 服务器部署
+### Triển khai trên máy chủ
 
-1. 在服务器上安装Python 3.8+
+1. Cài Python 3.8+ trên máy chủ
 
-2. 克隆项目并设置:
+2. Clone dự án và thiết lập môi trường:
    ```bash
    git clone https://github.com/yourusername/football-prediction.git
    cd football-prediction
@@ -439,19 +431,19 @@ python match.py --list_teams
    pip install -r requirements.txt
    ```
 
-3. 设置定时任务更新数据:
+3. Cấu hình tác vụ định kỳ để cập nhật dữ liệu:
    ```bash
    crontab -e
-   # 添加以下行，每天凌晨2点更新数据
+   # Thêm dòng sau để cập nhật dữ liệu lúc 2:00 mỗi ngày
    0 2 * * * cd /path/to/football-prediction && /path/to/venv/bin/python collect_league_data.py
    ```
 
-4. 设置Web API (可选):
+4. Thiết lập Web API (tùy chọn):
    ```bash
    pip install flask gunicorn
    ```
 
-   创建 `app.py`:
+   Tạo `app.py`:
    ```python
    from flask import Flask, request, jsonify
    import subprocess
@@ -467,7 +459,7 @@ python match.py --list_teams
        home_odds = data.get('home_odds', 2.0)
        draw_odds = data.get('draw_odds', 3.0)
        away_odds = data.get('away_odds', 4.0)
-       
+
        cmd = f"python match.py --home '{home_team}' --away '{away_team}' --home_odds {home_odds} --draw_odds {draw_odds} --away_odds {away_odds} --json"
        result = subprocess.check_output(cmd, shell=True)
        return jsonify(json.loads(result))
@@ -476,16 +468,16 @@ python match.py --list_teams
        app.run(debug=True)
    ```
 
-5. 使用Gunicorn运行:
+5. Chạy bằng Gunicorn:
    ```bash
    gunicorn -w 4 -b 0.0.0.0:5000 app:app
    ```
 
-6. 设置Nginx反向代理(可选)
+6. Cấu hình Nginx reverse proxy (tùy chọn)
 
-### Docker部署
+### Triển khai bằng Docker
 
-1. 创建Dockerfile:
+1. Tạo `Dockerfile`:
    ```dockerfile
    FROM python:3.9-slim
 
@@ -496,29 +488,29 @@ python match.py --list_teams
 
    COPY . .
 
-   # 收集初始数据
+   # Thu thập dữ liệu ban đầu
    RUN python collect_league_data.py
 
-   # 如果使用API
+   # Nếu sử dụng API
    EXPOSE 5000
    CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
-   
-   # 如果只使用命令行
+
+   # Nếu chỉ dùng dòng lệnh
    # CMD ["python", "match.py"]
    ```
 
-2. 构建并运行Docker镜像:
+2. Build và chạy Docker image:
    ```bash
    docker build -t football-prediction .
    docker run -p 5000:5000 football-prediction
    ```
 
-## 注意事项
+## Lưu ý
 
-1. 预测结果仅供参考，不构成投注建议
-2. 实际比赛结果受多种因素影响，预测系统无法考虑所有变量
-3. 请确保您的API使用符合数据提供方的服务条款
-4. 在某些地区，博彩活动可能受到法律限制，请遵守当地法规
+1. Kết quả dự đoán chỉ để tham khảo, không cấu thành khuyến nghị đặt cược
+2. Kết quả thực tế chịu ảnh hưởng bởi nhiều yếu tố mà hệ thống không thể tính hết
+3. Hãy bảo đảm việc sử dụng API tuân thủ điều khoản dịch vụ của nhà cung cấp dữ liệu
+4. Hoạt động cá cược có thể bị giới hạn tại một số khu vực; hãy tuân thủ pháp luật địa phương
 
 ---
-希望这个项目能帮助您更好地理解足球比赛预测！如有问题或建议，请提交Issue或Pull Request。
+Hy vọng dự án giúp bạn hiểu rõ hơn về các kỹ thuật dự đoán bóng đá. Nếu có vấn đề hoặc đề xuất, hãy gửi Issue hoặc Pull Request.

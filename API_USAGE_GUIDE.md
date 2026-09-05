@@ -1,139 +1,130 @@
-# 🤖 AI预测功能使用指南
+# 🤖 Hướng dẫn sử dụng chức năng dự đoán AI
 
-## 🚀 功能说明
+## 🚀 Tổng quan
 
-现在系统已经支持在JavaScript中直接调用Gemini AI API进行足球比赛预测，无需Python后端支持！
+Hệ thống hỗ trợ gọi trực tiếp Gemini AI API từ JavaScript để phân tích và dự đoán trận bóng đá, không bắt buộc đi qua backend Python cho luồng này.
 
-## 🔑 API密钥配置
+## 🔑 Cấu hình khóa API
 
-### 步骤1：获取Gemini API密钥
-1. 访问 [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. 点击 "Create API Key" 创建新的API密钥
-3. 复制生成的API密钥
+### Bước 1: Lấy khóa Gemini API
+1. Truy cập [Google AI Studio](https://makersuite.google.com/app/apikey).
+2. Chọn **Create API Key** để tạo khóa mới.
+3. Sao chép khóa API vừa tạo.
 
-### 步骤2：配置API密钥
+### Bước 2: Cấu hình khóa API
 
-在浏览器控制台中输入以下任一命令：
+Có thể dùng một trong các cách sau trong Console của trình duyệt:
 
 ```javascript
-// 方法1：使用便捷函数（推荐）
+// Cách 1: Hàm tiện ích
 setGeminiApiKey("your_api_key_here")
 
-// 方法2：使用配置管理器
+// Cách 2: Trình quản lý cấu hình
 window.apiConfigManager.setApiKey("your_api_key_here")
 
-// 方法3：直接设置localStorage
+// Cách 3: Ghi trực tiếp vào localStorage
 localStorage.setItem("GEMINI_API_KEY", "your_api_key_here")
 ```
 
-**注意**：请将 `your_api_key_here` 替换为你的实际API密钥
+> Thay `your_api_key_here` bằng khóa API thực tế của bạn.
 
-## 🛠️ 配置管理命令
+## 🛠️ Các lệnh quản lý cấu hình
 
-### 查看配置状态
+### Kiểm tra trạng thái cấu hình
 ```javascript
 checkGeminiConfig()
 ```
 
-### 测试API连接
+### Kiểm tra kết nối API
 ```javascript
 testGeminiAPI()
 ```
 
-### 清除配置
+### Xóa cấu hình
 ```javascript
 clearGeminiApiKey()
 ```
 
-## 📍 使用方法
+## 📍 Cách sử dụng
 
-### 1. AI智能模式
-1. 切换到"AI智能模式"
-2. 填写比赛信息（主队、客队、联赛、赔率）
-3. 点击"添加AI分析比赛"
-4. 点击"AI智能预测"按钮
-5. 系统会直接调用Gemini API进行分析
+### 1. Chế độ AI thông minh
+1. Chuyển sang **AI thông minh**.
+2. Nhập đội chủ nhà, đội khách, giải đấu và tỷ lệ 1X2.
+3. Thêm trận vào danh sách phân tích.
+4. Nhấn **Dự đoán bằng AI**.
+5. Hệ thống gọi Gemini API và hiển thị phân tích.
 
-### 2. 彩票模式AI预测
-1. 切换到"彩票模式"
-2. 点击"刷新数据"获取体彩比赛
-3. 选择要分析的比赛（添加到购物车）
-4. 点击"AI智能预测"按钮
-5. 系统会对选中的比赛进行AI分析
+### 2. Chế độ xổ số thể thao
+1. Chuyển sang **Xổ số thể thao**.
+2. Nhấn **Làm mới dữ liệu** để lấy danh sách trận.
+3. Chọn các trận cần phân tích.
+4. Nhấn **Dự đoán bằng AI**.
+5. Hệ thống phân tích từng trận đã chọn.
 
-### 3. 经典模式（待开发）
-经典模式目前使用本地算法预测，未来可能集成AI功能。
+### 3. Chế độ cổ điển
+Chế độ cổ điển sử dụng thuật toán cục bộ và dữ liệu đặc trưng có sẵn, không phụ thuộc Gemini API.
 
-## 🔧 技术实现
+## 🔧 Cách triển khai kỹ thuật
 
-### API调用流程
-1. **前端JavaScript** → 直接调用Gemini API
-2. **提示词构建** → 专业的足球分析提示模板
-3. **AI分析** → Gemini模型返回详细分析
-4. **结果展示** → 格式化显示预测结果
+### Luồng gọi API
+1. **Frontend JavaScript** gọi trực tiếp Gemini API.
+2. Hệ thống xây dựng prompt phân tích bóng đá.
+3. Gemini trả về nội dung phân tích.
+4. Frontend định dạng và hiển thị kết quả.
 
-### 核心提示词模板
-系统使用专业的足球分析提示词，包含：
-- 比赛基本信息分析
-- 胜平负预测和推荐理由
-- 比分预测
-- 半场胜平负预测  
-- 进球数预测
-- 大小球和亚盘分析
-- 风险提示
+### Nội dung prompt chính
+Prompt yêu cầu phân tích:
+- Thông tin cơ bản của trận đấu.
+- Dự đoán 1X2: chủ nhà thắng, hòa, khách thắng.
+- Dự đoán tỷ số.
+- Dự đoán hiệp 1/cả trận.
+- Tổng bàn thắng.
+- Tài/Xỉu và kèo châu Á.
+- Cảnh báo rủi ro.
 
-### API端点
-- **Gemini API**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`
+### Endpoint Gemini
+`https://generativelanguage.googleapis.com/v1beta/models/<MODEL>:generateContent`
 
-## 🛡️ 安全性
+## 🛡️ Bảo mật
 
-- API密钥存储在浏览器的localStorage中
-- 仅在前端使用，不会发送到服务器
-- 可随时清除和重新配置
+- Không hardcode khóa API trong mã nguồn hoặc tài liệu.
+- Nếu dùng `localStorage`, khóa chỉ được lưu trên trình duyệt hiện tại nhưng vẫn có thể bị JavaScript chạy trên cùng origin đọc được.
+- Với môi trường production, nên ưu tiên cấu hình biến môi trường và kiến trúc bảo vệ khóa phù hợp.
+- Có thể xóa khóa khỏi trình duyệt bất cứ lúc nào.
 
-## 🚨 注意事项
+## 🚨 Lưu ý
 
-1. **网络要求**：需要能够访问Google AI服务
-2. **API配额**：请注意Gemini API的使用配额限制
-3. **数据安全**：API密钥仅存储在本地浏览器中
-4. **结果仅供参考**：AI预测结果仅供参考，请理性分析
+1. Cần kết nối được đến dịch vụ Google AI.
+2. Cần theo dõi hạn mức sử dụng Gemini API.
+3. Không chia sẻ khóa API công khai.
+4. Kết quả phân tích chỉ mang tính tham khảo.
 
-## 🔍 故障排除
+## 🔍 Xử lý sự cố
 
-### 常见错误
+### Không tìm thấy `GEMINI_API_KEY`
+Cấu hình khóa bằng một trong các cách ở phần trên rồi thử lại.
 
-1. **"请先配置GEMINI_API_KEY"**
-   - 解决：使用 `setGeminiApiKey("your_key")` 配置API密钥
+### Gemini API trả về 403
+Kiểm tra khóa API, quyền truy cập model và cấu hình dự án Google AI.
 
-2. **"Gemini API调用失败: 403"**
-   - 解决：检查API密钥是否正确，是否有调用权限
+### Lỗi mạng
+Kiểm tra kết nối Internet và khả năng truy cập dịch vụ Google AI.
 
-3. **"网络错误"**
-   - 解决：检查网络连接，确保能访问Google服务
-
-4. **"所有比赛预测都失败了"**
-   - 解决：检查API配置，尝试 `testGeminiAPI()` 测试连接
-
-### 调试命令
+### Tất cả trận đều dự đoán thất bại
+Chạy:
 
 ```javascript
-// 查看当前配置
-checkGeminiConfig()
-
-// 测试API连接
 testGeminiAPI()
+```
 
-// 查看控制台日志
+sau đó kiểm tra Console để xem chi tiết lỗi.
+
+## 📞 Gỡ lỗi nhanh
+
+```javascript
+checkGeminiConfig()
+testGeminiAPI()
 console.log(localStorage.getItem('GEMINI_API_KEY'))
 ```
 
-## 📞 支持
-
-如有问题，请：
-1. 打开浏览器开发者工具查看控制台日志
-2. 使用 `testGeminiAPI()` 测试API连接
-3. 检查网络连接和API密钥配置
-
----
-
-🎯 **现在就开始使用AI预测功能，体验智能足球分析的强大能力！**
+Khi cần hỗ trợ, hãy kiểm tra log Console, kết nối mạng và cấu hình Gemini API trước tiên.
