@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Đồng bộ dữ liệu trận đấu mới nhất vào backend đang chọn.
+"""Đồng bộ dữ liệu bóng đá WorldCup26 vào backend đang chọn.
 
 - DB_BACKEND=sqlite: lưu vào data/matchpredict.db trên PC.
-- DB_BACKEND=postgres: vẫn dùng PostgreSQL/Supabase sau này.
-- Chỉ dùng dữ liệu Sporttery trực tiếp, không tạo mock khi nguồn lỗi.
+- DB_BACKEND=postgres: dùng PostgreSQL/Supabase khi chuyển sang production.
+- WorldCup26 là nguồn dữ liệu bóng đá bên ngoài duy nhất.
+- Không tạo mock/fallback giả khi nguồn lỗi.
 """
 
 import argparse
@@ -17,8 +18,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.database import prediction_db
-from scripts.live_lottery_api import ChinaSportsLotterySpider
+from scripts.worldcup26_api import WorldCup26FootballAPI
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,42 +32,35 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Đồng bộ trận đấu trực tiếp vào cơ sở dữ liệu hiện tại")
+    parser = argparse.ArgumentParser(description="Đồng bộ trận đấu WorldCup26 vào cơ sở dữ liệu hiện tại")
     parser.add_argument("--days", type=int, default=7, help="Số ngày cần đồng bộ, mặc định 7")
     args = parser.parse_args()
 
-    days = min(max(args.days, 1), 7)
+    days = min(max(args.days, 1), 14)
     backend = os.getenv("DB_BACKEND", "postgres").strip().lower()
     logger.info("Backend cơ sở dữ liệu: %s", backend)
+    logger.info("Nguồn dữ liệu chính: https://worldcup26.ir")
 
-    spider = ChinaSportsLotterySpider()
-    logger.info("Đang lấy dữ liệu trực tiếp trong %s ngày...", days)
+    api = WorldCup26FootballAPI()
+    logger.info("Đang lấy dữ liệu WorldCup26 trong %s ngày...", days)
 
     try:
-        # get_formatted_matches đã tự lưu qua prediction_db tương ứng backend hiện tại.
-        matches = spider.get_formatted_matches(days_ahead=days)
+        # Provider tự lưu vào prediction_db tương ứng backend đang chọn.
+        matches = api.get_formatted_matches(days_ahead=days)
     except Exception as exc:
-        logger.error("Đồng bộ dữ liệu trực tiếp thất bại: %s", exc)
-        print(f"❌ Không lấy được dữ liệu trực tiếp: {exc}")
+        logger.error("Đồng bộ WorldCup26 thất bại: %s", exc)
+        print(f"❌ Không lấy được dữ liệu WorldCup26: {exc}")
         return 1
 
     if not matches:
-        logger.warning("Nguồn trực tiếp không trả về trận nào")
-        print("❌ Nguồn trực tiếp không trả về trận nào")
+        print("❌ WorldCup26 không trả về trận nào trong khoảng ngày đã chọn")
         return 1
 
-    # Gọi thêm save_daily_matches là idempotent (update theo match_id), bảo đảm cache local được ghi.
-    stats = prediction_db.save_daily_matches(matches)
-    logger.info(
-        "Hoàn tất - thêm mới: %s, cập nhật: %s, bỏ qua: %s",
-        stats.get("inserted", 0),
-        stats.get("updated", 0),
-        stats.get("skipped", 0),
-    )
-    print(
-        f"✅ Đồng bộ xong {len(matches)} trận trực tiếp: +{stats.get('inserted', 0)} mới, "
-        f"{stats.get('updated', 0)} cập nhật, {stats.get('skipped', 0)} bỏ qua"
-    )
+    leagues = len({match.get("league_slug") or match.get("league_name") for match in matches})
+    with_odds = sum(1 for match in matches if (match.get("odds") or {}).get("hhad"))
+    print(f"✅ Đồng bộ xong {len(matches)} trận từ WorldCup26 / {leagues} giải")
+    print(f"   Có tỷ lệ 1X2 từ nguồn: {with_odds}/{len(matches)} trận")
+    print("   Dữ liệu đã được lưu vào backend hiện tại.")
     return 0
 
 
