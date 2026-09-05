@@ -1,214 +1,138 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Script đồng bộ dữ liệu trận đấu hằng ngày.
-Tự động lấy dữ liệu trận mới nhất từ nguồn xổ số thể thao và lưu vào cơ sở dữ liệu.
+"""Đồng bộ dữ liệu bóng đá hằng ngày từ WorldCup26.
+
+WorldCup26 là nguồn dữ liệu bóng đá bên ngoài duy nhất. Script dùng cùng
+prediction_db với ứng dụng nên chạy được với SQLite local lẫn PostgreSQL/Supabase.
 """
 
-import sys
-import os
-import logging
-from datetime import datetime, timedelta
-from typing import Dict, Any, List
 import argparse
+import logging
+import os
+import sys
+from pathlib import Path
+from typing import Dict
 
-# Thêm thư mục gốc của dự án vào đường dẫn import
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from scripts.database import prediction_db
-from scripts.china_lottery_spider import ChinaLotterySpider
+from scripts.worldcup26_api import WorldCup26FootballAPI
 
-# Cấu hình log
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('/Users/sco/Desktop/MatchPredict/sync_matches.log', encoding='utf-8'),
-        logging.StreamHandler()
-    ]
+        logging.FileHandler(PROJECT_ROOT / "sync_matches.log", encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
 )
-
 logger = logging.getLogger(__name__)
 
 
 class MatchSyncManager:
-    """Quản lý đồng bộ dữ liệu trận đấu."""
-
     def __init__(self):
-        self.spider = ChinaLotterySpider()
+        self.api = WorldCup26FootballAPI()
         self.db = prediction_db
 
     def sync_matches(self, days_ahead: int = 7, force_update: bool = False) -> Dict[str, int]:
-        """
-        Đồng bộ dữ liệu trận đấu.
-
-        Args:
-            days_ahead: số ngày phía trước cần đồng bộ
-            force_update: có ép cập nhật hay không
-
-        Returns:
-            thống kê kết quả đồng bộ
-        """
-        logger.info(f"🔄 Bắt đầu đồng bộ dữ liệu trong {days_ahead} ngày tới...")
-
+        days = min(max(int(days_ahead or 1), 1), 14)
+        logger.info("Đồng bộ WorldCup26 trong %s ngày tới", days)
         try:
-            logger.info("📡 Đang lấy dữ liệu từ nguồn xổ số thể thao...")
-            matches_data = self.spider.get_formatted_matches(days_ahead=days_ahead)
-
-            if not matches_data:
-                logger.warning("⚠️ Không nhận được dữ liệu trận đấu")
-                return {'inserted': 0, 'updated': 0, 'skipped': 0}
-
-            logger.info(f"✅ Đã lấy {len(matches_data)} trận")
-
-            logger.info("💾 Đang lưu vào cơ sở dữ liệu...")
-            stats = self.db.save_daily_matches(matches_data)
-
-            logger.info(
-                f"📊 Đồng bộ hoàn tất - Thêm mới: {stats['inserted']}, "
-                f"Cập nhật: {stats['updated']}, Bỏ qua: {stats['skipped']}"
-            )
-
-            return stats
-
-        except Exception as e:
-            logger.error(f"❌ Đồng bộ thất bại: {e}")
-            return {'inserted': 0, 'updated': 0, 'skipped': 0, 'error': str(e)}
+            # Provider tự lưu dữ liệu vào backend hiện tại.
+            matches = self.api.get_formatted_matches(days_ahead=days)
+            return {
+                "matches": len(matches),
+                "leagues": len({m.get("league_slug") or m.get("league_name") for m in matches}),
+                "with_odds": sum(1 for m in matches if (m.get("odds") or {}).get("hhad")),
+            }
+        except Exception as exc:
+            logger.error("Đồng bộ WorldCup26 thất bại: %s", exc)
+            return {"matches": 0, "leagues": 0, "with_odds": 0, "error": str(exc)}
 
     def cleanup_old_data(self, days_to_keep: int = 30) -> int:
-        """
-        Dọn dữ liệu cũ.
-
-        Args:
-            days_to_keep: số ngày dữ liệu cần giữ lại
-
-        Returns:
-            số bản ghi đã xóa
-        """
-        logger.info(f"🧹 Bắt đầu dọn dữ liệu cũ hơn {days_to_keep} ngày...")
-
         try:
-            deleted_count = self.db.cleanup_old_matches(days_to_keep)
-            logger.info(f"✅ Đã dọn xong, xóa {deleted_count} bản ghi")
-            return deleted_count
-
-        except Exception as e:
-            logger.error(f"❌ Dọn dữ liệu thất bại: {e}")
+            return self.db.cleanup_old_matches(days_to_keep)
+        except Exception as exc:
+            logger.error("Dọn dữ liệu cũ thất bại: %s", exc)
             return 0
 
     def get_database_stats(self) -> Dict[str, int]:
-        """Lấy thống kê cơ sở dữ liệu."""
         try:
             matches = self.db.get_daily_matches(days_ahead=30)
-
-            date_stats = {}
-            league_stats = {}
-
-            for match in matches:
-                match_date = match.get('match_date', '')
-                league = match.get('league_name', 'Chưa xác định')
-
-                date_stats[match_date] = date_stats.get(match_date, 0) + 1
-                league_stats[league] = league_stats.get(league, 0) + 1
-
             return {
-                'total_matches': len(matches),
-                'dates_count': len(date_stats),
-                'leagues_count': len(league_stats),
-                'date_stats': date_stats,
-                'league_stats': league_stats
+                "total_matches": len(matches),
+                "dates_count": len({m.get("match_date") for m in matches if m.get("match_date")}),
+                "leagues_count": len({m.get("league_name") for m in matches if m.get("league_name")}),
             }
-
-        except Exception as e:
-            logger.error(f"Không thể lấy thống kê: {e}")
+        except Exception as exc:
+            logger.error("Không thể lấy thống kê database: %s", exc)
             return {}
 
     def test_connection(self) -> bool:
-        """Kiểm tra kết nối cơ sở dữ liệu."""
         try:
             conn = self.db.connect_to_database()
             conn.close()
-            logger.info("✅ Kết nối cơ sở dữ liệu hoạt động bình thường")
             return True
-        except Exception as e:
-            logger.error(f"❌ Kiểm tra kết nối cơ sở dữ liệu thất bại: {e}")
+        except Exception as exc:
+            logger.error("Kết nối database thất bại: %s", exc)
+            return False
+
+    def test_source(self) -> bool:
+        try:
+            meta = self.api.get_meta()
+            service = meta.get("service") or {}
+            logger.info("WorldCup26 API OK: %s", service.get("name") or "soccer API")
+            return True
+        except Exception as exc:
+            logger.error("WorldCup26 API không khả dụng: %s", exc)
             return False
 
 
 def main():
-    """Điểm vào chính của script."""
-    parser = argparse.ArgumentParser(description='Đồng bộ dữ liệu trận đấu hằng ngày')
-    parser.add_argument('--days', type=int, default=7, help='Số ngày phía trước cần đồng bộ (mặc định: 7)')
-    parser.add_argument('--cleanup', type=int, help='Xóa dữ liệu cũ hơn số ngày đã chỉ định')
-    parser.add_argument('--stats', action='store_true', help='Hiển thị thống kê cơ sở dữ liệu')
-    parser.add_argument('--test', action='store_true', help='Kiểm tra kết nối cơ sở dữ liệu')
-    parser.add_argument('--force', action='store_true', help='Ép cập nhật toàn bộ dữ liệu')
-
+    parser = argparse.ArgumentParser(description="Đồng bộ dữ liệu bóng đá WorldCup26")
+    parser.add_argument("--days", type=int, default=7, help="Số ngày phía trước, tối đa 14")
+    parser.add_argument("--cleanup", type=int, help="Xóa cache cũ hơn N ngày")
+    parser.add_argument("--stats", action="store_true", help="Hiển thị thống kê database")
+    parser.add_argument("--test", action="store_true", help="Kiểm tra database và WorldCup26")
+    parser.add_argument("--force", action="store_true", help="Giữ tương thích CLI cũ; provider tự quản lý cache")
     args = parser.parse_args()
-    sync_manager = MatchSyncManager()
 
+    manager = MatchSyncManager()
     print("=" * 60)
-    print("🏈 Đồng bộ dữ liệu trận đấu hằng ngày")
+    print("⚽ Đồng bộ dữ liệu bóng đá - WorldCup26")
+    print(f"Backend: {os.getenv('DB_BACKEND', 'postgres')}")
     print("=" * 60)
 
     if args.test:
-        print("🔍 Đang kiểm tra kết nối cơ sở dữ liệu...")
-        if sync_manager.test_connection():
-            print("✅ Kết nối cơ sở dữ liệu bình thường")
-        else:
-            print("❌ Không thể kết nối cơ sở dữ liệu")
-            return 1
+        db_ok = manager.test_connection()
+        api_ok = manager.test_source()
+        print(f"Database: {'OK' if db_ok else 'LỖI'}")
+        print(f"WorldCup26 API: {'OK' if api_ok else 'LỖI'}")
+        return 0 if db_ok and api_ok else 1
 
     if args.stats:
-        print("📊 Đang lấy thống kê cơ sở dữ liệu...")
-        stats = sync_manager.get_database_stats()
-        if stats:
-            print(f"📈 Tổng số trận: {stats.get('total_matches', 0)}")
-            print(f"📅 Số ngày có dữ liệu: {stats.get('dates_count', 0)}")
-            print(f"🏆 Số giải đấu: {stats.get('leagues_count', 0)}")
-
-            print("\n📅 Phân bố theo ngày:")
-            for date, count in sorted(stats.get('date_stats', {}).items()):
-                print(f"  {date}: {count} trận")
-
-            print("\n🏆 Phân bố theo giải:")
-            for league, count in sorted(stats.get('league_stats', {}).items(), key=lambda x: x[1], reverse=True):
-                print(f"  {league}: {count} trận")
-        else:
-            print("❌ Không thể lấy thống kê")
+        stats = manager.get_database_stats()
+        print(f"Tổng số trận: {stats.get('total_matches', 0)}")
+        print(f"Số ngày: {stats.get('dates_count', 0)}")
+        print(f"Số giải: {stats.get('leagues_count', 0)}")
+        return 0
 
     if args.cleanup:
-        print(f"🧹 Đang xóa dữ liệu cũ hơn {args.cleanup} ngày...")
-        deleted = sync_manager.cleanup_old_data(args.cleanup)
-        print(f"✅ Đã xóa {deleted} bản ghi")
+        deleted = manager.cleanup_old_data(args.cleanup)
+        print(f"Đã xóa {deleted} bản ghi cũ")
+        return 0
 
-    if not args.test and not args.stats and not args.cleanup:
-        print(f"🔄 Bắt đầu đồng bộ {args.days} ngày tới...")
-        stats = sync_manager.sync_matches(days_ahead=args.days, force_update=args.force)
+    result = manager.sync_matches(args.days, args.force)
+    if result.get("error"):
+        print(f"❌ Đồng bộ thất bại: {result['error']}")
+        return 1
 
-        if 'error' in stats:
-            print(f"❌ Đồng bộ thất bại: {stats['error']}")
-            return 1
-        else:
-            print("✅ Đồng bộ hoàn tất!")
-            print(f"  📥 Thêm mới: {stats['inserted']} trận")
-            print(f"  🔄 Cập nhật: {stats['updated']} trận")
-            print(f"  ⏭️ Bỏ qua: {stats['skipped']} trận")
-
-    print("=" * 60)
-    print("🎉 Script đã chạy xong")
-    print("=" * 60)
-
+    print(f"✅ Đã đồng bộ {result['matches']} trận / {result['leagues']} giải")
+    print(f"   Trận có tỷ lệ 1X2 từ nguồn: {result['with_odds']}/{result['matches']}")
     return 0
 
 
 if __name__ == "__main__":
-    try:
-        exit_code = main()
-        sys.exit(exit_code)
-    except KeyboardInterrupt:
-        print("\n⚠️ Người dùng đã dừng chương trình")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Script chạy thất bại: {e}")
-        sys.exit(1)
+    raise SystemExit(main())
