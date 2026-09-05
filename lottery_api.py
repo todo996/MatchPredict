@@ -1,10 +1,11 @@
-"""Lớp tương thích cho mô-đun Xổ số Thể thao.
+"""Lớp tương thích cho mô-đun dữ liệu trận đấu.
 
-Giữ đường dẫn import cũ của ứng dụng. Bản chạy hiện tại ưu tiên nguồn dữ liệu
-Sporttery trực tiếp và không sinh dữ liệu mô phỏng khi upstream lỗi.
-Crawler cũ trong scripts/lottery_api.py vẫn được giữ nguyên để tham khảo/tương thích.
+Ứng dụng cũ import ``ChinaSportsLotterySpider`` từ file này. Tên import được giữ
+để không phá vỡ app.py, nhưng nguồn dữ liệu duy nhất hiện tại là WorldCup26.
 """
 
-from scripts.live_lottery_api import ChinaSportsLotterySpider
+from scripts.worldcup26_api import WorldCup26FootballAPI
 
-__all__ = ["ChinaSportsLotterySpider"]
+ChinaSportsLotterySpider = WorldCup26FootballAPI
+
+__all__ = ["ChinaSportsLotterySpider", "WorldCup26FootballAPI"]
