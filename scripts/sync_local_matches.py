@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Đồng bộ dữ liệu trận đấu vào backend đang chọn, tối ưu cho chạy local trên PC.
+"""Đồng bộ dữ liệu trận đấu mới nhất vào backend đang chọn.
 
-Khi .env có DB_BACKEND=sqlite, dữ liệu sẽ được lưu vào data/matchpredict.db.
-Khi đổi DB_BACKEND=postgres, script vẫn dùng backend PostgreSQL/Supabase cũ.
+- DB_BACKEND=sqlite: lưu vào data/matchpredict.db trên PC.
+- DB_BACKEND=postgres: vẫn dùng PostgreSQL/Supabase sau này.
+- Chỉ dùng dữ liệu Sporttery trực tiếp, không tạo mock khi nguồn lỗi.
 """
 
 import argparse
@@ -17,7 +18,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from scripts.database import prediction_db
-from scripts.china_lottery_spider import ChinaLotterySpider
+from scripts.live_lottery_api import ChinaSportsLotterySpider
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Đồng bộ trận đấu vào cơ sở dữ liệu hiện tại")
+    parser = argparse.ArgumentParser(description="Đồng bộ trận đấu trực tiếp vào cơ sở dữ liệu hiện tại")
     parser.add_argument("--days", type=int, default=7, help="Số ngày cần đồng bộ, mặc định 7")
     args = parser.parse_args()
 
@@ -39,15 +40,23 @@ def main():
     backend = os.getenv("DB_BACKEND", "postgres").strip().lower()
     logger.info("Backend cơ sở dữ liệu: %s", backend)
 
-    spider = ChinaLotterySpider()
-    logger.info("Đang lấy dữ liệu trận đấu trong %s ngày...", days)
-    matches = spider.get_formatted_matches(days_ahead=days)
+    spider = ChinaSportsLotterySpider()
+    logger.info("Đang lấy dữ liệu trực tiếp trong %s ngày...", days)
 
-    if not matches:
-        logger.warning("Không nhận được dữ liệu trận đấu")
+    try:
+        # get_formatted_matches đã tự lưu qua prediction_db tương ứng backend hiện tại.
+        matches = spider.get_formatted_matches(days_ahead=days)
+    except Exception as exc:
+        logger.error("Đồng bộ dữ liệu trực tiếp thất bại: %s", exc)
+        print(f"❌ Không lấy được dữ liệu trực tiếp: {exc}")
         return 1
 
-    logger.info("Đã lấy %s trận, bắt đầu lưu...", len(matches))
+    if not matches:
+        logger.warning("Nguồn trực tiếp không trả về trận nào")
+        print("❌ Nguồn trực tiếp không trả về trận nào")
+        return 1
+
+    # Gọi thêm save_daily_matches là idempotent (update theo match_id), bảo đảm cache local được ghi.
     stats = prediction_db.save_daily_matches(matches)
     logger.info(
         "Hoàn tất - thêm mới: %s, cập nhật: %s, bỏ qua: %s",
@@ -56,7 +65,7 @@ def main():
         stats.get("skipped", 0),
     )
     print(
-        f"✅ Đồng bộ xong: +{stats.get('inserted', 0)} mới, "
+        f"✅ Đồng bộ xong {len(matches)} trận trực tiếp: +{stats.get('inserted', 0)} mới, "
         f"{stats.get('updated', 0)} cập nhật, {stats.get('skipped', 0)} bỏ qua"
     )
     return 0
