@@ -1,1 +1,10 @@
 config.py
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.log
+data/*.db
+data/*.db-wal
+data/*.db-shm
